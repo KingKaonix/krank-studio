@@ -1,0 +1,22 @@
+# Build outputs
+app/build/
+.cxx/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# Local config
+local.properties
+
+# Gradle
+gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
