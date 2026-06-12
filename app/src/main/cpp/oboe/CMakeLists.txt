@@ -14,13 +14,11 @@ add_library(oboe STATIC ${oboe_SRC})
 
 target_include_directories(oboe PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(oboe
     log
 )
 
-# Suppress noisy warnings
-target_compile_options(oboe PRIVATE
-    -w
-)
+target_compile_options(oboe PRIVATE -w)
