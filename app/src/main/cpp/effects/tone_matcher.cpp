@@ -4,18 +4,15 @@
 #include <cstring>
 #include <vector>
 
-#define _USE_MATH_DEFINES
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+static constexpr float PI = 3.14159265358979323846f;
 
 static float hammingWindow(int n, int N) {
-    return 0.54f - 0.46f * cosf(2.0f * (float)M_PI * n / N);
+    return 0.54f - 0.46f * cosf(2.0f * PI * n / N);
 }
 
 ToneMatcher::ToneMatcher()
     : hasSample_(false), hasProfile_(false), sampleData_(), real_(FFT_SIZE), imag_(FFT_SIZE),
-      window_(FFT_SIZE), spectrum_(NUM_BINS), features_({0}), profile_() {
+      window_(FFT_SIZE), spectrum_(NUM_BINS), features_(), profile_() {
     for (int i = 0; i < FFT_SIZE; ++i) window_[i] = hammingWindow(i, FFT_SIZE);
     for (int i = 0; i < NUM_BINS; ++i) spectrum_[i] = 0.0f;
     clearSample();
@@ -27,8 +24,7 @@ void ToneMatcher::loadSample(const float* data, int32_t n) {
     clearSample();
     hasSample_ = true;
     if (!data || n <= 0) return;
-
-    int samplesToStore = std::min((int)n, FFT_SIZE);
+    int samplesToStore = (n < FFT_SIZE) ? n : FFT_SIZE;
     sampleData_.resize(samplesToStore);
     for (int i = 0; i < samplesToStore; ++i) sampleData_[i] = data[i];
     for (int i = 0; i < samplesToStore; ++i) real_[i] = sampleData_[i] * window_[i];
@@ -38,17 +34,16 @@ void ToneMatcher::loadSample(const float* data, int32_t n) {
 
 void ToneMatcher::clearSample() {
     hasSample_ = false; hasProfile_ = false; sampleData_.clear();
-    memset(real_, 0, FFT_SIZE * sizeof(float));
-    memset(imag_, 0, FFT_SIZE * sizeof(float));
-    memset(spectrum_, 0, NUM_BINS * sizeof(float));
-    memset(&features_, 0, sizeof(features_));
+    for (int i = 0; i < FFT_SIZE; ++i) { real_[i] = 0.0f; imag_[i] = 0.0f; }
+    for (int i = 0; i < NUM_BINS; ++i) spectrum_[i] = 0.0f;
+    features_ = {};
 }
 
 static void simpleDFT(float* real, float* imag, int n) {
     for (int k = 0; k < n / 2; ++k) {
         float sumReal = 0, sumImag = 0;
         for (int t = 0; t < n; ++t) {
-            float angle = -2.0f * (float)M_PI * t * k / n;
+            float angle = -2.0f * PI * t * k / n;
             sumReal += real[t] * cosf(angle);
             sumImag += real[t] * sinf(angle);
         }
@@ -82,7 +77,8 @@ void ToneMatcher::extractSpectralFeatures() {
     }
     float bandSize = NUM_BINS / 7.0f;
     for (int b = 0; b < 7; ++b) {
-        int start = (int)(b * bandSize), end = std::min((int)((b+1) * bandSize), NUM_BINS);
+        int start = (int)(b * bandSize), end = (int)((b+1) * bandSize);
+        if (end > NUM_BINS) end = NUM_BINS;
         float bandEnergy = 0;
         for (int i = start; i < end; ++i) bandEnergy += spectrum_[i];
         features_.bandEnergy[b] = totalEnergy > 0 ? bandEnergy / totalEnergy : 0;
@@ -99,16 +95,17 @@ void ToneMatcher::extractHarmonicFeatures() {
 
 void ToneMatcher::extractDynamicFeatures() {
     float rms = 0, peak = 0;
-    for (int i = 0; i < (int)sampleData_.size(); ++i) { rms += sampleData_[i]*sampleData_[i]; peak = std::max(peak, fabs(sampleData_[i])); }
-    rms = sqrtf(rms / std::max(1, (int)sampleData_.size()));
-    features_.rmsLevel = std::min(rms * 2.0f, 1.0f);
+    int n = (int)sampleData_.size();
+    for (int i = 0; i < n; ++i) { float s = sampleData_[i]; rms += s*s; if (s > peak) peak = s; }
+    rms = sqrtf(rms / (n > 0 ? n : 1));
+    features_.rmsLevel = (rms * 2.0f < 1.0f) ? rms * 2.0f : 1.0f;
     features_.crestFactor = (rms > 0) ? peak / rms : 1.0f;
     float envSum = 0;
-    for (int i = 0; i < (int)sampleData_.size(); ++i) envSum += fabs(sampleData_[i]);
-    float avgEnv = envSum / std::max(1, (int)sampleData_.size());
+    for (int i = 0; i < n; ++i) envSum += (sampleData_[i] > 0) ? sampleData_[i] : -sampleData_[i];
+    float avgEnv = envSum / (n > 0 ? n : 1);
     float varSum = 0;
-    for (int i = 0; i < (int)sampleData_.size(); ++i) { float d = fabs(sampleData_[i]) - avgEnv; varSum += d*d; }
-    features_.envelopeVariation = (avgEnv > 0) ? sqrtf(varSum / std::max(1, (int)sampleData_.size())) / avgEnv : 0;
+    for (int i = 0; i < n; ++i) { float d = ((sampleData_[i] > 0) ? sampleData_[i] : -sampleData_[i]) - avgEnv; varSum += d*d; }
+    features_.envelopeVariation = (avgEnv > 0) ? sqrtf(varSum / (n > 0 ? n : 1)) / avgEnv : 0;
 }
 
 void ToneMatcher::buildProfile() {
