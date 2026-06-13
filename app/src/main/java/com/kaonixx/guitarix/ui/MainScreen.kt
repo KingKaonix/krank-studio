@@ -1,6 +1,8 @@
 package com.kaonixx.guitarix.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -59,7 +61,8 @@ fun MainScreen(vm: MainViewModel) {
 
     Scaffold(
         containerColor = Bg,
-        topBar = { TopBar(vm) }
+        topBar = { TopBar(vm) },
+        bottomBar = { NavBar(vm) }
     ) { padding ->
         NavHost(
             navController = navController,
@@ -78,6 +81,42 @@ fun MainScreen(vm: MainViewModel) {
             0 -> navController.navigate("effects") { popUpTo("effects") }
             1 -> navController.navigate("tuner") { popUpTo("tuner") }
             2 -> navController.navigate("tone_matcher") { popUpTo("tone_matcher") }
+        }
+    }
+}
+
+// ── Bottom Navigation Bar ──
+@Composable
+private fun NavBar(vm: MainViewModel) {
+    val tabNames = listOf("Effects", "Tuner", "Tone Match")
+    NavigationBar(
+        containerColor = S0,
+        contentColor = TPrimary
+    ) {
+        tabNames.forEachIndexed { index, label ->
+            NavigationBarItem(
+                selected = vm.currentTab == index,
+                onClick = { vm.setTab(index) },
+                icon = {
+                    Icon(
+                        imageVector = when (index) {
+                            0 -> androidx.compose.material.icons.filled.Tune
+                            1 -> androidx.compose.material.icons.filled.MusicNote
+                            2 -> androidx.compose.material.icons.filled.Analytics
+                            else -> androidx.compose.material.icons.filled.Circle
+                        },
+                        contentDescription = label
+                    )
+                },
+                label = { Text(label, fontSize = 11.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Cyan,
+                    selectedTextColor = Cyan,
+                    unselectedIconColor = TMuted,
+                    unselectedTextColor = TMuted,
+                    indicatorColor = S1
+                )
+            )
         }
     }
 }
