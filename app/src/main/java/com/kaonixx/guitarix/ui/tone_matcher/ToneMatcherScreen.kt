@@ -82,11 +82,10 @@ private fun SampleLoaderSection(vm: MainViewModel) {
                 modifier = Modifier.padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = androidx.compose.material.icons.filled.MusicNote,
-                    contentDescription = "Upload",
-                    modifier = Modifier.size(48.dp),
-                    tint = Color(0xFF22D3EE)
+                Text(
+                    "♫",
+                    fontSize = 36.sp,
+                    color = Color(0xFF22D3EE)
                 )
                 
                 Spacer(Modifier.height(16.dp))
@@ -182,8 +181,8 @@ private fun ToneMatcherResults(vm: MainViewModel) {
                 for (col in 0 until columns) {
                     val index = row * columns + col
                     if (index < recommendations.size) {
-                        val (effectName, value, paramName) = recommendations[index]
-                        RecommendationCard(effectName, paramName, value, color = getEffectColor(effectName))
+                        val ((effectName, value), paramName) = recommendations[index]
+                        RecommendationCard(effectName, paramName, value, color = getEffectColor(effectName), modifier = Modifier.weight(1f))
                     } else {
                         Spacer(Modifier.weight(1f))
                     }
@@ -196,9 +195,9 @@ private fun ToneMatcherResults(vm: MainViewModel) {
 
 // ── Recommendation Card ──
 @Composable
-private fun RecommendationCard(effectName: String, paramName: String, value: Float, color: Color) {
+private fun RecommendationCard(effectName: String, paramName: String, value: Float, color: Color, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.weight(1f),
+        modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF1A1A22)
         ),

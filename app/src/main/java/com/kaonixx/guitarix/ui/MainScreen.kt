@@ -83,6 +83,7 @@ fun MainScreen(vm: MainViewModel) {
 }
 
 // ── Top Bar with title and power switch ──
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopBar(vm: MainViewModel) {
     val ledCol by animateColorAsState(

@@ -4,8 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.filled.ArrowDropDown
+
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,7 +49,7 @@ private fun TuningPresetSelector(vm: MainViewModel) {
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFF1F1F5))) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(tuningNames[vm.tunerCurrentTuning], fontSize = 14.sp)
-                    Icon(ArrowDropDown, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Text("▾", fontSize = 20.sp, color = Color(0xFFF1F1F5))
                 }
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.fillMaxWidth()) {
