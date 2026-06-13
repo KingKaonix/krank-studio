@@ -16,6 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kaonixx.guitarix.MainViewModel
 
+// Data class for tone recommendations
+data class ToneRecommendation(val effectName: String, val value: Float, val paramName: String)
+
 // ── Tone Matcher Screen ──
 @Composable
 fun ToneMatcherScreen(vm: MainViewModel) {
@@ -150,23 +153,23 @@ private fun ToneMatcherResults(vm: MainViewModel) {
         
         // Create a grid of recommended effect parameters
         val recommendations = listOf(
-            "Distortion" to vm.toneMatcherRecommendedDistortionDrive to "Drive",
-            "Distortion" to vm.toneMatcherRecommendedDistortionTone to "Tone",
-            "Distortion" to vm.toneMatcherRecommendedDistortionLevel to "Level",
-            "Amp Sim" to vm.toneMatcherRecommendedAmpSimGain to "Gain",
-            "Amp Sim" to vm.toneMatcherRecommendedAmpSimTone to "Tone",
-            "Amp Sim" to vm.toneMatcherRecommendedAmpSimMaster to "Master",
-            "EQ" to vm.toneMatcherRecommendedEqBass to "Bass",
-            "EQ" to vm.toneMatcherRecommendedEqMid to "Mid",
-            "EQ" to vm.toneMatcherRecommendedEqTreble to "Treble",
-            "Chorus" to vm.toneMatcherRecommendedChorusRate to "Rate",
-            "Chorus" to vm.toneMatcherRecommendedChorusDepth to "Depth",
-            "Chorus" to vm.toneMatcherRecommendedChorusMix to "Mix",
-            "Delay" to vm.toneMatcherRecommendedDelayMix to "Mix",
-            "Delay" to vm.toneMatcherRecommendedDelayFeedback to "Feedback",
-            "Delay" to vm.toneMatcherRecommendedDelayTime to "Time",
-            "Reverb" to vm.toneMatcherRecommendedReverbSize to "Size",
-            "Reverb" to vm.toneMatcherRecommendedReverbMix to "Mix"
+            ToneRecommendation("Distortion", vm.toneMatcherRecommendedDistortionDrive, "Drive"),
+            ToneRecommendation("Distortion", vm.toneMatcherRecommendedDistortionTone, "Tone"),
+            ToneRecommendation("Distortion", vm.toneMatcherRecommendedDistortionLevel, "Level"),
+            ToneRecommendation("Amp Sim", vm.toneMatcherRecommendedAmpSimGain, "Gain"),
+            ToneRecommendation("Amp Sim", vm.toneMatcherRecommendedAmpSimTone, "Tone"),
+            ToneRecommendation("Amp Sim", vm.toneMatcherRecommendedAmpSimMaster, "Master"),
+            ToneRecommendation("EQ", vm.toneMatcherRecommendedEqBass, "Bass"),
+            ToneRecommendation("EQ", vm.toneMatcherRecommendedEqMid, "Mid"),
+            ToneRecommendation("EQ", vm.toneMatcherRecommendedEqTreble, "Treble"),
+            ToneRecommendation("Chorus", vm.toneMatcherRecommendedChorusRate, "Rate"),
+            ToneRecommendation("Chorus", vm.toneMatcherRecommendedChorusDepth, "Depth"),
+            ToneRecommendation("Chorus", vm.toneMatcherRecommendedChorusMix, "Mix"),
+            ToneRecommendation("Delay", vm.toneMatcherRecommendedDelayMix, "Mix"),
+            ToneRecommendation("Delay", vm.toneMatcherRecommendedDelayFeedback, "Feedback"),
+            ToneRecommendation("Delay", vm.toneMatcherRecommendedDelayTime, "Time"),
+            ToneRecommendation("Reverb", vm.toneMatcherRecommendedReverbSize, "Size"),
+            ToneRecommendation("Reverb", vm.toneMatcherRecommendedReverbMix, "Mix")
         )
         
         // Display in a grid
@@ -181,7 +184,7 @@ private fun ToneMatcherResults(vm: MainViewModel) {
                 for (col in 0 until columns) {
                     val index = row * columns + col
                     if (index < recommendations.size) {
-                        val ((effectName, value), paramName) = recommendations[index]
+                        val (effectName, value, paramName) = recommendations[index]
                         RecommendationCard(effectName, paramName, value, color = getEffectColor(effectName), modifier = Modifier.weight(1f))
                     } else {
                         Spacer(Modifier.weight(1f))
