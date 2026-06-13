@@ -95,7 +95,13 @@ fun MainScreen(vm: MainViewModel) {
         }
     }
 
+    // Navigate on tab changes, skip initial render
+    var initialRender by remember { mutableStateOf(true) }
     LaunchedEffect(vm.currentTab) {
+        if (initialRender) {
+            initialRender = false
+            return@LaunchedEffect
+        }
         when (vm.currentTab) {
             0 -> navController.navigate("effects") { popUpTo("effects") { inclusive = true } }
             1 -> navController.navigate("tuner") { popUpTo("tuner") { inclusive = true } }

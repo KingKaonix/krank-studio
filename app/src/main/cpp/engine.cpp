@@ -118,6 +118,8 @@ void AudioEngine::initEffects() {
     effects_[FX_AMP_SIM]    = std::make_unique<AmpSim>();
     effects_[FX_EQ]         = std::make_unique<EQ>();
     effects_[FX_CHORUS]     = std::make_unique<Chorus>();
+    effects_[FX_NOISE_GATE] = std::make_unique<NoiseGate>();
+    effects_[FX_COMPRESSOR] = std::make_unique<Compressor>();
     effects_[FX_DELAY]      = std::make_unique<Delay>();
     effects_[FX_REVERB]     = std::make_unique<Reverb>();
 

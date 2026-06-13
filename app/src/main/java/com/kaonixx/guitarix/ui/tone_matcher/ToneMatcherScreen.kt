@@ -25,6 +25,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.kaonixx.guitarix.MainViewModel
 import com.kaonixx.guitarix.WavLoader
 import com.kaonixx.guitarix.ui.effectColor as getEffectColor
+import kotlinx.coroutines.launch
+import com.kaonixx.guitarix.MicRecorder
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 data class ToneRecommendation(val effectName: String, val value: Float, val paramName: String)
 
@@ -191,7 +194,7 @@ private fun SampleLoaderSection(vm: MainViewModel) {
                     )
                 }
                 Button(
-                    onClick = { filePickerLauncher.launch(arrayOf("audio/wav", "audio/x-wav")) },
+                    onClick = { filePickerLauncher.launch(arrayOf("audio/*")) },
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     colors = ButtonDefaults.buttonColors(

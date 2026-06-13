@@ -27,6 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import com.kaonixx.guitarix.MainViewModel
 import com.kaonixx.guitarix.TabNoteData
 import com.kaonixx.guitarix.WavLoader
+import com.kaonixx.guitarix.MicRecorder
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalLifecycleOwner
 
 private val Bg         = Color(0xFF0A0A0E)
 private val S1         = Color(0xFF1A1A22)
@@ -167,7 +170,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                     )
                 }
                 Button(
-                    onClick = { filePickerLauncher.launch(arrayOf("audio/wav", "audio/x-wav")) },
+                    onClick = { filePickerLauncher.launch(arrayOf("audio/*")) },
                     enabled = !loading,
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     colors = ButtonDefaults.buttonColors(
