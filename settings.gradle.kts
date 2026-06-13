@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Guitarix"
+rootProject.name = "KRANK"
 include(":app")

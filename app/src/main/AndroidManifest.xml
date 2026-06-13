@@ -9,7 +9,7 @@
     <uses-feature android:name="android.hardware.audio.low_latency" android:required="true" />
 
     <application
-        android:label="Guitarix"
+        android:label="KRANK"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Guitarix"

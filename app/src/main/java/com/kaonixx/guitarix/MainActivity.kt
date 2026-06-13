@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = Color(0xFF0F0F14)
             ) {
-                GuitarixApp()
+                KrankApp()
             }
         }
     }

@@ -6,6 +6,8 @@
 #include <vector>
 #include <mutex>
 #include "effects/effect.h"
+#include "effects/tuner.h"
+#include "effects/tone_matcher.h"
 
 class AudioEngine : public oboe::AudioStreamDataCallback,
                     public oboe::AudioStreamErrorCallback {
@@ -26,6 +28,37 @@ public:
     void loadPreset(int preset);
     int currentPreset() const { return currentPreset_; }
 
+    // Tuner interface
+    void loadAudioForTuner(const float* data, int32_t numFrames, int32_t numChannels);
+    float getTunerFrequency() const;
+    int getTunerNoteIndex() const;
+    int getTunerOctave() const;
+    float getTunerCents() const;
+    bool isTunerNoteDetected() const;
+    const char* getTunerCurrentTuningName() const;
+    const char* getTunerNoteName(int index) const;
+
+    // Tone matcher interface
+    void loadAudioForToneMatcher(const float* data, int32_t numFrames, int32_t numChannels);
+    bool hasToneMatcherProfile() const;
+    float getRecommendedDistortionDrive() const;
+    float getRecommendedDistortionTone() const;
+    float getRecommendedDistortionLevel() const;
+    float getRecommendedAmpSimGain() const;
+    float getRecommendedAmpSimTone() const;
+    float getRecommendedAmpSimMaster() const;
+    float getRecommendedEqBass() const;
+    float getRecommendedEqMid() const;
+    float getRecommendedEqTreble() const;
+    float getRecommendedChorusRate() const;
+    float getRecommendedChorusDepth() const;
+    float getRecommendedChorusMix() const;
+    float getRecommendedDelayMix() const;
+    float getRecommendedDelayFeedback() const;
+    float getRecommendedDelayTime() const;
+    float getRecommendedReverbSize() const;
+    float getRecommendedReverbMix() const;
+
     // oboe::AudioStreamDataCallback
     oboe::DataCallbackResult onAudioReady(
         oboe::AudioStream *audioStream,
@@ -40,6 +73,11 @@ private:
     std::vector<std::unique_ptr<Effect>> effects_;
     std::vector<bool> enabled_;
     int currentPreset_ = 0;
+
+    // New audio analysis components
+    std::unique_ptr<Tuner> tuner_;
+    std::unique_ptr<ToneMatcher> toneMatcher_;
+
     std::mutex mutex_;
 
     void initEffects();

@@ -11,6 +11,8 @@ class GuitarEngine {
         const val FX_CHORUS     = 3
         const val FX_DELAY      = 4
         const val FX_REVERB     = 5
+        const val FX_TUNER      = 6
+        const val FX_TONE_MATCHER = 7
 
         // Distortion params
         const val PARAM_DRIVE = 0
@@ -41,7 +43,7 @@ class GuitarEngine {
         const val PARAM_ROOM_SIZE = 0
         const val PARAM_MIX3      = 1
 
-        val effectNames = listOf("Distortion", "Amp Sim", "EQ", "Chorus", "Delay", "Reverb")
+        val effectNames = listOf("Distortion", "Amp Sim", "EQ", "Chorus", "Delay", "Reverb", "Tuner", "Tone Matcher")
         val presetNames = listOf("Clean", "Crunch", "Lead", "Metal", "Ambient")
     }
 
@@ -68,6 +70,39 @@ class GuitarEngine {
 
     fun loadPreset(preset: Int) = nativeLoadPreset(nativePtr, preset)
 
+    // Tuner operations
+    fun loadAudioForTuner(data: FloatArray, numFrames: Int, numChannels: Int) =
+        nativeLoadAudioForTuner(nativePtr, data, numFrames, numChannels)
+    fun getTunerFrequency(): Float = nativeGetTunerFrequency(nativePtr)
+    fun getTunerNoteIndex(): Int = nativeGetTunerNoteIndex(nativePtr)
+    fun getTunerOctave(): Int = nativeGetTunerOctave(nativePtr)
+    fun getTunerCents(): Float = nativeGetTunerCents(nativePtr)
+    fun isTunerNoteDetected(): Boolean = nativeIsTunerNoteDetected(nativePtr)
+    fun getTunerCurrentTuningName(): String = nativeGetTunerCurrentTuningName(nativePtr)
+    fun getTunerNoteName(index: Int): String = nativeGetTunerNoteName(nativePtr, index)
+
+    // Tone matcher operations
+    fun loadAudioForToneMatcher(data: FloatArray, numFrames: Int, numChannels: Int) =
+        nativeLoadAudioForToneMatcher(nativePtr, data, numFrames, numChannels)
+    fun hasToneMatcherProfile(): Boolean = nativeHasToneMatcherProfile(nativePtr)
+    fun getRecommendedDistortionDrive(): Float = nativeGetRecommendedDistortionDrive(nativePtr)
+    fun getRecommendedDistortionTone(): Float = nativeGetRecommendedDistortionTone(nativePtr)
+    fun getRecommendedDistortionLevel(): Float = nativeGetRecommendedDistortionLevel(nativePtr)
+    fun getRecommendedAmpSimGain(): Float = nativeGetRecommendedAmpSimGain(nativePtr)
+    fun getRecommendedAmpSimTone(): Float = nativeGetRecommendedAmpSimTone(nativePtr)
+    fun getRecommendedAmpSimMaster(): Float = nativeGetRecommendedAmpSimMaster(nativePtr)
+    fun getRecommendedEqBass(): Float = nativeGetRecommendedEqBass(nativePtr)
+    fun getRecommendedEqMid(): Float = nativeGetRecommendedEqMid(nativePtr)
+    fun getRecommendedEqTreble(): Float = nativeGetRecommendedEqTreble(nativePtr)
+    fun getRecommendedChorusRate(): Float = nativeGetRecommendedChorusRate(nativePtr)
+    fun getRecommendedChorusDepth(): Float = nativeGetRecommendedChorusDepth(nativePtr)
+    fun getRecommendedChorusMix(): Float = nativeGetRecommendedChorusMix(nativePtr)
+    fun getRecommendedDelayMix(): Float = nativeGetRecommendedDelayMix(nativePtr)
+    fun getRecommendedDelayFeedback(): Float = nativeGetRecommendedDelayFeedback(nativePtr)
+    fun getRecommendedDelayTime(): Float = nativeGetRecommendedDelayTime(nativePtr)
+    fun getRecommendedReverbSize(): Float = nativeGetRecommendedReverbSize(nativePtr)
+    fun getRecommendedReverbMix(): Float = nativeGetRecommendedReverbMix(nativePtr)
+
     private external fun nativeCreate(): Long
     private external fun nativeDestroy(ptr: Long)
     private external fun nativeStart(ptr: Long): Boolean
@@ -77,4 +112,35 @@ class GuitarEngine {
     private external fun nativeSetEffectParameter(ptr: Long, index: Int, paramId: Int, value: Float)
     private external fun nativeGetEffectParameter(ptr: Long, index: Int, paramId: Int): Float
     private external fun nativeLoadPreset(ptr: Long, preset: Int)
+
+    // Tuner JNI methods
+    private external fun nativeLoadAudioForTuner(ptr: Long, data: FloatArray, numFrames: Int, numChannels: Int)
+    private external fun nativeGetTunerFrequency(ptr: Long): Float
+    private external fun nativeGetTunerNoteIndex(ptr: Long): Int
+    private external fun nativeGetTunerOctave(ptr: Long): Int
+    private external fun nativeGetTunerCents(ptr: Long): Float
+    private external fun nativeIsTunerNoteDetected(ptr: Long): Boolean
+    private external fun nativeGetTunerCurrentTuningName(ptr: Long): String
+    private external fun nativeGetTunerNoteName(ptr: Long, index: Int): String
+
+    // Tone matcher JNI methods
+    private external fun nativeLoadAudioForToneMatcher(ptr: Long, data: FloatArray, numFrames: Int, numChannels: Int)
+    private external fun nativeHasToneMatcherProfile(ptr: Long): Boolean
+    private external fun nativeGetRecommendedDistortionDrive(ptr: Long): Float
+    private external fun nativeGetRecommendedDistortionTone(ptr: Long): Float
+    private external fun nativeGetRecommendedDistortionLevel(ptr: Long): Float
+    private external fun nativeGetRecommendedAmpSimGain(ptr: Long): Float
+    private external fun nativeGetRecommendedAmpSimTone(ptr: Long): Float
+    private external fun nativeGetRecommendedAmpSimMaster(ptr: Long): Float
+    private external fun nativeGetRecommendedEqBass(ptr: Long): Float
+    private external fun nativeGetRecommendedEqMid(ptr: Long): Float
+    private external fun nativeGetRecommendedEqTreble(ptr: Long): Float
+    private external fun nativeGetRecommendedChorusRate(ptr: Long): Float
+    private external fun nativeGetRecommendedChorusDepth(ptr: Long): Float
+    private external fun nativeGetRecommendedChorusMix(ptr: Long): Float
+    private external fun nativeGetRecommendedDelayMix(ptr: Long): Float
+    private external fun nativeGetRecommendedDelayFeedback(ptr: Long): Float
+    private external fun nativeGetRecommendedDelayTime(ptr: Long): Float
+    private external fun nativeGetRecommendedReverbSize(ptr: Long): Float
+    private external fun nativeGetRecommendedReverbMix(ptr: Long): Float
 }

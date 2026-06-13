@@ -13,6 +13,7 @@ import com.kaonixx.guitarix.GuitarEngine.Companion.FX_DELAY
 import com.kaonixx.guitarix.GuitarEngine.Companion.FX_DISTORTION
 import com.kaonixx.guitarix.GuitarEngine.Companion.FX_EQ
 import com.kaonixx.guitarix.GuitarEngine.Companion.FX_REVERB
+import com.kaonixx.guitarix.GuitarEngine.Companion.FX_TONE_MATCHER
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,6 +22,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // --- Observed state ---
     var isRunning by mutableStateOf(false); private set
     var currentPresetIndex by mutableIntStateOf(0); private set
+
+    // UI state - current selected tab
+    var currentTab by mutableIntStateOf(0); private set  // 0=Effects, 1=Tuner, 2=Tone Match
 
     // Per-effect enable state
     var distortionOn by mutableStateOf(false); private set
@@ -54,13 +58,48 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var reverbRoomSize by mutableFloatStateOf(0.3f); private set
     var reverbMix by mutableFloatStateOf(0.2f); private set
 
+    // Tuner state
+    var tunerFrequency by mutableFloatStateOf(0.0f); private set
+    var tunerNoteIndex by mutableIntStateOf(-1); private set
+    var tunerOctave by mutableIntStateOf(0); private set
+    var tunerCents by mutableFloatStateOf(0.0f); private set
+    var isTunerNoteDetected by mutableStateOf(false); private set
+    var tunerCurrentTuning by mutableIntStateOf(0); private set  // 0=Standard, 1=Drop D, etc.
+
+    // Tone matcher state
+    var toneMatcherHasProfile by mutableStateOf(false); private set
+    var toneMatcherRecommendedDistortionDrive by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedDistortionTone by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedDistortionLevel by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedAmpSimGain by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedAmpSimTone by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedAmpSimMaster by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedEqBass by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedEqMid by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedEqTreble by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedChorusRate by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedChorusDepth by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedChorusMix by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedDelayMix by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedDelayFeedback by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedDelayTime by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedReverbSize by mutableFloatStateOf(0.5f); private set
+    var toneMatcherRecommendedReverbMix by mutableFloatStateOf(0.5f); private set
+
     val presetNames = GuitarEngine.presetNames
     val effectNames = GuitarEngine.effectNames
+
+    init {
+        // Load current recommendations when tone matcher has a profile
+        updateToneMatcherRecommendations()
+    }
 
     fun toggleEngine() {
         if (isRunning) { engine.stop(); isRunning = false }
         else { isRunning = engine.start() }
     }
+
+    fun setTab(tab: Int) { currentTab = tab }
 
     fun loadPreset(index: Int) {
         currentPresetIndex = index
@@ -68,7 +107,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         syncParamsFromPreset(index)
     }
 
-    private fun syncParamsFromPreset(index: Int) {
+    fun syncParamsFromPreset(index: Int) {
         distortionOn  = engine.isEffectEnabled(FX_DISTORTION)
         ampSimOn      = engine.isEffectEnabled(FX_AMP_SIM)
         eqOn          = engine.isEffectEnabled(FX_EQ)
@@ -100,13 +139,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         reverbMix      = engine.getEffectParameter(FX_REVERB, GuitarEngine.PARAM_MIX3)
     }
 
-    fun toggleDistortion() { distortionOn = !distortionOn; engine.setEffectEnabled(FX_DISTORTION, distortionOn) }
-    fun toggleAmpSim() { ampSimOn = !ampSimOn; engine.setEffectEnabled(FX_AMP_SIM, ampSimOn) }
-    fun toggleEQ() { eqOn = !eqOn; engine.setEffectEnabled(FX_EQ, eqOn) }
-    fun toggleChorus() { chorusOn = !chorusOn; engine.setEffectEnabled(FX_CHORUS, chorusOn) }
-    fun toggleDelay() { delayOn = !delayOn; engine.setEffectEnabled(FX_DELAY, delayOn) }
-    fun toggleReverb() { reverbOn = !reverbOn; engine.setEffectEnabled(FX_REVERB, reverbOn) }
-
     fun updateDistortionDrive(v: Float) { distortionDrive = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_DRIVE, v) }
     fun updateDistortionTone(v: Float) { distortionTone = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_TONE, v) }
     fun updateDistortionLevel(v: Float) { distortionLevel = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_LEVEL, v) }
@@ -129,6 +161,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateReverbRoomSize(v: Float) { reverbRoomSize = v; engine.setEffectParameter(FX_REVERB, GuitarEngine.PARAM_ROOM_SIZE, v) }
     fun updateReverbMix(v: Float) { reverbMix = v; engine.setEffectParameter(FX_REVERB, GuitarEngine.PARAM_MIX3, v) }
+
+    // Tuner operations
+    fun loadAudioForTuner(data: FloatArray, numFrames: Int, numChannels: Int) {
+        engine.loadAudioForTuner(data, numFrames, numChannels)
+        updateTunerState()
+    }
+
+    fun setTunerTuning(tuningIndex: Int) {
+        tunerCurrentTuning = tuningIndex
+    }
+
+    fun updateTunerState() {
+        tunerFrequency = engine.getTunerFrequency()
+        tunerNoteIndex = engine.getTunerNoteIndex()
+        tunerOctave = engine.getTunerOctave()
+        tunerCents = engine.getTunerCents()
+        isTunerNoteDetected = engine.isTunerNoteDetected()
+    }
+
+    // Tone matcher operations
+    fun loadAudioForToneMatcher(data: FloatArray, numFrames: Int, numChannels: Int) {
+        engine.loadAudioForToneMatcher(data, numFrames, numChannels)
+        updateToneMatcherRecommendations()
+    }
+
+    fun updateToneMatcherRecommendations() {
+        toneMatcherHasProfile = engine.hasToneMatcherProfile()
+        toneMatcherRecommendedDistortionDrive = engine.getRecommendedDistortionDrive()
+        toneMatcherRecommendedDistortionTone = engine.getRecommendedDistortionTone()
+        toneMatcherRecommendedDistortionLevel = engine.getRecommendedDistortionLevel()
+        toneMatcherRecommendedAmpSimGain = engine.getRecommendedAmpSimGain()
+        toneMatcherRecommendedAmpSimTone = engine.getRecommendedAmpSimTone()
+        toneMatcherRecommendedAmpSimMaster = engine.getRecommendedAmpSimMaster()
+        toneMatcherRecommendedEqBass = engine.getRecommendedEqBass()
+        toneMatcherRecommendedEqMid = engine.getRecommendedEqMid()
+        toneMatcherRecommendedEqTreble = engine.getRecommendedEqTreble()
+        toneMatcherRecommendedChorusRate = engine.getRecommendedChorusRate()
+        toneMatcherRecommendedChorusDepth = engine.getRecommendedChorusDepth()
+        toneMatcherRecommendedChorusMix = engine.getRecommendedChorusMix()
+        toneMatcherRecommendedDelayMix = engine.getRecommendedDelayMix()
+        toneMatcherRecommendedDelayFeedback = engine.getRecommendedDelayFeedback()
+        toneMatcherRecommendedDelayTime = engine.getRecommendedDelayTime()
+        toneMatcherRecommendedReverbSize = engine.getRecommendedReverbSize()
+        toneMatcherRecommendedReverbMix = engine.getRecommendedReverbMix()
+    }
 
     override fun onCleared() {
         if (isRunning) engine.stop()

@@ -19,7 +19,7 @@ private val DarkBg = Color(0xFF0F0F14)
 private val CyanAccent = Color(0xFF00E5FF)
 private val RoseAccent = Color(0xFFFF4D6D)
 
-private val GuitarixColorScheme = darkColorScheme(
+private val KrankColorScheme = darkColorScheme(
     primary = CyanAccent,
     secondary = RoseAccent,
     tertiary = CyanAccent,
@@ -34,7 +34,7 @@ private val GuitarixColorScheme = darkColorScheme(
 )
 
 @Composable
-fun GuitarixApp(viewModel: MainViewModel = viewModel()) {
+fun KrankApp(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     if (!LocalView.current.isInEditMode) {
         val activity = context as? Activity
@@ -48,7 +48,7 @@ fun GuitarixApp(viewModel: MainViewModel = viewModel()) {
         }
     }
 
-    MaterialTheme(colorScheme = GuitarixColorScheme) {
+    MaterialTheme(colorScheme = KrankColorScheme) {
         Surface(modifier = Modifier.fillMaxSize(), color = DarkBg) {
             MainScreen(vm = viewModel)
         }

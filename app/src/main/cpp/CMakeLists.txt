@@ -18,6 +18,8 @@ add_library(guitarix_engine SHARED
     effects/eq.cpp
     effects/ampsim.cpp
     effects/chorus.cpp
+    effects/tuner.cpp
+    effects/tone_matcher.cpp
 )
 
 target_include_directories(guitarix_engine PRIVATE
