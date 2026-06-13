@@ -1,7 +1,7 @@
-import android.net.Uri
 package com.kaonixx.guitarix
 
 import android.content.Context
+import android.net.Uri
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import java.nio.ByteBuffer
