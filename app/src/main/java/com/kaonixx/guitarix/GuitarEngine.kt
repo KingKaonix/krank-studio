@@ -83,6 +83,15 @@ class GuitarEngine {
 
     fun loadPreset(preset: Int) = nativeLoadPreset(nativePtr, preset)
 
+    // Transcription
+    fun transcribeAudio(data: FloatArray, numSamples: Int, sampleRate: Int): Boolean =
+        nativeTranscribeAudio(nativePtr, data, numSamples, sampleRate)
+    fun hasTranscription(): Boolean = nativeHasTranscription(nativePtr)
+    fun getNumMeasures(): Int = nativeGetNumMeasures(nativePtr)
+    fun getTranscriptionProgress(): Float = nativeGetTranscriptionProgress(nativePtr)
+    fun getTabData(outStrings: IntArray, outFrets: IntArray, outTimes: FloatArray, outDurations: FloatArray, maxNotes: Int) =
+        nativeGetTabData(nativePtr, outStrings, outFrets, outTimes, outDurations, maxNotes)
+
     // Recording
     fun startRecording(filePath: String) = nativeStartRecording(nativePtr, filePath)
     fun stopRecording() = nativeStopRecording(nativePtr)
@@ -137,6 +146,13 @@ class GuitarEngine {
     private external fun nativeStopRecording(ptr: Long)
     private external fun nativeIsRecording(ptr: Long): Boolean
     private external fun nativeLoadImpulseResponse(ptr: Long, path: String): Boolean
+
+    // Transcription
+    private external fun nativeTranscribeAudio(ptr: Long, data: FloatArray, numSamples: Int, sampleRate: Int): Boolean
+    private external fun nativeHasTranscription(ptr: Long): Boolean
+    private external fun nativeGetNumMeasures(ptr: Long): Int
+    private external fun nativeGetTranscriptionProgress(ptr: Long): Float
+    private external fun nativeGetTabData(ptr: Long, outStrings: IntArray, outFrets: IntArray, outTimes: FloatArray, outDurations: FloatArray, maxNotes: Int)
 
     // Tuner JNI methods
     private external fun nativeLoadAudioForTuner(ptr: Long, data: FloatArray, numFrames: Int, numChannels: Int)

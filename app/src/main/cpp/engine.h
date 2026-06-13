@@ -8,6 +8,7 @@
 #include "effects/effect.h"
 #include "effects/tuner.h"
 #include "effects/tone_matcher.h"
+#include "effects/transcriber.h"
 
 class AudioEngine : public oboe::AudioStreamDataCallback,
                     public oboe::AudioStreamErrorCallback {
@@ -45,6 +46,14 @@ public:
 
     // Impulse response loader (cab simulation)
     bool loadImpulseResponse(const char* path);
+
+    // Transcription
+    bool transcribeAudio(const float* data, int32_t numSamples, int32_t sampleRate);
+    bool hasTranscription() const;
+    int getNumMeasures() const;
+    float getTranscriptionProgress() const;
+    // Get tab data as simple arrays for JNI
+    void getTabData(int* outStrings, int* outFrets, float* outTimes, float* outDurations, int maxNotes);
 
     // Tone matcher interface
     void loadAudioForToneMatcher(const float* data, int32_t numFrames, int32_t numChannels);
@@ -101,6 +110,7 @@ private:
     // New audio analysis components
     std::unique_ptr<Tuner> tuner_;
     std::unique_ptr<ToneMatcher> toneMatcher_;
+    std::unique_ptr<Transcriber> transcriber_;
 
     std::mutex mutex_;
 

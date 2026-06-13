@@ -289,4 +289,51 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadImpulseResponse(JNIEnv* env, jo
     return result ? JNI_TRUE : JNI_FALSE;
 }
 
+// Transcription JNI
+JNIEXPORT jboolean JNICALL
+Java_com_kaonixx_guitarix_GuitarEngine_nativeTranscribeAudio(JNIEnv* env, jobject,
+    jlong ptr, jfloatArray data, jint numSamples, jint sampleRate) {
+    auto* engine = getEngine(ptr);
+    if (!engine || !data) return JNI_FALSE;
+    jfloat* arr = env->GetFloatArrayElements(data, nullptr);
+    bool result = engine->transcribeAudio(arr, numSamples, sampleRate);
+    env->ReleaseFloatArrayElements(data, arr, JNI_ABORT);
+    return result ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_kaonixx_guitarix_GuitarEngine_nativeHasTranscription(JNIEnv*, jobject, jlong ptr) {
+    auto* engine = getEngine(ptr);
+    return engine ? (engine->hasTranscription() ? JNI_TRUE : JNI_FALSE) : JNI_FALSE;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_kaonixx_guitarix_GuitarEngine_nativeGetNumMeasures(JNIEnv*, jobject, jlong ptr) {
+    auto* engine = getEngine(ptr);
+    return engine ? (jint)engine->getNumMeasures() : 0;
+}
+
+JNIEXPORT jfloat JNICALL
+Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTranscriptionProgress(JNIEnv*, jobject, jlong ptr) {
+    auto* engine = getEngine(ptr);
+    return engine ? engine->getTranscriptionProgress() : 0.0f;
+}
+
+JNIEXPORT void JNICALL
+Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTabData(JNIEnv* env, jobject,
+    jlong ptr, jintArray outStrings, jintArray outFrets,
+    jfloatArray outTimes, jfloatArray outDurations, jint maxNotes) {
+    auto* engine = getEngine(ptr);
+    if (!engine) return;
+    jint* strings = env->GetIntArrayElements(outStrings, nullptr);
+    jint* frets = env->GetIntArrayElements(outFrets, nullptr);
+    jfloat* times = env->GetFloatArrayElements(outTimes, nullptr);
+    jfloat* durations = env->GetFloatArrayElements(outDurations, nullptr);
+    engine->getTabData(strings, frets, times, durations, maxNotes);
+    env->ReleaseIntArrayElements(outStrings, strings, 0);
+    env->ReleaseIntArrayElements(outFrets, frets, 0);
+    env->ReleaseFloatArrayElements(outTimes, times, 0);
+    env->ReleaseFloatArrayElements(outDurations, durations, 0);
+}
+
 }  // extern "C"

@@ -106,6 +106,7 @@ AudioEngine::AudioEngine()
     initEffects();
     tuner_ = std::make_unique<Tuner>();
     toneMatcher_ = std::make_unique<ToneMatcher>();
+    transcriber_ = std::make_unique<Transcriber>();
 }
 
 AudioEngine::~AudioEngine() {
@@ -452,6 +453,41 @@ bool AudioEngine::loadImpulseResponse(const char* path) {
     convBuffer_.clear();
     LOGI("IR loaded: %d samples", irLength_);
     return true;
+}
+
+// Transcription interface
+bool AudioEngine::transcribeAudio(const float* data, int32_t numSamples, int32_t sampleRate) {
+    if (!transcriber_) return false;
+    return transcriber_->transcribe(data, numSamples, sampleRate);
+}
+
+bool AudioEngine::hasTranscription() const {
+    return transcriber_ && transcriber_->hasResult();
+}
+
+int AudioEngine::getNumMeasures() const {
+    if (!transcriber_ || !transcriber_->hasResult()) return 0;
+    return (int)transcriber_->getTabTrack().measures.size();
+}
+
+float AudioEngine::getTranscriptionProgress() const {
+    return transcriber_ ? transcriber_->getProgress() : 0.0f;
+}
+
+void AudioEngine::getTabData(int* outStrings, int* outFrets, float* outTimes, float* outDurations, int maxNotes) {
+    if (!transcriber_ || !transcriber_->hasResult()) return;
+    const auto& track = transcriber_->getTabTrack();
+    int idx = 0;
+    for (const auto& measure : track.measures) {
+        for (const auto& note : measure.notes) {
+            if (idx >= maxNotes) return;
+            outStrings[idx] = note.stringNum;
+            outFrets[idx] = note.fret;
+            outTimes[idx] = note.startTime;
+            outDurations[idx] = note.duration;
+            idx++;
+        }
+    }
 }
 
 // Tuner interface implementations

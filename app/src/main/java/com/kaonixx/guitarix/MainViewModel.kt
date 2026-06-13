@@ -1,6 +1,9 @@
 package com.kaonixx.guitarix
 
 import android.app.Application
+
+// Data class for tablature notes from transcription
+data class TabNoteData(val stringNum: Int, val fret: Int, val startTime: Float, val duration: Float)
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -106,6 +109,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var toneMatcherRecommendedDelayTime by mutableFloatStateOf(0.5f); private set
     var toneMatcherRecommendedReverbSize by mutableFloatStateOf(0.5f); private set
     var toneMatcherRecommendedReverbMix by mutableFloatStateOf(0.5f); private set
+
+    // Transcription state
+    var transcribeProgress by mutableFloatStateOf(0.0f); private set
+    var transcribeHasResult by mutableStateOf(false); private set
+    var transcribeNumMeasures by mutableIntStateOf(0); private set
+    var transcribeNotes by mutableStateOf<List<TabNoteData>>(emptyList()); private set
 
     val presetNames = GuitarEngine.presetNames
     val effectNames = GuitarEngine.effectNames
@@ -274,6 +283,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadAudioForToneMatcher(data: FloatArray, numFrames: Int, numChannels: Int) {
         engine.loadAudioForToneMatcher(data, numFrames, numChannels)
         updateToneMatcherRecommendations()
+    }
+
+    fun transcribeAudio(data: FloatArray, sampleRate: Int) {
+        val result = engine.transcribeAudio(data, data.size, sampleRate)
+        transcribeHasResult = result
+        if (result) {
+            transcribeNumMeasures = engine.getNumMeasures()
+            transcribeProgress = engine.getTranscriptionProgress()
+            loadTabNotes()
+        }
+    }
+
+    private fun loadTabNotes() {
+        val numMeasures = engine.getNumMeasures()
+        if (numMeasures <= 0) return
+        // Estimate max notes (20 per measure)
+        val maxNotes = numMeasures * 20
+        val strings = IntArray(maxNotes)
+        val frets = IntArray(maxNotes)
+        val times = FloatArray(maxNotes)
+        val durations = FloatArray(maxNotes)
+        engine.getTabData(strings, frets, times, durations, maxNotes)
+        val notes = mutableListOf<TabNoteData>()
+        for (i in 0 until maxNotes) {
+            if (strings[i] < 0) break
+            notes.add(TabNoteData(strings[i], frets[i], times[i], durations[i]))
+        }
+        transcribeNotes = notes
     }
 
     fun updateToneMatcherRecommendations() {

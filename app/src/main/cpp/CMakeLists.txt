@@ -22,6 +22,7 @@ add_library(guitarix_engine SHARED
     effects/compressor.cpp
     effects/tuner.cpp
     effects/tone_matcher.cpp
+    effects/transcriber.cpp
 )
 
 target_include_directories(guitarix_engine PRIVATE

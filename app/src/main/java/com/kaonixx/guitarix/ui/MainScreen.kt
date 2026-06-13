@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.List
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -44,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.kaonixx.guitarix.MainViewModel
 import com.kaonixx.guitarix.ui.tuner.TunerScreen
 import com.kaonixx.guitarix.ui.tone_matcher.ToneMatcherScreen
+import com.kaonixx.guitarix.ui.transcribe.TranscribeScreen
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -78,6 +80,7 @@ fun MainScreen(vm: MainViewModel) {
             composable("effects") { EffectsScreen(vm) }
             composable("tuner") { TunerScreen(vm) }
             composable("tone_matcher") { ToneMatcherScreen(vm) }
+            composable("transcribe") { TranscribeScreen(vm) }
         }
     }
 
@@ -87,6 +90,7 @@ fun MainScreen(vm: MainViewModel) {
             0 -> navController.navigate("effects") { popUpTo("effects") }
             1 -> navController.navigate("tuner") { popUpTo("tuner") }
             2 -> navController.navigate("tone_matcher") { popUpTo("tone_matcher") }
+            3 -> navController.navigate("transcribe") { popUpTo("transcribe") }
         }
     }
 }
@@ -94,7 +98,7 @@ fun MainScreen(vm: MainViewModel) {
 // ── Bottom Navigation Bar ──
 @Composable
 private fun NavBar(vm: MainViewModel) {
-    val tabNames = listOf("Effects", "Tuner", "Tone Match")
+    val tabNames = listOf("Effects", "Tuner", "Tone Match", "Transcribe")
     NavigationBar(
         containerColor = S0,
         contentColor = TPrimary
@@ -109,6 +113,7 @@ private fun NavBar(vm: MainViewModel) {
                             0 -> Icons.Filled.Settings
                             1 -> Icons.Filled.Search
                             2 -> Icons.Filled.Star
+                            3 -> Icons.Filled.List
                             else -> Icons.Filled.Star
                         },
                         contentDescription = label
