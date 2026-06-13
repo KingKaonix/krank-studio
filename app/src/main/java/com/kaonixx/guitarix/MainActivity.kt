@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.kaonixx.guitarix.ui.KrankTheme
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -40,11 +41,13 @@ class MainActivity : ComponentActivity() {
 
     private fun initAndLaunchApp() {
         setContent {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = Color(0xFF0F0F14)
-            ) {
-                KrankApp()
+            KrankTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color(0xFF0A0A0E)
+                ) {
+                    KrankApp()
+                }
             }
         }
     }

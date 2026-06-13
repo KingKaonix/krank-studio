@@ -68,7 +68,7 @@ private fun TunerDisplay(vm: MainViewModel) {
             .border(2.dp, Color(0xFF2A2A3A), RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (vm.isTunerNoteDetected) {
-                    val noteName = if (vm.tunerNoteIndex >= 0) vm.engine.getTunerNoteName(vm.tunerNoteIndex) else "?"
+                    val noteName = if (vm.tunerNoteIndex >= 0) runCatching { vm.engine.getTunerNoteName(vm.tunerNoteIndex) }.getOrDefault("?") else "?"
                     Text(noteName, fontSize = 48.sp, fontWeight = FontWeight.Bold, color = Color(0xFF22D3EE))
                     Text("Octave ${vm.tunerOctave}", fontSize = 16.sp, color = Color(0xFF8888A0))
                 } else {

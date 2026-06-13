@@ -320,18 +320,8 @@ private fun RecommendationCard(effectName: String, paramName: String, value: Flo
     }
 }
 
-// ── Get effect color ──
-private fun getEffectColor(effectName: String): Color {
-    return when (effectName) {
-        "Distortion" -> Color(0xFFFF6B6B)
-        "Amp Sim" -> Color(0xFF4ECDC4)
-        "EQ" -> Color(0xFF45B7D1)
-        "Chorus" -> Color(0xFF96CEB4)
-        "Delay" -> Color(0xFFF9E79F)
-        "Reverb" -> Color(0xFFFFD700)
-        else -> Color(0xFF22D3EE)
-    }
-}
+// Effect colors now from Theme.kt
+import com.kaonixx.guitarix.ui.effectColor as getEffectColor
 
 // ── Instructions ──
 @Composable

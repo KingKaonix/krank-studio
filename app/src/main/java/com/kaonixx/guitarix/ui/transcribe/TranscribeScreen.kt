@@ -52,7 +52,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                         s / result.numChannels
                     }
                     fileName = uri.lastPathSegment ?: "Loaded"
-                    vm.transcribeAudio(monoData, result.sampleRate)
+                    runCatching { vm.transcribeAudio(monoData, result.sampleRate) }
                 } else errorMsg = "Could not read audio file"
             } catch (e: Exception) { errorMsg = "Error: ${e.message}" }
             loading = false
