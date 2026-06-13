@@ -14,7 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import com.kaonixx.guitarix.MainViewModel
+import com.kaonixx.guitarix.WavLoader
 
 // Data class for tone recommendations
 data class ToneRecommendation(val effectName: String, val value: Float, val paramName: String)
@@ -69,6 +74,47 @@ fun ToneMatcherScreen(vm: MainViewModel) {
 // ── Sample Loader Section ──
 @Composable
 private fun SampleLoaderSection(vm: MainViewModel) {
+    val context = LocalContext.current
+    var fileName by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
+    var errorMsg by remember { mutableStateOf("") }
+    
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            loading = true
+            errorMsg = ""
+            try {
+                val result = WavLoader.load(context, uri)
+                if (result != null) {
+                    // Use first 4096 samples for analysis (or less if file is shorter)
+                    val numFrames = minOf(result.samples.size, 4096)
+                    val monoData = if (result.numChannels == 1) {
+                        result.samples.take(numFrames).toFloatArray()
+                    } else {
+                        // Downmix to mono
+                        FloatArray(numFrames / result.numChannels) { i ->
+                            var sum = 0f
+                            for (c in 0 until result.numChannels) {
+                                sum += result.samples[i * result.numChannels + c]
+                            }
+                            sum / result.numChannels
+                        }
+                    }
+                    vm.loadAudioForToneMatcher(monoData, monoData.size, 1)
+                    vm.updateToneMatcherRecommendations()
+                    fileName = uri.lastPathSegment ?: "Loaded"
+                } else {
+                    errorMsg = "Invalid or unsupported WAV file"
+                }
+            } catch (e: Exception) {
+                errorMsg = "Error: ${e.message}"
+            }
+            loading = false
+        }
+    }
+    
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -111,11 +157,32 @@ private fun SampleLoaderSection(vm: MainViewModel) {
                     lineHeight = 16.sp
                 )
                 
+                if (fileName.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "Loaded: $fileName",
+                        fontSize = 12.sp,
+                        color = Color(0xFF22D3EE),
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                
+                if (errorMsg.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        errorMsg,
+                        fontSize = 12.sp,
+                        color = Color(0xFFFF6B6B)
+                    )
+                }
+                
                 Spacer(Modifier.height(20.dp))
                 
-                // File picker button (simplified - would need actual implementation)
                 Button(
-                    onClick = { /* Load audio file action */ },
+                    onClick = {
+                        filePickerLauncher.launch(arrayOf("audio/wav", "audio/x-wav"))
+                    },
+                    enabled = !loading,
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF22D3EE),
@@ -124,7 +191,7 @@ private fun SampleLoaderSection(vm: MainViewModel) {
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(
-                        "SELECT WAV FILE",
+                        if (loading) "LOADING..." else "SELECT WAV FILE",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
