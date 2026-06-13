@@ -11,8 +11,8 @@ static float hammingWindow(int n, int N) {
 }
 
 ToneMatcher::ToneMatcher()
-    : hasSample_(false), hasProfile_(false), sampleData_(), real_(FFT_SIZE), imag_(FFT_SIZE),
-      window_(FFT_SIZE), spectrum_(NUM_BINS), features_(), profile_() {
+    : hasSample_(false), hasProfile_(false), sampleData_(),
+      profile_() {
     for (int i = 0; i < FFT_SIZE; ++i) window_[i] = hammingWindow(i, FFT_SIZE);
     for (int i = 0; i < NUM_BINS; ++i) spectrum_[i] = 0.0f;
     clearSample();

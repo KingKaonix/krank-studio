@@ -82,7 +82,6 @@ void Tuner::setTuningPreset(int preset) {
         stringTunings_[i] = BASE_TUNING[i] * powf(2.0f, offsets[i] / 12.0f);
 }
 
-int Tuner::getCurrentTuningPreset() const { return currentTuning_; }
 const char* Tuner::getTuningName() const {
     static const char* names[] = {"Standard", "Drop D", "Drop C", "Open D", "Open G", "Open E",
         "DADGAD", "Half-Step Down", "Full-Step Down", "Drop B", "Open A", "Custom"};
