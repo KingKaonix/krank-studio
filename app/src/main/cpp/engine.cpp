@@ -278,11 +278,19 @@ void AudioEngine::processInput(float* buffer, int32_t numFrames) {
     for (int i = 0; i < numFrames; ++i) {
         int pos = (ringBufferWritePos_ + i) % RING_BUFFER_CAPACITY;
         ringBuffer_[pos] = buffer[i];
+        // Track input peak for VU meter
+        float absVal = fabsf(buffer[i]);
+        if (absVal > inputPeak_) {
+            inputPeak_ = absVal;
+        }
     }
     ringBufferWritePos_ += numFrames;
     if (ringBufferWritePos_ - ringBufferReadPos_ > RING_BUFFER_CAPACITY) {
         ringBufferReadPos_ = ringBufferWritePos_ - RING_BUFFER_CAPACITY;
     }
+    // Decay peak for VU meter display
+    inputPeakDecay_ = inputPeak_;
+    inputPeak_ *= 0.995f; // Slow decay
 }
 
 void AudioEngine::buildSignalChain(float* buffer, int32_t numFrames, int32_t numChannels) {

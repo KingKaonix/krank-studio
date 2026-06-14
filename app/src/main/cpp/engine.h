@@ -42,6 +42,7 @@ public:
     const char* getTunerNoteName(int index) const;
     void setTunerMuteDry(bool mute);
     bool isTunerMuteDry() const { return tunerMuteDry_; }
+    float getInputPeakLevel() const { return inputPeakDecay_; }
 
     // Audio monitoring
     void setMonitoringEnabled(bool enabled);
@@ -146,6 +147,8 @@ private:
 
     // Tuner mute
     bool tunerMuteDry_ = false;
+    float inputPeak_ = 0.0f;
+    float inputPeakDecay_ = 0.0f;
 
     // Convolution reverb / IR
     std::vector<float> irData_;

@@ -29,9 +29,7 @@ class SystemAudioCapture(private val activity: Activity) {
         return try {
             val mpm = activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
             mpm?.createScreenCaptureIntent()
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
     }
 
     fun setup(resultCode: Int, data: Intent): Boolean {
@@ -41,9 +39,7 @@ class SystemAudioCapture(private val activity: Activity) {
                 mediaProjection = mpm.getMediaProjection(resultCode, data)
                 mediaProjection != null
             } else false
-        } catch (e: Exception) {
-            false
-        }
+        } catch (e: Exception) { false }
     }
 
     suspend fun capture(maxDurationMs: Int = 30000): CaptureResult? = withContext(Dispatchers.IO) {
@@ -52,14 +48,14 @@ class SystemAudioCapture(private val activity: Activity) {
         val sampleRate = 44100
         val channelConfig = AudioFormat.CHANNEL_IN_MONO
         val audioFormat = AudioFormat.ENCODING_PCM_16BIT
-        val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat) * 4
+        val bufferSize = (AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat) * 4).coerceAtLeast(4096)
 
         try {
-            val audioRecord = createAudioRecordReflective(proj, sampleRate, channelConfig, audioFormat, bufferSize)
-                ?: return@withContext null
+            // Try creating AudioRecord from MediaProjection (official API 29+)
+            val audioRecord = createMediaProjectionAudioRecord(proj, sampleRate, channelConfig, audioFormat, bufferSize)
 
-            if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
-                audioRecord.release()
+            if (audioRecord == null || audioRecord.state != AudioRecord.STATE_INITIALIZED) {
+                audioRecord?.release()
                 return@withContext null
             }
 
@@ -79,7 +75,7 @@ class SystemAudioCapture(private val activity: Activity) {
                     }
                     collected += read
                 } else if (read < 0) {
-                    break
+                    break // Error
                 }
             }
 
@@ -102,43 +98,39 @@ class SystemAudioCapture(private val activity: Activity) {
         }
     }
 
-    fun stopCapture() {
-        capturing = false
-    }
-
-    private fun createAudioRecordReflective(
-        proj: MediaProjection, sampleRate: Int,
-        channelConfig: Int, audioFormat: Int, bufferSize: Int
+    private fun createMediaProjectionAudioRecord(
+        proj: MediaProjection,
+        sampleRate: Int,
+        channelConfig: Int,
+        audioFormat: Int,
+        bufferSize: Int
     ): AudioRecord? {
-        // Try the official API via reflection so minSdk 26 compiles
-        if (Build.VERSION.SDK_INT >= 29) {
-            try {
-                val method = MediaProjection::class.java.getMethod(
-                    "createAudioRecord",
-                    Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java
-                )
-                val record = method.invoke(proj, MediaRecorder.AudioSource.REMOTE_SUBMIX,
-                    sampleRate, channelConfig, audioFormat, bufferSize) as? AudioRecord
-                if (record?.state == AudioRecord.STATE_INITIALIZED) return record
-            } catch (_: Exception) {}
+        if (Build.VERSION.SDK_INT < 29) return null
 
-            // Try DEFAULT source as fallback
-            try {
-                val method = MediaProjection::class.java.getMethod(
-                    "createAudioRecord",
-                    Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java
-                )
-                val record = method.invoke(proj, MediaRecorder.AudioSource.DEFAULT,
-                    sampleRate, channelConfig, audioFormat, bufferSize) as? AudioRecord
-                if (record?.state == AudioRecord.STATE_INITIALIZED) return record
-            } catch (_: Exception) {}
-        }
-
-        // Ultimate fallback: regular mic recording
+        // Use reflection for broad compatibility
         return try {
-            AudioRecord(MediaRecorder.AudioSource.MIC, sampleRate, channelConfig, audioFormat, bufferSize)
-        } catch (_: Exception) { null }
+            val method = MediaProjection::class.java.getMethod(
+                "createAudioRecord",
+                Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java
+            )
+            // Try REMOTE_SUBMIX first (captures device audio), fall back to DEFAULT
+            val sources = intArrayOf(
+                MediaRecorder.AudioSource.REMOTE_SUBMIX,
+                MediaRecorder.AudioSource.DEFAULT,
+                0  // Try raw 0 as last resort
+            )
+            for (src in sources) {
+                try {
+                    val record = method.invoke(proj, src, sampleRate, channelConfig, audioFormat, bufferSize) as? AudioRecord
+                    if (record?.state == AudioRecord.STATE_INITIALIZED) return record
+                    record?.release()
+                } catch (_: Exception) {}
+            }
+            null
+        } catch (e: Exception) { null }
     }
+
+    fun stopCapture() { capturing = false }
 
     fun release() {
         capturing = false

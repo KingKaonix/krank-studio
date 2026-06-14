@@ -85,6 +85,7 @@ class KrankEngine {
     fun getTunerNoteName(index: Int): String = nativeGetTunerNoteName(nativePtr, index)
     fun setTunerMuteDry(mute: Boolean) = nativeSetTunerMuteDry(nativePtr, mute)
     fun isTunerMuteDry(): Boolean = nativeIsTunerMuteDry(nativePtr)
+    fun getInputPeakLevel(): Float = nativeGetInputPeakLevel(nativePtr)
 
     // Monitoring
     fun setMonitoringEnabled(enabled: Boolean) = nativeSetMonitoringEnabled(nativePtr, enabled)

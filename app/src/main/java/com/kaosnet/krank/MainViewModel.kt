@@ -82,6 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- Monitoring ---
     var monitoringEnabled by mutableStateOf(false); private set
+    var inputPeakLevel by mutableFloatStateOf(0.0f); private set
 
     // --- Metronome ---
     var metronomeEnabled by mutableStateOf(false); private set
@@ -153,6 +154,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tunerPollJob = viewModelScope.launch {
             while (isActive) {
                 updateTunerState()
+                updateInputPeak()
                 delay(50)
             }
         }
@@ -270,6 +272,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun toggleMonitoring() {
         monitoringEnabled = !monitoringEnabled
         engine.setMonitoringEnabled(monitoringEnabled)
+    }
+
+    fun updateInputPeak() {
+        inputPeakLevel = engine.getInputPeakLevel()
     }
 
     // Tone matcher

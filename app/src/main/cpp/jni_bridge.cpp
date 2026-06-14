@@ -117,6 +117,12 @@ Java_com_kaosnet_krank_KrankEngine_nativeIsTunerMuteDry(JNIEnv*, jobject, jlong 
     return getEngine(ptr)->isTunerMuteDry() ? JNI_TRUE : JNI_FALSE;
 }
 
+// Input peak level (VU meter)
+JNIEXPORT jfloat JNICALL
+Java_com_kaosnet_krank_KrankEngine_nativeGetInputPeakLevel(JNIEnv*, jobject, jlong ptr) {
+    return getEngine(ptr)->getInputPeakLevel();
+}
+
 // Monitoring
 JNIEXPORT void JNICALL
 Java_com_kaosnet_krank_KrankEngine_nativeSetMonitoringEnabled(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
