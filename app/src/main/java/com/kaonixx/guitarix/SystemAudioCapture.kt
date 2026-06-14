@@ -3,9 +3,9 @@ package com.kaonixx.guitarix
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.media.MediaRecorder
 import android.media.AudioFormat
 import android.media.AudioRecord
+import android.media.MediaRecorder
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
@@ -27,7 +27,6 @@ class SystemAudioCapture(private val activity: Activity) {
     fun createCaptureIntent(): Intent {
         val mpm = activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         return mpm.createScreenCaptureIntent()
-import androidx.annotation.RequiresApi
     }
 
     fun setup(resultCode: Int, data: Intent) {
@@ -45,17 +44,12 @@ import androidx.annotation.RequiresApi
 
         try {
             val audioRecord = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                proj.createAudioRecord(
-                    MediaRecorder.AudioSource.DEFAULT,
-                    sampleRate,
-                    AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT,
-                    bufferSize
-                )
+                // Use MediaProjection to capture system audio (API 29+)
+                createProjectionAudioRecord(proj, sampleRate, bufferSize)
             } else {
-                // Fallback to mic recording for older devices
+                // Fallback to mic for older devices
                 AudioRecord(
-                    android.media.MediaRecorder.AudioSource.MIC,
+                    MediaRecorder.AudioSource.MIC,
                     sampleRate,
                     channelConfig,
                     audioFormat,
@@ -63,7 +57,7 @@ import androidx.annotation.RequiresApi
                 )
             }
 
-            if (audioRecord.state != AudioRecord.STATE_INITIALIZED) {
+            if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
                 return@withContext null
             }
 
@@ -101,6 +95,30 @@ import androidx.annotation.RequiresApi
             null
         } finally {
             isCapturing = false
+        }
+    }
+
+    private fun createProjectionAudioRecord(
+        proj: MediaProjection,
+        sampleRate: Int,
+        bufferSize: Int
+    ): AudioRecord? {
+        return try {
+            val method = MediaProjection::class.java.getMethod(
+                "createAudioRecord",
+                Int::class.java, Int::class.java, Int::class.java, Int::class.java, Int::class.java
+            )
+            method.invoke(proj, MediaRecorder.AudioSource.DEFAULT, sampleRate,
+                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize) as? AudioRecord
+        } catch (e: Exception) {
+            // Fallback
+            AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                sampleRate,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                bufferSize
+            )
         }
     }
 
