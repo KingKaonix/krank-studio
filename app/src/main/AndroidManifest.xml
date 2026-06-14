@@ -17,7 +17,7 @@
         android:label="KRANK STUDIO"
         android:icon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Guitarix"
+        android:theme="@style/Theme.Krank"
         android:usesCleartextTraffic="true">
 
         <activity
