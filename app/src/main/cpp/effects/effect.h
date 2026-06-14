@@ -1,5 +1,5 @@
-#ifndef GUITARIX_EFFECTS_H
-#define GUITARIX_EFFECTS_H
+#ifndef KRANK_EFFECTS_H
+#define KRANK_EFFECTS_H
 
 #include <cstdint>
 

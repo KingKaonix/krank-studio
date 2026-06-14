@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
 import android.app.Activity
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,7 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kaonixx.guitarix.ui.MainScreen
+import com.kaosnet.krank.ui.MainScreen
 
 @Composable
 fun KrankApp(viewModel: MainViewModel = viewModel()) {

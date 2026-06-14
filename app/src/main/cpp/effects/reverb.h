@@ -1,5 +1,5 @@
-#ifndef GUITARIX_REVERB_H
-#define GUITARIX_REVERB_H
+#ifndef KRANK_REVERB_H
+#define KRANK_REVERB_H
 
 #include "effect.h"
 #include <vector>

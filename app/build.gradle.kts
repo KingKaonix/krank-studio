@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kaonixx.guitarix"
+    namespace = "com.kaosnet.krank"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.kaonixx.guitarix"
+        applicationId = "com.kaosnet.krank"
         minSdk = 26
         targetSdk = 34
         versionCode = 2

@@ -1,8 +1,8 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
-class GuitarEngine {
+class KrankEngine {
     companion object {
-        init { System.loadLibrary("guitarix_engine") }
+        init { System.loadLibrary("krank_engine") }
 
         const val FX_DISTORTION = 0
         const val FX_AMP_SIM    = 1

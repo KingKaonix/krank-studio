@@ -1,5 +1,5 @@
-#ifndef GUITARIX_ENGINE_H
-#define GUITARIX_ENGINE_H
+#ifndef KRANK_ENGINE_H
+#define KRANK_ENGINE_H
 
 #include <oboe/Oboe.h>
 #include <memory>

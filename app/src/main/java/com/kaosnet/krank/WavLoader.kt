@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
 import android.content.Context
 import android.net.Uri

@@ -1,5 +1,5 @@
-#ifndef GUITARIX_TRANSCRIBER_H
-#define GUITARIX_TRANSCRIBER_H
+#ifndef KRANK_TRANSCRIBER_H
+#define KRANK_TRANSCRIBER_H
 
 #include <cstdint>
 #include <vector>

@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
 import android.app.Application
 import android.content.Context
@@ -13,21 +13,21 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_AMP_SIM
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_CHORUS
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_DELAY
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_DISTORTION
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_EQ
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_REVERB
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_NOISE_GATE
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_COMPRESSOR
-import com.kaonixx.guitarix.GuitarEngine.Companion.FX_TONE_MATCHER
+import com.kaosnet.krank.KrankEngine.Companion.FX_AMP_SIM
+import com.kaosnet.krank.KrankEngine.Companion.FX_CHORUS
+import com.kaosnet.krank.KrankEngine.Companion.FX_DELAY
+import com.kaosnet.krank.KrankEngine.Companion.FX_DISTORTION
+import com.kaosnet.krank.KrankEngine.Companion.FX_EQ
+import com.kaosnet.krank.KrankEngine.Companion.FX_REVERB
+import com.kaosnet.krank.KrankEngine.Companion.FX_NOISE_GATE
+import com.kaosnet.krank.KrankEngine.Companion.FX_COMPRESSOR
+import com.kaosnet.krank.KrankEngine.Companion.FX_TONE_MATCHER
 
 data class TabNoteData(val stringNum: Int, val fret: Int, val startTime: Float, val duration: Float)
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    val engine = GuitarEngine()
+    val engine = KrankEngine()
     private var tunerPollJob: Job? = null
 
     // --- Navigation ---
@@ -133,8 +133,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var bleDeviceName by mutableStateOf(""); private set
     var bleScanning by mutableStateOf(false); private set
 
-    val presetNames = GuitarEngine.presetNames
-    val effectNames = GuitarEngine.effectNames
+    val presetNames = KrankEngine.presetNames
+    val effectNames = KrankEngine.effectNames
 
     init { updateToneMatcherRecommendations() }
 
@@ -190,63 +190,63 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         noiseGateOn   = engine.isEffectEnabled(FX_NOISE_GATE)
         compressorOn  = engine.isEffectEnabled(FX_COMPRESSOR)
 
-        distortionDrive = engine.getEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_DRIVE)
-        distortionTone  = engine.getEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_TONE)
-        distortionLevel = engine.getEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_LEVEL)
+        distortionDrive = engine.getEffectParameter(FX_DISTORTION, KrankEngine.PARAM_DRIVE)
+        distortionTone  = engine.getEffectParameter(FX_DISTORTION, KrankEngine.PARAM_TONE)
+        distortionLevel = engine.getEffectParameter(FX_DISTORTION, KrankEngine.PARAM_LEVEL)
 
-        ampSimGain   = engine.getEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_GAIN)
-        ampSimTone   = engine.getEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_TONE2)
-        ampSimMaster = engine.getEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_MASTER)
+        ampSimGain   = engine.getEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_GAIN)
+        ampSimTone   = engine.getEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_TONE2)
+        ampSimMaster = engine.getEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_MASTER)
 
-        noiseGateThreshold = engine.getEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_THRESHOLD2)
-        noiseGateAttack    = engine.getEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_ATTACK2)
-        noiseGateRelease   = engine.getEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_RELEASE2)
+        noiseGateThreshold = engine.getEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_THRESHOLD2)
+        noiseGateAttack    = engine.getEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_ATTACK2)
+        noiseGateRelease   = engine.getEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_RELEASE2)
 
-        compressorThreshold = engine.getEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_THRESHOLD3)
-        compressorRatio     = engine.getEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_RATIO)
-        compressorAttack    = engine.getEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_ATTACK3)
-        compressorRelease   = engine.getEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_RELEASE3)
+        compressorThreshold = engine.getEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_THRESHOLD3)
+        compressorRatio     = engine.getEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_RATIO)
+        compressorAttack    = engine.getEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_ATTACK3)
+        compressorRelease   = engine.getEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_RELEASE3)
 
-        eqBass   = engine.getEffectParameter(FX_EQ, GuitarEngine.PARAM_BASS)
-        eqMid    = engine.getEffectParameter(FX_EQ, GuitarEngine.PARAM_MID)
-        eqTreble = engine.getEffectParameter(FX_EQ, GuitarEngine.PARAM_TREBLE)
+        eqBass   = engine.getEffectParameter(FX_EQ, KrankEngine.PARAM_BASS)
+        eqMid    = engine.getEffectParameter(FX_EQ, KrankEngine.PARAM_MID)
+        eqTreble = engine.getEffectParameter(FX_EQ, KrankEngine.PARAM_TREBLE)
 
-        chorusRate  = engine.getEffectParameter(FX_CHORUS, GuitarEngine.PARAM_RATE)
-        chorusDepth = engine.getEffectParameter(FX_CHORUS, GuitarEngine.PARAM_DEPTH)
-        chorusMix   = engine.getEffectParameter(FX_CHORUS, GuitarEngine.PARAM_MIX)
+        chorusRate  = engine.getEffectParameter(FX_CHORUS, KrankEngine.PARAM_RATE)
+        chorusDepth = engine.getEffectParameter(FX_CHORUS, KrankEngine.PARAM_DEPTH)
+        chorusMix   = engine.getEffectParameter(FX_CHORUS, KrankEngine.PARAM_MIX)
 
-        delayMix     = engine.getEffectParameter(FX_DELAY, GuitarEngine.PARAM_MIX2)
-        delayFeedback = engine.getEffectParameter(FX_DELAY, GuitarEngine.PARAM_FEEDBACK)
-        delayMs      = engine.getEffectParameter(FX_DELAY, GuitarEngine.PARAM_DELAY_MS)
+        delayMix     = engine.getEffectParameter(FX_DELAY, KrankEngine.PARAM_MIX2)
+        delayFeedback = engine.getEffectParameter(FX_DELAY, KrankEngine.PARAM_FEEDBACK)
+        delayMs      = engine.getEffectParameter(FX_DELAY, KrankEngine.PARAM_DELAY_MS)
 
-        reverbRoomSize = engine.getEffectParameter(FX_REVERB, GuitarEngine.PARAM_ROOM_SIZE)
-        reverbMix      = engine.getEffectParameter(FX_REVERB, GuitarEngine.PARAM_MIX3)
+        reverbRoomSize = engine.getEffectParameter(FX_REVERB, KrankEngine.PARAM_ROOM_SIZE)
+        reverbMix      = engine.getEffectParameter(FX_REVERB, KrankEngine.PARAM_MIX3)
     }
 
-    fun updateDistortionDrive(v: Float) { distortionDrive = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_DRIVE, v) }
-    fun updateDistortionTone(v: Float) { distortionTone = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_TONE, v) }
-    fun updateDistortionLevel(v: Float) { distortionLevel = v; engine.setEffectParameter(FX_DISTORTION, GuitarEngine.PARAM_LEVEL, v) }
-    fun updateAmpSimGain(v: Float) { ampSimGain = v; engine.setEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_GAIN, v) }
-    fun updateAmpSimTone(v: Float) { ampSimTone = v; engine.setEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_TONE2, v) }
-    fun updateAmpSimMaster(v: Float) { ampSimMaster = v; engine.setEffectParameter(FX_AMP_SIM, GuitarEngine.PARAM_MASTER, v) }
-    fun updateNoiseGateThreshold(v: Float) { noiseGateThreshold = v; engine.setEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_THRESHOLD2, v) }
-    fun updateNoiseGateAttack(v: Float) { noiseGateAttack = v; engine.setEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_ATTACK2, v) }
-    fun updateNoiseGateRelease(v: Float) { noiseGateRelease = v; engine.setEffectParameter(FX_NOISE_GATE, GuitarEngine.PARAM_RELEASE2, v) }
-    fun updateCompressorThreshold(v: Float) { compressorThreshold = v; engine.setEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_THRESHOLD3, v) }
-    fun updateCompressorRatio(v: Float) { compressorRatio = v; engine.setEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_RATIO, v) }
-    fun updateCompressorAttack(v: Float) { compressorAttack = v; engine.setEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_ATTACK3, v) }
-    fun updateCompressorRelease(v: Float) { compressorRelease = v; engine.setEffectParameter(FX_COMPRESSOR, GuitarEngine.PARAM_RELEASE3, v) }
-    fun updateEqBass(v: Float) { eqBass = v; engine.setEffectParameter(FX_EQ, GuitarEngine.PARAM_BASS, v) }
-    fun updateEqMid(v: Float) { eqMid = v; engine.setEffectParameter(FX_EQ, GuitarEngine.PARAM_MID, v) }
-    fun updateEqTreble(v: Float) { eqTreble = v; engine.setEffectParameter(FX_EQ, GuitarEngine.PARAM_TREBLE, v) }
-    fun updateChorusRate(v: Float) { chorusRate = v; engine.setEffectParameter(FX_CHORUS, GuitarEngine.PARAM_RATE, v) }
-    fun updateChorusDepth(v: Float) { chorusDepth = v; engine.setEffectParameter(FX_CHORUS, GuitarEngine.PARAM_DEPTH, v) }
-    fun updateChorusMix(v: Float) { chorusMix = v; engine.setEffectParameter(FX_CHORUS, GuitarEngine.PARAM_MIX, v) }
-    fun updateDelayMix(v: Float) { delayMix = v; engine.setEffectParameter(FX_DELAY, GuitarEngine.PARAM_MIX2, v) }
-    fun updateDelayFeedback(v: Float) { delayFeedback = v; engine.setEffectParameter(FX_DELAY, GuitarEngine.PARAM_FEEDBACK, v) }
-    fun updateDelayMs(v: Float) { delayMs = v; engine.setEffectParameter(FX_DELAY, GuitarEngine.PARAM_DELAY_MS, v) }
-    fun updateReverbRoomSize(v: Float) { reverbRoomSize = v; engine.setEffectParameter(FX_REVERB, GuitarEngine.PARAM_ROOM_SIZE, v) }
-    fun updateReverbMix(v: Float) { reverbMix = v; engine.setEffectParameter(FX_REVERB, GuitarEngine.PARAM_MIX3, v) }
+    fun updateDistortionDrive(v: Float) { distortionDrive = v; engine.setEffectParameter(FX_DISTORTION, KrankEngine.PARAM_DRIVE, v) }
+    fun updateDistortionTone(v: Float) { distortionTone = v; engine.setEffectParameter(FX_DISTORTION, KrankEngine.PARAM_TONE, v) }
+    fun updateDistortionLevel(v: Float) { distortionLevel = v; engine.setEffectParameter(FX_DISTORTION, KrankEngine.PARAM_LEVEL, v) }
+    fun updateAmpSimGain(v: Float) { ampSimGain = v; engine.setEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_GAIN, v) }
+    fun updateAmpSimTone(v: Float) { ampSimTone = v; engine.setEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_TONE2, v) }
+    fun updateAmpSimMaster(v: Float) { ampSimMaster = v; engine.setEffectParameter(FX_AMP_SIM, KrankEngine.PARAM_MASTER, v) }
+    fun updateNoiseGateThreshold(v: Float) { noiseGateThreshold = v; engine.setEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_THRESHOLD2, v) }
+    fun updateNoiseGateAttack(v: Float) { noiseGateAttack = v; engine.setEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_ATTACK2, v) }
+    fun updateNoiseGateRelease(v: Float) { noiseGateRelease = v; engine.setEffectParameter(FX_NOISE_GATE, KrankEngine.PARAM_RELEASE2, v) }
+    fun updateCompressorThreshold(v: Float) { compressorThreshold = v; engine.setEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_THRESHOLD3, v) }
+    fun updateCompressorRatio(v: Float) { compressorRatio = v; engine.setEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_RATIO, v) }
+    fun updateCompressorAttack(v: Float) { compressorAttack = v; engine.setEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_ATTACK3, v) }
+    fun updateCompressorRelease(v: Float) { compressorRelease = v; engine.setEffectParameter(FX_COMPRESSOR, KrankEngine.PARAM_RELEASE3, v) }
+    fun updateEqBass(v: Float) { eqBass = v; engine.setEffectParameter(FX_EQ, KrankEngine.PARAM_BASS, v) }
+    fun updateEqMid(v: Float) { eqMid = v; engine.setEffectParameter(FX_EQ, KrankEngine.PARAM_MID, v) }
+    fun updateEqTreble(v: Float) { eqTreble = v; engine.setEffectParameter(FX_EQ, KrankEngine.PARAM_TREBLE, v) }
+    fun updateChorusRate(v: Float) { chorusRate = v; engine.setEffectParameter(FX_CHORUS, KrankEngine.PARAM_RATE, v) }
+    fun updateChorusDepth(v: Float) { chorusDepth = v; engine.setEffectParameter(FX_CHORUS, KrankEngine.PARAM_DEPTH, v) }
+    fun updateChorusMix(v: Float) { chorusMix = v; engine.setEffectParameter(FX_CHORUS, KrankEngine.PARAM_MIX, v) }
+    fun updateDelayMix(v: Float) { delayMix = v; engine.setEffectParameter(FX_DELAY, KrankEngine.PARAM_MIX2, v) }
+    fun updateDelayFeedback(v: Float) { delayFeedback = v; engine.setEffectParameter(FX_DELAY, KrankEngine.PARAM_FEEDBACK, v) }
+    fun updateDelayMs(v: Float) { delayMs = v; engine.setEffectParameter(FX_DELAY, KrankEngine.PARAM_DELAY_MS, v) }
+    fun updateReverbRoomSize(v: Float) { reverbRoomSize = v; engine.setEffectParameter(FX_REVERB, KrankEngine.PARAM_ROOM_SIZE, v) }
+    fun updateReverbMix(v: Float) { reverbMix = v; engine.setEffectParameter(FX_REVERB, KrankEngine.PARAM_MIX3, v) }
 
     // Tuner
     fun loadAudioForTuner(data: FloatArray, numFrames: Int, numChannels: Int) {

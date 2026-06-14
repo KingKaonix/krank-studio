@@ -15,7 +15,7 @@
 #include <cstdio>
 #include <string>
 
-#define LOG_TAG "GuitarixEngine"
+#define LOG_TAG "KrankEngine"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 static bool writeWavHeader(FILE* f, int sampleRate, int numChannels, int bitsPerSample) {

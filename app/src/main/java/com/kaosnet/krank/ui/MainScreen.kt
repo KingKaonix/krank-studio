@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui
+package com.kaosnet.krank.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
@@ -37,10 +37,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.kaonixx.guitarix.MainViewModel
-import com.kaonixx.guitarix.ui.tuner.TunerScreen
-import com.kaonixx.guitarix.ui.tone_matcher.ToneMatcherScreen
-import com.kaonixx.guitarix.ui.transcribe.TranscribeScreen
+import com.kaosnet.krank.MainViewModel
+import com.kaosnet.krank.ui.tuner.TunerScreen
+import com.kaosnet.krank.ui.tone_matcher.ToneMatcherScreen
+import com.kaosnet.krank.ui.transcribe.TranscribeScreen
 
 private val Bg          = Color(0xFF0A0A0E)
 private val S0          = Color(0xFF121216)

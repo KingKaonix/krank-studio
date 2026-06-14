@@ -1,5 +1,5 @@
-#ifndef GUITARIX_TONE_MATCHER_H
-#define GUITARIX_TONE_MATCHER_H
+#ifndef KRANK_TONE_MATCHER_H
+#define KRANK_TONE_MATCHER_H
 #include <cstdint>
 #include <cmath>
 #include <vector>

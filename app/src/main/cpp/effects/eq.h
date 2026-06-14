@@ -1,5 +1,5 @@
-#ifndef GUITARIX_EQ_H
-#define GUITARIX_EQ_H
+#ifndef KRANK_EQ_H
+#define KRANK_EQ_H
 
 #include "effect.h"
 

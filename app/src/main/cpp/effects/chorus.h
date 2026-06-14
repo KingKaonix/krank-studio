@@ -1,5 +1,5 @@
-#ifndef GUITARIX_CHORUS_H
-#define GUITARIX_CHORUS_H
+#ifndef KRANK_CHORUS_H
+#define KRANK_CHORUS_H
 
 #include "effect.h"
 #include <vector>

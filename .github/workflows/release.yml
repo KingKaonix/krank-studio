@@ -48,7 +48,7 @@ jobs:
       - name: Rename APK
         run: |
           mv app/build/outputs/apk/debug/app-debug.apk \
-             app/build/outputs/apk/debug/guitarix-v${{ steps.version.outputs.VERSION }}.apk
+             app/build/outputs/apk/debug/krank-v${{ steps.version.outputs.VERSION }}.apk
 
       - name: Generate release notes
         id: notes
@@ -66,4 +66,4 @@ jobs:
           body: ${{ steps.notes.outputs.notes }}
           fail_on_unmatched_files: true
           files: |
-            app/build/outputs/apk/debug/guitarix-v*.apk
+            app/build/outputs/apk/debug/krank-v*.apk

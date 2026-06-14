@@ -1,5 +1,5 @@
-#ifndef GUITARIX_DELAY_H
-#define GUITARIX_DELAY_H
+#ifndef KRANK_DELAY_H
+#define KRANK_DELAY_H
 
 #include "effect.h"
 #include <vector>

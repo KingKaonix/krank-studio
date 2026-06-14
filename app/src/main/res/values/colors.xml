@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_bg">#FF0A0A0E</color>
-    <color name="guitarix_bg">#FF0F0F14</color>
-    <color name="guitarix_surface">#FF1A1A24</color>
-    <color name="guitarix_accent">#FFFF4D6D</color>
-    <color name="guitarix_accent2">#FF00E5FF</color>
-    <color name="guitarix_text">#FFFAFAFA</color>
-    <color name="guitarix_muted">#FF6B7280</color>
+    <color name="krank_bg">#FF0F0F14</color>
+    <color name="krank_surface">#FF1A1A24</color>
+    <color name="krank_accent">#FFFF4D6D</color>
+    <color name="krank_accent2">#FF00E5FF</color>
+    <color name="krank_text">#FFFAFAFA</color>
+    <color name="krank_muted">#FF6B7280</color>
 </resources>

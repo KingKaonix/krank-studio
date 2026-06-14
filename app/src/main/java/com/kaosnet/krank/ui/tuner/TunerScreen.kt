@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui.tuner
+package com.kaosnet.krank.ui.tuner
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.RepeatMode
@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kaonixx.guitarix.MainViewModel
+import com.kaosnet.krank.MainViewModel
 
 private val Bg         = Color(0xFF0A0A0E)
 private val S1         = Color(0xFF1A1A22)

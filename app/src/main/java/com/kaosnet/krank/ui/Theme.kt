@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui
+package com.kaosnet.krank.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

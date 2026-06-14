@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
 import android.Manifest
 import android.content.Context
@@ -8,12 +8,15 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 
 class MicRecorder {
 
     private var audioRecord: AudioRecord? = null
-    private var isRecording = false
+    @Volatile private var recording = false
+    private var recordingJob: Job? = null
 
     data class RecordingResult(
         val samples: FloatArray,
@@ -21,7 +24,11 @@ class MicRecorder {
         val numChannels: Int
     )
 
-    suspend fun record(durationMs: Int = 5000): RecordingResult? = withContext(Dispatchers.IO) {
+    fun isRecording(): Boolean = recording
+
+    suspend fun startRecording(durationMs: Int = Int.MAX_VALUE, onData: ((FloatArray) -> Unit)? = null): RecordingResult? = withContext(Dispatchers.IO) {
+        if (recording) return@withContext null
+
         val sampleRate = 44100
         val channelConfig = AudioFormat.CHANNEL_IN_MONO
         val audioFormat = AudioFormat.ENCODING_PCM_16BIT
@@ -39,26 +46,34 @@ class MicRecorder {
                 return@withContext null
             }
 
-            val totalSamples = (sampleRate * durationMs / 1000)
+            audioRecord = recorder
+            val totalSamples = if (durationMs == Int.MAX_VALUE) Int.MAX_VALUE else (sampleRate * durationMs / 1000)
             val buffer = ShortArray(bufferSize / 2)
             val allSamples = mutableListOf<Float>()
 
             recorder.startRecording()
-            isRecording = true
+            recording = true
 
             var samplesCollected = 0
-            while (samplesCollected < totalSamples && isRecording) {
+            while (recording && samplesCollected < totalSamples && isActive) {
                 val read = recorder.read(buffer, 0, buffer.size)
                 if (read > 0) {
+                    val chunk = FloatArray(read)
                     for (i in 0 until read) {
-                        allSamples.add(buffer[i].toFloat() / 32768f)
+                        val sample = buffer[i].toFloat() / 32768f
+                        chunk[i] = sample
+                        allSamples.add(sample)
                     }
+                    onData?.invoke(chunk)
                     samplesCollected += read
                 }
             }
 
-            recorder.stop()
+            try {
+                recorder.stop()
+            } catch (_: Exception) {}
             recorder.release()
+            audioRecord = null
 
             if (allSamples.isEmpty()) return@withContext null
 
@@ -71,12 +86,12 @@ class MicRecorder {
             e.printStackTrace()
             null
         } finally {
-            isRecording = false
+            recording = false
         }
     }
 
     fun stop() {
-        isRecording = false
+        recording = false
         try {
             audioRecord?.stop()
             audioRecord?.release()

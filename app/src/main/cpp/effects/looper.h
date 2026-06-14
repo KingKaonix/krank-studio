@@ -1,5 +1,5 @@
-#ifndef GUITARIX_LOOPER_H
-#define GUITARIX_LOOPER_H
+#ifndef KRANK_LOOPER_H
+#define KRANK_LOOPER_H
 
 #include "effect.h"
 #include <vector>

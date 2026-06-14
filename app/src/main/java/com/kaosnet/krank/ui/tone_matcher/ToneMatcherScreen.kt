@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui.tone_matcher
+package com.kaosnet.krank.ui.tone_matcher
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,11 +22,11 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.platform.LocalContext
-import com.kaonixx.guitarix.MainViewModel
-import com.kaonixx.guitarix.WavLoader
-import com.kaonixx.guitarix.ui.effectColor
+import com.kaosnet.krank.MainViewModel
+import com.kaosnet.krank.WavLoader
+import com.kaosnet.krank.ui.effectColor
 import kotlinx.coroutines.launch
-import com.kaonixx.guitarix.MicRecorder
+import com.kaosnet.krank.MicRecorder
 
 data class ToneRecommendation(val effectName: String, val value: Float, val paramName: String)
 

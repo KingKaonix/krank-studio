@@ -1,5 +1,5 @@
-#ifndef GUITARIX_COMPRESSOR_H
-#define GUITARIX_COMPRESSOR_H
+#ifndef KRANK_COMPRESSOR_H
+#define KRANK_COMPRESSOR_H
 
 #include "effect.h"
 #include <cmath>

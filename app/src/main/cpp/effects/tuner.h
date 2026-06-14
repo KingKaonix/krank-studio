@@ -1,5 +1,5 @@
-#ifndef GUITARIX_TUNER_H
-#define GUITARIX_TUNER_H
+#ifndef KRANK_TUNER_H
+#define KRANK_TUNER_H
 #include <cstdint>
 #include <cmath>
 #include <cstring>

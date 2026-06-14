@@ -9,59 +9,59 @@ static AudioEngine* getEngine(jlong ptr) {
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeCreate(JNIEnv*, jobject) {
+Java_com_kaosnet_krank_GuitarEngine_nativeCreate(JNIEnv*, jobject) {
     auto* engine = new AudioEngine();
     return reinterpret_cast<jlong>(engine);
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeDestroy(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeDestroy(JNIEnv*, jobject, jlong ptr) {
     delete getEngine(ptr);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeStart(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeStart(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->start() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeStop(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeStop(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->stop();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetEffectEnabled(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeSetEffectEnabled(JNIEnv*, jobject,
     jlong ptr, jint index, jboolean enabled) {
     getEngine(ptr)->setEffectEnabled(index, enabled);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsEffectEnabled(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeIsEffectEnabled(JNIEnv*, jobject,
     jlong ptr, jint index) {
     return getEngine(ptr)->isEffectEnabled(index) ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetEffectParameter(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeSetEffectParameter(JNIEnv*, jobject,
     jlong ptr, jint index, jint paramId, jfloat value) {
     getEngine(ptr)->setEffectParameter(index, paramId, value);
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetEffectParameter(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeGetEffectParameter(JNIEnv*, jobject,
     jlong ptr, jint index, jint paramId) {
     return getEngine(ptr)->getEffectParameter(index, paramId);
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadPreset(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeLoadPreset(JNIEnv*, jobject,
     jlong ptr, jint preset) {
     getEngine(ptr)->loadPreset(preset);
 }
 
 // Tuner JNI
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadAudioForTuner(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeLoadAudioForTuner(JNIEnv* env, jobject,
     jlong ptr, jfloatArray data, jint numFrames, jint numChannels) {
     auto* engine = getEngine(ptr);
     if (!engine || !data) return;
@@ -72,65 +72,65 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadAudioForTuner(JNIEnv* env, jobj
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerFrequency(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerFrequency(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getTunerFrequency();
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerNoteIndex(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerNoteIndex(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getTunerNoteIndex();
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerOctave(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerOctave(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getTunerOctave();
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerCents(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerCents(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getTunerCents();
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsTunerNoteDetected(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeIsTunerNoteDetected(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->isTunerNoteDetected() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerCurrentTuningName(JNIEnv* env, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerCurrentTuningName(JNIEnv* env, jobject, jlong ptr) {
     return env->NewStringUTF(getEngine(ptr)->getTunerCurrentTuningName());
 }
 
 JNIEXPORT jstring JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTunerNoteName(JNIEnv* env, jobject, jlong ptr, jint index) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTunerNoteName(JNIEnv* env, jobject, jlong ptr, jint index) {
     return env->NewStringUTF(getEngine(ptr)->getTunerNoteName(index));
 }
 
 // Tuner mute dry
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetTunerMuteDry(JNIEnv*, jobject, jlong ptr, jboolean mute) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetTunerMuteDry(JNIEnv*, jobject, jlong ptr, jboolean mute) {
     getEngine(ptr)->setTunerMuteDry(mute);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsTunerMuteDry(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeIsTunerMuteDry(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->isTunerMuteDry() ? JNI_TRUE : JNI_FALSE;
 }
 
 // Monitoring
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMonitoringEnabled(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMonitoringEnabled(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
     getEngine(ptr)->setMonitoringEnabled(enabled);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsMonitoringEnabled(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeIsMonitoringEnabled(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->isMonitoringEnabled() ? JNI_TRUE : JNI_FALSE;
 }
 
 // Tone matcher JNI
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadAudioForToneMatcher(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeLoadAudioForToneMatcher(JNIEnv* env, jobject,
     jlong ptr, jfloatArray data, jint numFrames, jint numChannels) {
     auto* engine = getEngine(ptr);
     if (!engine || !data) return;
@@ -141,13 +141,13 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadAudioForToneMatcher(JNIEnv* env
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeHasToneMatcherProfile(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeHasToneMatcherProfile(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->hasToneMatcherProfile() ? JNI_TRUE : JNI_FALSE;
 }
 
 #define TONE_MATCHER_GETTER(name) \
 JNIEXPORT jfloat JNICALL \
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetRecommended##name(JNIEnv*, jobject, jlong ptr) { \
+Java_com_kaosnet_krank_GuitarEngine_nativeGetRecommended##name(JNIEnv*, jobject, jlong ptr) { \
     return getEngine(ptr)->getRecommended##name(); \
 }
 
@@ -171,7 +171,7 @@ TONE_MATCHER_GETTER(ReverbMix)
 
 // Recording
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeStartRecording(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeStartRecording(JNIEnv* env, jobject,
     jlong ptr, jstring filePath) {
     auto* engine = getEngine(ptr);
     if (!engine) return;
@@ -181,17 +181,17 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeStartRecording(JNIEnv* env, jobject
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeStopRecording(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeStopRecording(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->stopRecording();
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsRecording(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeIsRecording(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->isRecording() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadImpulseResponse(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeLoadImpulseResponse(JNIEnv* env, jobject,
     jlong ptr, jstring path) {
     auto* engine = getEngine(ptr);
     if (!engine) return JNI_FALSE;
@@ -203,7 +203,7 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadImpulseResponse(JNIEnv* env, jo
 
 // Transcription JNI
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeTranscribeAudio(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeTranscribeAudio(JNIEnv* env, jobject,
     jlong ptr, jfloatArray data, jint numSamples, jint sampleRate) {
     auto* engine = getEngine(ptr);
     if (!engine || !data) return JNI_FALSE;
@@ -214,22 +214,22 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeTranscribeAudio(JNIEnv* env, jobjec
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeHasTranscription(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeHasTranscription(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->hasTranscription() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetNumMeasures(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetNumMeasures(JNIEnv*, jobject, jlong ptr) {
     return (jint)getEngine(ptr)->getNumMeasures();
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTranscriptionProgress(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTranscriptionProgress(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getTranscriptionProgress();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTabData(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeGetTabData(JNIEnv* env, jobject,
     jlong ptr, jintArray outStrings, jintArray outFrets,
     jfloatArray outTimes, jfloatArray outDurations, jint maxNotes) {
     auto* engine = getEngine(ptr);
@@ -247,7 +247,7 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeGetTabData(JNIEnv* env, jobject,
 
 // Polyphonic transcription
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeTranscribePolyphonic(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeTranscribePolyphonic(JNIEnv* env, jobject,
     jlong ptr, jfloatArray data, jint numSamples, jint sampleRate) {
     auto* engine = getEngine(ptr);
     if (!engine || !data) return JNI_FALSE;
@@ -258,95 +258,95 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeTranscribePolyphonic(JNIEnv* env, j
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeHasPolyphonicResult(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeHasPolyphonicResult(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->hasPolyphonicResult() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetPolyphonicNoteCount(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetPolyphonicNoteCount(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getPolyphonicNoteCount();
 }
 
 // Metronome JNI
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMetronomeEnabled(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMetronomeEnabled(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
     getEngine(ptr)->setMetronomeEnabled(enabled);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeIsMetronomeEnabled(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeIsMetronomeEnabled(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->isMetronomeEnabled() ? JNI_TRUE : JNI_FALSE;
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMetronomeBpm(JNIEnv*, jobject, jlong ptr, jfloat bpm) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMetronomeBpm(JNIEnv*, jobject, jlong ptr, jfloat bpm) {
     getEngine(ptr)->setMetronomeBpm(bpm);
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetMetronomeBpm(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetMetronomeBpm(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getMetronomeBpm();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMetronomeVolume(JNIEnv*, jobject, jlong ptr, jfloat vol) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMetronomeVolume(JNIEnv*, jobject, jlong ptr, jfloat vol) {
     getEngine(ptr)->setMetronomeVolume(vol);
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetMetronomeVolume(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetMetronomeVolume(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getMetronomeVolume();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeTapTempo(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeTapTempo(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->tapTempo();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMetronomeActive(JNIEnv*, jobject, jlong ptr, jboolean active) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMetronomeActive(JNIEnv*, jobject, jlong ptr, jboolean active) {
     getEngine(ptr)->setMetronomeActive(active);
 }
 
 // Looper JNI
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetLooperMode(JNIEnv*, jobject, jlong ptr, jint mode) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetLooperMode(JNIEnv*, jobject, jlong ptr, jint mode) {
     getEngine(ptr)->setLooperMode(mode);
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetLooperMode(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetLooperMode(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getLooperMode();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLooperToggleRecord(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeLooperToggleRecord(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->looperToggleRecord();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLooperUndoOverdub(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeLooperUndoOverdub(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->looperUndoOverdub();
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLooperClear(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeLooperClear(JNIEnv*, jobject, jlong ptr) {
     getEngine(ptr)->looperClear();
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetLooperLoopLength(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetLooperLoopLength(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getLooperLoopLength();
 }
 
 JNIEXPORT jfloat JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetLooperLoopDuration(JNIEnv*, jobject, jlong ptr) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetLooperLoopDuration(JNIEnv*, jobject, jlong ptr) {
     return getEngine(ptr)->getLooperLoopDuration();
 }
 
 // Preset serialization JNI
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSavePresetToFile(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeSavePresetToFile(JNIEnv* env, jobject,
     jlong ptr, jstring path, jint presetIndex) {
     auto* engine = getEngine(ptr);
     const char* cpath = env->GetStringUTFChars(path, nullptr);
@@ -356,7 +356,7 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeSavePresetToFile(JNIEnv* env, jobje
 }
 
 JNIEXPORT jboolean JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadPresetFromFile(JNIEnv* env, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeLoadPresetFromFile(JNIEnv* env, jobject,
     jlong ptr, jstring path) {
     auto* engine = getEngine(ptr);
     const char* cpath = env->GetStringUTFChars(path, nullptr);
@@ -367,34 +367,34 @@ Java_com_kaonixx_guitarix_GuitarEngine_nativeLoadPresetFromFile(JNIEnv* env, job
 
 // MIDI JNI
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMidiCcMapping(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMidiCcMapping(JNIEnv*, jobject,
     jlong ptr, jint cc, jint effectIndex, jint paramId) {
     getEngine(ptr)->setMidiCcMapping(cc, effectIndex, paramId);
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetMidiCcEffect(JNIEnv*, jobject, jlong ptr, jint cc) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetMidiCcEffect(JNIEnv*, jobject, jlong ptr, jint cc) {
     return getEngine(ptr)->getMidiCcEffect(cc);
 }
 
 JNIEXPORT jint JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeGetMidiCcParam(JNIEnv*, jobject, jlong ptr, jint cc) {
+Java_com_kaosnet_krank_GuitarEngine_nativeGetMidiCcParam(JNIEnv*, jobject, jlong ptr, jint cc) {
     return getEngine(ptr)->getMidiCcParam(cc);
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeHandleMidiMessage(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeHandleMidiMessage(JNIEnv*, jobject,
     jlong ptr, jint status, jint data1, jint data2) {
     getEngine(ptr)->handleMidiMessage(status, data1, data2);
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMidiLearnMode(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMidiLearnMode(JNIEnv*, jobject, jlong ptr, jboolean enabled) {
     getEngine(ptr)->setMidiLearnMode(enabled);
 }
 
 JNIEXPORT void JNICALL
-Java_com_kaonixx_guitarix_GuitarEngine_nativeSetMidiLearnTarget(JNIEnv*, jobject,
+Java_com_kaosnet_krank_GuitarEngine_nativeSetMidiLearnTarget(JNIEnv*, jobject,
     jlong ptr, jint effectIdx, jint paramId) {
     getEngine(ptr)->setMidiLearnTarget(effectIdx, paramId);
 }

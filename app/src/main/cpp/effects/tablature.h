@@ -1,5 +1,5 @@
-#ifndef GUITARIX_TABLATURE_H
-#define GUITARIX_TABLATURE_H
+#ifndef KRANK_TABLATURE_H
+#define KRANK_TABLATURE_H
 
 #include <cstdint>
 #include <vector>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Guitarix" parent="android:Theme.Material.NoActionBar">
+    <style name="Theme.Krank" parent="android:Theme.Material.NoActionBar">
         <item name="android:statusBarColor">#FF0F0F14</item>
         <item name="android:navigationBarColor">#FF0F0F14</item>
-        <item name="android:windowBackground">@color/guitarix_bg</item>
+        <item name="android:windowBackground">@color/krank_bg</item>
     </style>
 </resources>

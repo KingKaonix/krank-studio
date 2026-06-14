@@ -1,5 +1,5 @@
-#ifndef GUITARIX_NOISE_GATE_H
-#define GUITARIX_NOISE_GATE_H
+#ifndef KRANK_NOISE_GATE_H
+#define KRANK_NOISE_GATE_H
 
 #include "effect.h"
 #include <cmath>

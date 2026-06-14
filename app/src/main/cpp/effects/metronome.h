@@ -1,5 +1,5 @@
-#ifndef GUITARIX_METRONOME_H
-#define GUITARIX_METRONOME_H
+#ifndef KRANK_METRONOME_H
+#define KRANK_METRONOME_H
 
 #include "effect.h"
 #include <cmath>

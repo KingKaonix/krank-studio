@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(guitarix_native C CXX)
+project(krank_native C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -ffast-math -funroll-loops")
 
 add_subdirectory(oboe)
 
-add_library(guitarix_engine SHARED
+add_library(krank_engine SHARED
     engine.cpp
     jni_bridge.cpp
     effects/distortion.cpp
@@ -26,17 +26,17 @@ add_library(guitarix_engine SHARED
     effects/looper.cpp
 )
 
-target_include_directories(guitarix_engine PRIVATE
+target_include_directories(krank_engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/effects
 )
 
-target_link_libraries(guitarix_engine
+target_link_libraries(krank_engine
     oboe
     log
     -Wl,--gc-sections
 )
 
-set_target_properties(guitarix_engine PROPERTIES
+set_target_properties(krank_engine PROPERTIES
     LINK_DEPENDS_NO_SONAME ON
 )

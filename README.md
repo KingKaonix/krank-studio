@@ -1,7 +1,7 @@
 # KRANK STUDIO
 
-[![Build](https://github.com/KingKaonix/guitarix/actions/workflows/build.yml/badge.svg)](https://github.com/KingKaonix/guitarix/actions/workflows/build.yml)
-[![Release](https://img.shields.io/badge/release-v1.1.0-22d3ee)](https://github.com/KingKaonix/guitarix/releases)
+[![Build](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml/badge.svg)](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml)
+[![Release](https://img.shields.io/badge/release-v1.1.0-22d3ee)](https://github.com/KaosNet/krank-studio/releases)
 [![License](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 **KRANK STUDIO** is a professional-grade, low-latency guitar effects processor and audio toolkit for Android. Built from the ground up with a hybrid C++ audio engine and a premium hardware-amp-inspired UI, it delivers studio-quality sound processing directly on your phone or tablet — no cloud, no latency, no compromises.
@@ -122,8 +122,8 @@ Load impulse response WAV files for convolution-based cabinet simulation.
 ## Building from Source
 
 ```bash
-git clone https://github.com/KingKaonix/guitarix.git
-cd guitarix
+git clone https://github.com/KaosNet/krank-studio.git
+cd krank-studio
 ./gradlew assembleDebug
 ```
 
@@ -139,14 +139,14 @@ The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Download
 
-[![Download from GitHub Actions](https://img.shields.io/badge/download-latest%20build-22d3ee)](https://github.com/KingKaonix/guitarix/actions/workflows/build.yml)
+[![Download from GitHub Actions](https://img.shields.io/badge/download-latest%20build-22d3ee)](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml)
 
 1. Click the badge above or go to **Actions → Build → latest green run**
 2. Scroll to **Artifacts**
-3. Download `guitarix-debug.zip`
+3. Download `krank-debug.zip`
 4. Unzip and install the APK
 
-Or grab a tagged release from the [Releases page](https://github.com/KingKaonix/guitarix/releases).
+Or grab a tagged release from the [Releases page](https://github.com/KaosNet/krank-studio/releases).
 
 ---
 

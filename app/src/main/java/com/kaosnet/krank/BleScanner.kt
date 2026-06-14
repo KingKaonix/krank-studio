@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix
+package com.kaosnet.krank
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice

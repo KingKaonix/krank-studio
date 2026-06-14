@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui
+package com.kaosnet.krank.ui
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.kaonixx.guitarix.MainViewModel
-import com.kaonixx.guitarix.GuitarEngine
+import com.kaosnet.krank.MainViewModel
+import com.kaosnet.krank.KrankEngine
 
 private val S0 = Color(0xFF121216)
 private val S1 = Color(0xFF1A1A22)
@@ -39,7 +39,7 @@ private val TMuted = Color(0xFF555570)
 @Composable
 fun PresetRow(vm: MainViewModel) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        GuitarEngine.presetNames.forEachIndexed { idx, name ->
+        KrankEngine.presetNames.forEachIndexed { idx, name ->
             val sel = idx == vm.currentPresetIndex
             val bg by animateColorAsState(if (sel) Cyan else S1, spring(Spring.DampingRatioMediumBouncy))
             val tc by animateColorAsState(if (sel) S0 else TSecondary, spring(Spring.DampingRatioMediumBouncy))

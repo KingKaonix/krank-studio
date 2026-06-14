@@ -1,5 +1,5 @@
-#ifndef GUITARIX_DISTORTION_H
-#define GUITARIX_DISTORTION_H
+#ifndef KRANK_DISTORTION_H
+#define KRANK_DISTORTION_H
 
 #include "effect.h"
 

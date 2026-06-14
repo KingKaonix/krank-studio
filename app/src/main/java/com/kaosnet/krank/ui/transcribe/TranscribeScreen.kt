@@ -1,4 +1,4 @@
-package com.kaonixx.guitarix.ui.transcribe
+package com.kaosnet.krank.ui.transcribe
 
 import android.app.Activity
 import android.net.Uri
@@ -19,17 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
-import com.kaonixx.guitarix.MainViewModel
-import com.kaonixx.guitarix.TabNoteData
-import com.kaonixx.guitarix.WavLoader
-import com.kaonixx.guitarix.MicRecorder
-import com.kaonixx.guitarix.SystemAudioCapture
+import com.kaosnet.krank.MainViewModel
+import com.kaosnet.krank.TabNoteData
+import com.kaosnet.krank.WavLoader
+import com.kaosnet.krank.MicRecorder
+import com.kaosnet.krank.SystemAudioCapture
 import kotlinx.coroutines.launch
 
 private val Bg         = Color(0xFF0A0A0E)
@@ -53,6 +52,7 @@ fun TranscribeScreen(vm: MainViewModel) {
     var isRecording by remember { mutableStateOf(false) }
     var isCapturing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val recorderRef = remember { mutableListOf<MicRecorder>() }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -125,7 +125,6 @@ fun TranscribeScreen(vm: MainViewModel) {
             Column(Modifier.padding(16.dp)) {
                 Text("AUDIO SOURCE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 12.dp))
 
-                // File picker button - fixed label
                 OutlinedButton(onClick = {
                     filePickerLauncher.launch(arrayOf("audio/*"))
                 }, enabled = !loading && !isRecording && !isCapturing,
@@ -138,34 +137,54 @@ fun TranscribeScreen(vm: MainViewModel) {
                 }
                 Spacer(Modifier.height(8.dp))
 
+                // Mic recording - indefinite, user-stopped
                 OutlinedButton(onClick = {
-                    scope.launch {
+                    if (isRecording) {
+                        recorderRef.firstOrNull()?.stop()
+                    } else {
                         isRecording = true; errorMsg = ""
                         val recorder = MicRecorder()
-                        val result = recorder.record(5000)
-                        if (result != null) {
-                            fileName = "Mic Recording"
-                            runCatching {
-                                if (vm.polyphonicEnabled) vm.transcribePolyphonic(result.samples, result.sampleRate)
-                                else vm.transcribeAudio(result.samples, result.sampleRate)
+                        recorderRef.clear()
+                        recorderRef.add(recorder)
+                        scope.launch {
+                            val result = recorder.startRecording()
+                            if (result != null) {
+                                fileName = "Mic Recording"
+                                runCatching {
+                                    if (vm.polyphonicEnabled) vm.transcribePolyphonic(result.samples, result.sampleRate)
+                                    else vm.transcribeAudio(result.samples, result.sampleRate)
+                                }
+                            } else {
+                                if (errorMsg.isEmpty()) errorMsg = "Recording failed"
                             }
-                        } else errorMsg = "Recording failed"
-                        isRecording = false
+                            isRecording = false
+                            recorderRef.clear()
+                        }
                     }
-                }, enabled = !loading && !isRecording && !isCapturing,
+                }, enabled = !loading && !isCapturing,
                     modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF6B6B), containerColor = Color(0xFFFF6B6B).copy(alpha = 0.05f))) {
-                    Text(if (isRecording) "RECORDING..." else "RECORD FROM MIC (5s)", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (isRecording) Color(0xFFFF6B6B) else Color(0xFFFF6B6B),
+                        containerColor = if (isRecording) Color(0xFFFF6B6B).copy(alpha = 0.15f) else Color(0xFFFF6B6B).copy(alpha = 0.05f))
+                ) {
+                    Text(if (isRecording) "■ STOP RECORDING" else "RECORD FROM MIC",
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
                 }
                 Spacer(Modifier.height(8.dp))
 
+                // Capture from device
                 OutlinedButton(onClick = {
-                    try { captureLauncher.launch(SystemAudioCapture(context as Activity).createCaptureIntent()) }
-                    catch (e: Exception) { errorMsg = "Screen capture not available on this device" }
+                    val intent = SystemAudioCapture(context as Activity).createCaptureIntent()
+                    if (intent != null) {
+                        captureLauncher.launch(intent)
+                    } else {
+                        errorMsg = "Screen capture not available on this device"
+                    }
                 }, enabled = !loading && !isRecording && !isCapturing,
                     modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF22D3EE), containerColor = Color(0xFF22D3EE).copy(alpha = 0.05f))) {
-                    Text(if (isCapturing) "CAPTURING..." else "CAPTURE FROM DEVICE (30s)", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
+                    Text(if (isCapturing) "CAPTURING..." else "CAPTURE FROM DEVICE (30s)",
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
                 }
             }
         }
@@ -176,7 +195,8 @@ fun TranscribeScreen(vm: MainViewModel) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("TABLATURE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TSecondary, letterSpacing = 1.5.sp)
-                        Text("${vm.transcribeNumMeasures} measures · ${vm.transcribeNotes.size} notes", fontSize = 10.sp, color = Cyan, fontFamily = FontFamily.Monospace)
+                        Text("${vm.transcribeNumMeasures} measures · ${vm.transcribeNotes.size} notes",
+                            fontSize = 10.sp, color = Cyan, fontFamily = FontFamily.Monospace)
                     }
                     Spacer(Modifier.height(12.dp))
                     TabView(vm.transcribeNotes)
@@ -188,7 +208,7 @@ fun TranscribeScreen(vm: MainViewModel) {
         Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1.copy(alpha = 0.5f)), shape = RoundedCornerShape(10.dp)) {
             Column(Modifier.padding(16.dp)) {
                 Text("ABOUT", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
-                Text("• Load an audio file (MP3/AAC/OGG/WAV), record from mic (5s), or capture a song playing on your device (30s)", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                Text("• Load an audio file (MP3/AAC/OGG/WAV), record from mic, or capture a song playing on your device (30s)", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 Text("• System detects notes and maps them to fret positions", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 if (vm.polyphonicEnabled) {
                     Text("• Polyphonic mode enabled - attempts multi-note/chord detection", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)

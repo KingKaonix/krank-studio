@@ -1,5 +1,5 @@
-#ifndef GUITARIX_AMPSIM_H
-#define GUITARIX_AMPSIM_H
+#ifndef KRANK_AMPSIM_H
+#define KRANK_AMPSIM_H
 
 #include "effect.h"
 
