@@ -68,7 +68,10 @@ fun TranscribeScreen(vm: MainViewModel) {
                         s / result.numChannels
                     }
                     fileName = uri.lastPathSegment ?: "Loaded"
-                    runCatching { vm.transcribeAudio(monoData, result.sampleRate) }
+                    runCatching {
+                        if (vm.polyphonicEnabled) vm.transcribePolyphonic(monoData, result.sampleRate)
+                        else vm.transcribeAudio(monoData, result.sampleRate)
+                    }
                 } else errorMsg = "Could not read audio file"
             } catch (e: Exception) { errorMsg = "Error: ${e.message}" }
             loading = false
@@ -86,7 +89,10 @@ fun TranscribeScreen(vm: MainViewModel) {
                 val capResult = capture.capture(30000)
                 if (capResult != null) {
                     fileName = "Song (${capResult.durationMs / 1000}s)"
-                    runCatching { vm.transcribeAudio(capResult.samples, capResult.sampleRate) }
+                    runCatching {
+                        if (vm.polyphonicEnabled) vm.transcribePolyphonic(capResult.samples, capResult.sampleRate)
+                        else vm.transcribeAudio(capResult.samples, capResult.sampleRate)
+                    }
                 } else { errorMsg = "Capture failed - try again" }
                 capture.release(); isCapturing = false
             }
@@ -102,40 +108,51 @@ fun TranscribeScreen(vm: MainViewModel) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).clip(RoundedCornerShape(8.dp)).background(S1).border(1.dp, Border, RoundedCornerShape(8.dp)).padding(12.dp)
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("SONG TRANSCRIPTION", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TSecondary, letterSpacing = 2.sp)
-                Box(Modifier.size(6.dp).clip(CircleShape).background(if (vm.transcribeHasResult) Green else TMuted))
+                Text("TAB TRANSCRIPTION", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TSecondary, letterSpacing = 2.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(6.dp).clip(CircleShape).background(if (vm.transcribeHasResult || vm.polyphonicHasResult) Green else TMuted))
+                    if (vm.polyphonicEnabled) {
+                        Spacer(Modifier.width(4.dp))
+                        Text("ML", fontSize = 8.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
         Spacer(Modifier.height(16.dp))
 
-        Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(16.dp)) {
-            Column(Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(Modifier.size(56.dp).clip(CircleShape).background(Cyan.copy(alpha = 0.1f)).border(1.dp, Cyan.copy(alpha = 0.3f), CircleShape), contentAlignment = Alignment.Center) {
-                    Text("♪", fontSize = 24.sp, color = Cyan, fontFamily = FontFamily.Monospace)
-                }
-                Spacer(Modifier.height(16.dp))
-                Text("LOAD AUDIO FILE", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TPrimary, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
-                Text("Generate tablature from guitar audio", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(top = 4.dp))
-                Spacer(Modifier.height(16.dp))
-                if (fileName.isNotEmpty()) { Text("FILE: $fileName", fontSize = 10.sp, color = Cyan, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 8.dp)) }
-                if (errorMsg.isNotEmpty()) { Text(errorMsg, fontSize = 10.sp, color = Color(0xFFFF6B6B), fontFamily = FontFamily.Monospace, modifier = Modifier.padding(bottom = 8.dp)) }
+        // Input section
+        Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(16.dp)) {
+            Column(Modifier.padding(16.dp)) {
+                Text("AUDIO SOURCE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 12.dp))
 
-                Button(onClick = { filePickerLauncher.launch(arrayOf("audio/*")) }, enabled = !loading && !isRecording && !isCapturing,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Cyan, contentColor = Bg), shape = RoundedCornerShape(10.dp)) {
-                    Text(if (loading) "PROCESSING..." else "SELECT AUDIO FILE", fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp, fontFamily = FontFamily.Monospace)
+                // File picker button - fixed label
+                OutlinedButton(onClick = {
+                    filePickerLauncher.launch(arrayOf("audio/*"))
+                }, enabled = !loading && !isRecording && !isCapturing,
+                    modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Cyan, containerColor = Cyan.copy(alpha = 0.05f))) {
+                    Text(if (loading) "LOADING..." else "LOAD AUDIO FILE", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
+                }
+                if (fileName.isNotEmpty()) {
+                    Text(fileName, fontSize = 9.sp, color = TSecondary, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(top = 4.dp))
                 }
                 Spacer(Modifier.height(8.dp))
 
                 OutlinedButton(onClick = {
                     scope.launch {
                         isRecording = true; errorMsg = ""
-                        val result = MicRecorder().record(5000)
-                        if (result != null) { fileName = "Mic (5s)"; runCatching { vm.transcribeAudio(result.samples, result.sampleRate) } }
-                        else { errorMsg = "Recording failed - check mic permissions" }
+                        val recorder = MicRecorder()
+                        val result = recorder.record(5000)
+                        if (result != null) {
+                            fileName = "Mic Recording"
+                            runCatching {
+                                if (vm.polyphonicEnabled) vm.transcribePolyphonic(result.samples, result.sampleRate)
+                                else vm.transcribeAudio(result.samples, result.sampleRate)
+                            }
+                        } else errorMsg = "Recording failed"
                         isRecording = false
                     }
-                }, enabled = !loading && !isRecording && !isCapturing && MicRecorder.hasPermission(context),
+                }, enabled = !loading && !isRecording && !isCapturing,
                     modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF6B6B), containerColor = Color(0xFFFF6B6B).copy(alpha = 0.05f))) {
                     Text(if (isRecording) "RECORDING..." else "RECORD FROM MIC (5s)", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
@@ -154,7 +171,7 @@ fun TranscribeScreen(vm: MainViewModel) {
         }
         Spacer(Modifier.height(20.dp))
 
-        if (vm.transcribeHasResult) {
+        if (vm.transcribeHasResult || vm.polyphonicHasResult) {
             Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(16.dp)) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -171,11 +188,15 @@ fun TranscribeScreen(vm: MainViewModel) {
         Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1.copy(alpha = 0.5f)), shape = RoundedCornerShape(10.dp)) {
             Column(Modifier.padding(16.dp)) {
                 Text("ABOUT", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
-                Text("• Load a WAV/MP3 file, record from mic (5s), or capture a song playing on your device (30s)", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                Text("• Load an audio file (MP3/AAC/OGG/WAV), record from mic (5s), or capture a song playing on your device (30s)", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 Text("• System detects notes and maps them to fret positions", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
-                Text("• Best results with monophonic guitar or bass parts", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                if (vm.polyphonicEnabled) {
+                    Text("• Polyphonic mode enabled - attempts multi-note/chord detection", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                } else {
+                    Text("• Best results with monophonic guitar or bass parts", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                }
                 Spacer(Modifier.height(8.dp))
-                Text("* ML source separation for multi-instrument coming soon", fontSize = 10.sp, color = TMuted, fontFamily = FontFamily.Monospace, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                Text("* Enable Polyphonic Mode in Tools for ML-based multi-instrument transcription", fontSize = 10.sp, color = TMuted, fontFamily = FontFamily.Monospace, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
             }
         }
         Spacer(Modifier.height(40.dp))

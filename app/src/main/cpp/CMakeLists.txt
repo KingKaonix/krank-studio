@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -ffast-math -funroll-loops")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -ffast-math -funroll-loops")
 
-# Include Oboe source inline
 add_subdirectory(oboe)
 
 add_library(guitarix_engine SHARED
@@ -23,6 +22,8 @@ add_library(guitarix_engine SHARED
     effects/tuner.cpp
     effects/tone_matcher.cpp
     effects/transcriber.cpp
+    effects/metronome.cpp
+    effects/looper.cpp
 )
 
 target_include_directories(guitarix_engine PRIVATE
@@ -30,7 +31,6 @@ target_include_directories(guitarix_engine PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/effects
 )
 
-# Link Oboe static library from inline source
 target_link_libraries(guitarix_engine
     oboe
     log

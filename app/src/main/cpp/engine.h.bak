@@ -9,8 +9,6 @@
 #include "effects/tuner.h"
 #include "effects/tone_matcher.h"
 #include "effects/transcriber.h"
-#include "effects/metronome.h"
-#include "effects/looper.h"
 
 class AudioEngine : public oboe::AudioStreamDataCallback,
                     public oboe::AudioStreamErrorCallback {
@@ -40,12 +38,6 @@ public:
     bool isTunerNoteDetected() const;
     const char* getTunerCurrentTuningName() const;
     const char* getTunerNoteName(int index) const;
-    void setTunerMuteDry(bool mute);
-    bool isTunerMuteDry() const { return tunerMuteDry_; }
-
-    // Audio monitoring
-    void setMonitoringEnabled(bool enabled);
-    bool isMonitoringEnabled() const { return monitoringEnabled_; }
 
     // Recording
     bool startRecording(const char* path);
@@ -60,15 +52,8 @@ public:
     bool hasTranscription() const;
     int getNumMeasures() const;
     float getTranscriptionProgress() const;
+    // Get tab data as simple arrays for JNI
     void getTabData(int* outStrings, int* outFrets, float* outTimes, float* outDurations, int maxNotes);
-
-    // Polyphonic transcription (ML source separation)
-    bool transcribePolyphonic(const float* data, int32_t numSamples, int32_t sampleRate);
-    void setPolyphonicTranscriptionEnabled(bool enabled) { polyphonicEnabled_ = enabled; }
-    bool isPolyphonicTranscriptionEnabled() const { return polyphonicEnabled_; }
-    bool hasPolyphonicResult() const;
-    int getPolyphonicNoteCount() const;
-    void getPolyphonicTabData(int* outStrings, int* outFrets, float* outTimes, float* outDurations, int maxNotes);
 
     // Tone matcher interface
     void loadAudioForToneMatcher(const float* data, int32_t numFrames, int32_t numChannels);
@@ -91,68 +76,29 @@ public:
     float getRecommendedReverbSize() const;
     float getRecommendedReverbMix() const;
 
-    // Metronome
-    void setMetronomeEnabled(bool enabled);
-    bool isMetronomeEnabled() const;
-    void setMetronomeBpm(float bpm);
-    float getMetronomeBpm() const;
-    void setMetronomeVolume(float vol);
-    float getMetronomeVolume() const;
-    void tapTempo();
-    void setMetronomeActive(bool active);
-
-    // Looper
-    void setLooperMode(int mode);
-    int getLooperMode() const;
-    void looperToggleRecord();
-    void looperUndoOverdub();
-    void looperClear();
-    int getLooperLoopLength() const;
-    float getLooperLoopDuration() const;
-
-    // Preset serialization
-    bool savePresetToFile(const char* path, int presetIndex);
-    bool loadPresetFromFile(const char* path);
-
-    // MIDI
-    void setMidiCcMapping(int cc, int effectIndex, int paramId);
-    int getMidiCcEffect(int cc) const;
-    int getMidiCcParam(int cc) const;
-    void handleMidiMessage(int status, int data1, int data2);
-    void setMidiLearnMode(bool enabled) { midiLearnMode_ = enabled; }
-    bool isMidiLearnMode() const { return midiLearnMode_; }
-    int getMidiLearnEffect() const { return midiLearnEffect_; }
-    int getMidiLearnParam() const { return midiLearnParam_; }
-    void setMidiLearnTarget(int effectIdx, int paramId);
-
-    // oboe callbacks
+    // oboe::AudioStreamDataCallback
     oboe::DataCallbackResult onAudioReady(
-        oboe::AudioStream *audioStream, void *audioData, int32_t numFrames) override;
+        oboe::AudioStream *audioStream,
+        void *audioData,
+        int32_t numFrames) override;
+
     void processInput(float* buffer, int32_t numFrames);
+
+    // oboe::AudioStreamErrorCallback
     void onErrorAfterClose(oboe::AudioStream *oboeStream, oboe::Result error) override;
 
 private:
     std::shared_ptr<oboe::AudioStream> inputStream_;
+    // Recording state
     FILE* recordingFile_ = nullptr;
     bool recording_ = false;
     int recordingSampleRate_ = 48000;
-
-    // Monitoring
-    bool monitoringEnabled_ = false;
-
-    // Polyphonic transcription
-    bool polyphonicEnabled_ = false;
-    std::unique_ptr<Transcriber> polyphonicTranscriber_;
-
-    // Tuner mute
-    bool tunerMuteDry_ = false;
 
     // Convolution reverb / IR
     std::vector<float> irData_;
     std::vector<float> convBuffer_;
     int irLength_ = 0;
     bool irLoaded_ = false;
-
     std::shared_ptr<oboe::AudioStream> outputStream_;
     std::vector<float> ringBuffer_;
     int ringBufferWritePos_ = 0;
@@ -161,28 +107,19 @@ private:
     std::vector<bool> enabled_;
     int currentPreset_ = 0;
 
-    // New components
-    std::unique_ptr<Metronome> metronome_;
-    std::unique_ptr<Looper> looper_;
+    // New audio analysis components
     std::unique_ptr<Tuner> tuner_;
     std::unique_ptr<ToneMatcher> toneMatcher_;
     std::unique_ptr<Transcriber> transcriber_;
 
     std::mutex mutex_;
 
-    // MIDI state
-    bool midiLearnMode_ = false;
-    int midiLearnEffect_ = 0;
-    int midiLearnParam_ = 0;
-    // CC -> (effectIndex, paramId) mapping
-    int midiCcEffect_[128];
-    int midiCcParam_[128];
-
     void initEffects();
     void buildSignalChain(float* buffer, int32_t numFrames, int32_t numChannels);
-    static constexpr int RING_BUFFER_CAPACITY = 16384;
+    static constexpr int RING_BUFFER_CAPACITY = 16384; // ~85ms at 48kHz
 };
 
+// Separate callback class for input stream
 class InputCallback : public oboe::AudioStreamDataCallback {
 public:
     explicit InputCallback(AudioEngine* engine) : engine_(engine) {}
