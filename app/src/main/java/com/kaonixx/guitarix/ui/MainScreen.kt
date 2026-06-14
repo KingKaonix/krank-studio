@@ -551,7 +551,7 @@ private fun BleScreen(vm: MainViewModel) {
 
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(
-                        onClick = { vm.setBleScanning(true) },
+                        onClick = { vm.updateBleScanning(true) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(8.dp)
                     ) {

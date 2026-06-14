@@ -381,7 +381,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         bleConnected = connected
         bleDeviceName = name
     }
-    fun setBleScanning(scanning: Boolean) { bleScanning = scanning }
+    fun updateBleScanning(scanning: Boolean) { bleScanning = scanning }
 
     override fun onCleared() {
         stopTunerPolling()
