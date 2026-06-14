@@ -185,6 +185,7 @@ class KrankEngine {
     private external fun nativeSetTunerMuteDry(ptr: Long, mute: Boolean)
     private external fun nativeIsTunerMuteDry(ptr: Long): Boolean
 
+    private external fun nativeGetInputPeakLevel(ptr: Long): Float
     // Monitoring
     private external fun nativeSetMonitoringEnabled(ptr: Long, enabled: Boolean)
     private external fun nativeIsMonitoringEnabled(ptr: Long): Boolean
