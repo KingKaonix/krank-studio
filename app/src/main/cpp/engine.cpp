@@ -730,11 +730,11 @@ bool AudioEngine::exportTabToMidi(const char* path) {
 bool AudioEngine::exportTabToAbc(const char* path) {
     if (!transcriber_ || !transcriber_->hasResult()) return false;
     return MidiExporter::exportToAbc(transcriber_->getTabTrack(), path);
+}
+
 bool AudioEngine::exportTabToMusicXml(const char* path) {
     if (!transcriber_ || !transcriber_->hasResult()) return false;
     return MidiExporter::exportToMusicXml(transcriber_->getTabTrack(), path);
-}
-
 }
 
 const TabTrack* AudioEngine::getTabTrack() const {

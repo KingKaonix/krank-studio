@@ -427,6 +427,8 @@ Java_com_kaosnet_krank_KrankEngine_nativeExportTabToAbc(JNIEnv* env, jobject,
     const char* cpath = env->GetStringUTFChars(path, nullptr);
     bool result = engine->exportTabToAbc(cpath);
     env->ReleaseStringUTFChars(path, cpath);
+    return result ? JNI_TRUE : JNI_FALSE;
+}
 
 JNIEXPORT jboolean JNICALL
 Java_com_kaosnet_krank_KrankEngine_nativeExportTabToMusicXml(JNIEnv* env, jobject,
@@ -436,9 +438,6 @@ Java_com_kaosnet_krank_KrankEngine_nativeExportTabToMusicXml(JNIEnv* env, jobjec
     const char* cpath = env->GetStringUTFChars(path, nullptr);
     bool result = engine->exportTabToMusicXml(cpath);
     env->ReleaseStringUTFChars(path, cpath);
-    return result ? JNI_TRUE : JNI_FALSE;
-}
-
     return result ? JNI_TRUE : JNI_FALSE;
 }
 
