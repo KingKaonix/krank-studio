@@ -13,6 +13,10 @@ android {
         targetSdk = 34
         versionCode = 2
         versionName = "1.1.0"
+
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     buildTypes {
@@ -41,8 +45,8 @@ android {
 
     externalNativeBuild {
         cmake {
+            version = "3.22.1"
             path = file("src/main/cpp/CMakeLists.txt")
-            toolchainFile = file("src/main/cpp/custom-toolchain.cmake")
         }
     }
 
@@ -51,6 +55,12 @@ android {
     sourceSets {
         getByName("main") {
             jniLibs.srcDirs("src/main/jniLibs")
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
