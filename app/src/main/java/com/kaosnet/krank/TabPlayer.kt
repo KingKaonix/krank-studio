@@ -20,8 +20,8 @@ class TabPlayer {
         private const val CHANNELS = AudioFormat.CHANNEL_OUT_MONO
         private const val ENCODING = AudioFormat.ENCODING_PCM_FLOAT
         private const val BUFFER_MS = 50
-        private const val GUITAR_HARMONICS = floatArrayOf(1.0f, 0.5f, 0.3f, 0.15f, 0.08f, 0.04f)
-        private const val GUITAR_HARMONIC_RATIOS = floatArrayOf(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f)
+        private val GUITAR_HARMONICS = floatArrayOf(1.0f, 0.5f, 0.3f, 0.15f, 0.08f, 0.04f)
+        private val GUITAR_HARMONIC_RATIOS = floatArrayOf(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f)
     }
 
     data class PlaybackState(
