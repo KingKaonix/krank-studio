@@ -44,6 +44,10 @@ public:
         return 69.0f + 12.0f * log2f(freq / 440.0f);
     }
 
+
+    static float midiNoteToFreq(float midiNote) {
+        return 440.0f * powf(2.0f, (midiNote - 69.0f) / 12.0f);
+    }
     static int midiNoteToFret(float midiNote, float stringOpenFreq) {
         float stringMidi = freqToMidiNote(stringOpenFreq);
         int semitones = (int)roundf(midiNote - stringMidi);

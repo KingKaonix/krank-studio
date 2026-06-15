@@ -1,6 +1,5 @@
 package com.kaosnet.krank.ui.transcribe
 
-import android.app.Activity
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,6 @@ import com.kaosnet.krank.MainViewModel
 import com.kaosnet.krank.TabNoteData
 import com.kaosnet.krank.WavLoader
 import com.kaosnet.krank.MicRecorder
-import com.kaosnet.krank.SystemAudioCapture
 import kotlinx.coroutines.launch
 
 private val Bg         = Color(0xFF0A0A0E)
@@ -50,7 +48,6 @@ fun TranscribeScreen(vm: MainViewModel) {
     var loading by remember { mutableStateOf(false) }
     var errorMsg by remember { mutableStateOf("") }
     var isRecording by remember { mutableStateOf(false) }
-    var isCapturing by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val recorderRef = remember { mutableListOf<MicRecorder>() }
 
@@ -75,27 +72,6 @@ fun TranscribeScreen(vm: MainViewModel) {
                 } else errorMsg = "Could not read audio file"
             } catch (e: Exception) { errorMsg = "Error: ${e.message}" }
             loading = false
-        }
-    }
-
-    val captureLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK && result.data != null) {
-            scope.launch {
-                isCapturing = true; errorMsg = ""
-                val capture = SystemAudioCapture(context as Activity)
-                capture.setup(result.resultCode, result.data!!)
-                val capResult = capture.capture(30000)
-                if (capResult != null) {
-                    fileName = "Song (${capResult.durationMs / 1000}s)"
-                    runCatching {
-                        if (vm.polyphonicEnabled) vm.transcribePolyphonic(capResult.samples, capResult.sampleRate)
-                        else vm.transcribeAudio(capResult.samples, capResult.sampleRate)
-                    }
-                } else { errorMsg = "Capture failed - try again" }
-                capture.release(); isCapturing = false
-            }
         }
     }
 
@@ -125,77 +101,69 @@ fun TranscribeScreen(vm: MainViewModel) {
             Column(Modifier.padding(16.dp)) {
                 Text("AUDIO SOURCE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 12.dp))
 
+                // Load from file - MP3/AAC/OGG/WAV
                 OutlinedButton(onClick = {
-                    filePickerLauncher.launch(arrayOf("audio/*"))
-                }, enabled = !loading && !isRecording && !isCapturing,
-                    modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Cyan, containerColor = Cyan.copy(alpha = 0.05f))) {
-                    Text(if (loading) "LOADING..." else "LOAD AUDIO FILE", fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
+                    filePickerLauncher.launch(arrayOf("audio/*", "audio/mpeg", "audio/aac", "audio/ogg", "audio/wav", "audio/x-wav"))
+                }, enabled = !loading && !isRecording,
+                    modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Cyan, containerColor = Color(0xFF22D3EE).copy(alpha = 0.05f))) {
+                    Text("LOAD MP3 / AAC / OGG / WAV",
+                        fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
                 }
-                if (fileName.isNotEmpty()) {
-                    Text(fileName, fontSize = 9.sp, color = TSecondary, fontFamily = FontFamily.Monospace, modifier = Modifier.padding(top = 4.dp))
-                }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
 
-                // Mic recording - indefinite, user-stopped
+                // Record from mic
                 OutlinedButton(onClick = {
                     if (isRecording) {
-                        recorderRef.firstOrNull()?.stop()
+                        recorderRef.firstOrNull()?.stop(); isRecording = false
                     } else {
-                        isRecording = true; errorMsg = ""
-                        val recorder = MicRecorder()
-                        recorderRef.clear()
-                        recorderRef.add(recorder)
                         scope.launch {
+                            isRecording = true; errorMsg = ""
+                            val recorder = MicRecorder()
+                            recorderRef.clear(); recorderRef.add(recorder)
                             val result = recorder.startRecording()
                             if (result != null) {
-                                fileName = "Mic Recording"
+                                fileName = "Mic recording (${result.sampleRate}Hz)"
                                 runCatching {
                                     if (vm.polyphonicEnabled) vm.transcribePolyphonic(result.samples, result.sampleRate)
                                     else vm.transcribeAudio(result.samples, result.sampleRate)
                                 }
-                            } else {
-                                if (errorMsg.isEmpty()) errorMsg = "Recording failed"
-                            }
+                            } else { errorMsg = "Recording failed" }
                             isRecording = false
-                            recorderRef.clear()
                         }
                     }
-                }, enabled = !loading && !isCapturing,
-                    modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = if (isRecording) Color(0xFFFF6B6B) else Color(0xFFFF6B6B),
-                        containerColor = if (isRecording) Color(0xFFFF6B6B).copy(alpha = 0.15f) else Color(0xFFFF6B6B).copy(alpha = 0.05f))
-                ) {
-                    Text(if (isRecording) "■ STOP RECORDING" else "RECORD FROM MIC",
+                }, enabled = !loading,
+                    modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = if (isRecording) Color(0xFFFF6B6B) else Green,
+                        containerColor = (if (isRecording) Color(0xFFFF6B6B) else Green).copy(alpha = 0.05f))) {
+                    Text(if (isRecording) "STOP RECORDING" else "RECORD FROM MIC",
                         fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
                 }
-                Spacer(Modifier.height(8.dp))
 
-                // Capture from device
-                OutlinedButton(onClick = {
-                    val intent = SystemAudioCapture(context as Activity).createCaptureIntent()
-                    if (intent != null) {
-                        captureLauncher.launch(intent)
-                    } else {
-                        errorMsg = "Screen capture not available on this device"
-                    }
-                }, enabled = !loading && !isRecording && !isCapturing,
-                    modifier = Modifier.fillMaxWidth().height(44.dp), shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF22D3EE), containerColor = Color(0xFF22D3EE).copy(alpha = 0.05f))) {
-                    Text(if (isCapturing) "CAPTURING..." else "CAPTURE FROM DEVICE (30s)",
-                        fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp, fontFamily = FontFamily.Monospace)
+                if (loading) {
+                    Spacer(Modifier.height(10.dp))
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
+                        color = Cyan, trackColor = S2)
+                }
+                if (errorMsg.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(errorMsg, fontSize = 11.sp, color = Color(0xFFFF6B6B), fontFamily = FontFamily.Monospace)
+                }
+                if (fileName.isNotEmpty()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(fileName, fontSize = 10.sp, color = CyanDim, fontFamily = FontFamily.Monospace)
                 }
             }
         }
         Spacer(Modifier.height(20.dp))
 
         if (vm.transcribeHasResult || vm.polyphonicHasResult) {
+            // Tablature display
             Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(16.dp)) {
                 Column(Modifier.padding(16.dp)) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("TABLATURE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TSecondary, letterSpacing = 1.5.sp)
-                        Text("${vm.transcribeNumMeasures} measures · ${vm.transcribeNotes.size} notes",
+                        Text("${vm.transcribeNumMeasures} measures \u00B7 ${vm.transcribeNotes.size} notes",
                             fontSize = 10.sp, color = Cyan, fontFamily = FontFamily.Monospace)
                     }
                     Spacer(Modifier.height(12.dp))
@@ -205,18 +173,17 @@ fun TranscribeScreen(vm: MainViewModel) {
             Spacer(Modifier.height(20.dp))
         }
 
+        // Info card
         Card(Modifier.fillMaxWidth().padding(horizontal = 20.dp), colors = CardDefaults.cardColors(containerColor = S1.copy(alpha = 0.5f)), shape = RoundedCornerShape(10.dp)) {
             Column(Modifier.padding(16.dp)) {
                 Text("ABOUT", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
-                Text("• Load an audio file (MP3/AAC/OGG/WAV), record from mic, or capture a song playing on your device (30s)", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
-                Text("• System detects notes and maps them to fret positions", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                Text("1. Load an MP3/AAC/OGG/WAV file or record from your microphone", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                Text("2. System detects notes and maps them to fret positions", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 if (vm.polyphonicEnabled) {
-                    Text("• Polyphonic mode enabled - attempts multi-note/chord detection", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                    Text("3. Polyphonic mode - attempts multi-note/chord detection", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 } else {
-                    Text("• Best results with monophonic guitar or bass parts", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                    Text("3. Best results with monophonic guitar or bass parts", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                 }
-                Spacer(Modifier.height(8.dp))
-                Text("* Enable Polyphonic Mode in Tools for ML-based multi-instrument transcription", fontSize = 10.sp, color = TMuted, fontFamily = FontFamily.Monospace, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
             }
         }
         Spacer(Modifier.height(40.dp))
@@ -225,9 +192,11 @@ fun TranscribeScreen(vm: MainViewModel) {
 
 @Composable
 private fun TabView(notes: List<TabNoteData>) {
-    if (notes.isEmpty()) { Text("No notes detected", fontSize = 12.sp, color = TMuted, fontFamily = FontFamily.Monospace); return }
-
-    val displayNotes = notes.take(60)
+    if (notes.isEmpty()) {
+        Text("Processing... check transcription below", fontSize = 12.sp, color = TMuted, fontFamily = FontFamily.Monospace)
+        return
+    }
+    val displayNotes = notes.take(100)
     val maxTime = displayNotes.maxOfOrNull { it.startTime + it.duration } ?: 1f
 
     for (stringIdx in 0..5) {

@@ -1,5 +1,6 @@
 #include "transcriber.h"
 #include <algorithm>
+#include <cmath>
 
 Transcriber::Transcriber() {
     track_.tuning[0] = 329.63f; // high E
@@ -12,21 +13,21 @@ Transcriber::Transcriber() {
 
 float Transcriber::yinPitch(const float* signal, int n) {
     int half = n / 2;
-    if (half < 2) return 0.0f;
+    if (half < 4) return 0.0f;
 
     // Difference function
-    float* diff = new float[half];
-    for (int tau = 0; tau < half; ++tau) {
+    std::vector<float> diff(half, 0.0f);
+    for (int tau = 1; tau < half; ++tau) {
         float d = 0.0f;
         for (int i = 0; i < n - tau; ++i) {
-            float diffVal = signal[i] - signal[i + tau];
-            d += diffVal * diffVal;
+            float dv = signal[i] - signal[i + tau];
+            d += dv * dv;
         }
         diff[tau] = d;
     }
 
     // Cumulative mean normalized difference
-    float* cmnd = new float[half];
+    std::vector<float> cmnd(half, 1.0f);
     cmnd[0] = 1.0f;
     float runningSum = 0.0f;
     for (int tau = 1; tau < half; ++tau) {
@@ -34,37 +35,45 @@ float Transcriber::yinPitch(const float* signal, int n) {
         cmnd[tau] = (runningSum > 0.0f) ? diff[tau] * tau / runningSum : 1.0f;
     }
 
-    // Find first minimum below threshold
+    // Find first minimum below threshold (absolute threshold)
     int bestTau = -1;
-    for (int tau = 1; tau < half; ++tau) {
-        if (cmnd[tau] < YIN_THRESHOLD) {
+    float bestVal = 1.0f;
+    for (int tau = 2; tau < half; ++tau) {
+        if (cmnd[tau] < YIN_THRESHOLD && cmnd[tau] < cmnd[tau - 1]) {
             bestTau = tau;
+            bestVal = cmnd[tau];
             break;
         }
     }
 
+    // Fallback: global minimum if nothing below threshold
     if (bestTau < 0) {
-        // Fallback: global minimum
-        float minVal = 1.0f;
-        for (int tau = 1; tau < half; ++tau) {
-            if (cmnd[tau] < minVal) {
-                minVal = cmnd[tau];
+        for (int tau = 2; tau < half; ++tau) {
+            if (cmnd[tau] < bestVal) {
+                bestVal = cmnd[tau];
                 bestTau = tau;
             }
         }
     }
 
-    delete[] diff;
-    delete[] cmnd;
-
     if (bestTau <= 0) return 0.0f;
 
-    // Parabolic interpolation
+    // Parabolic interpolation for better accuracy
+    if (bestTau > 0 && bestTau < half - 1) {
+        float y0 = cmnd[bestTau - 1];
+        float y1 = cmnd[bestTau];
+        float y2 = cmnd[bestTau + 1];
+        float a = (y0 + y2 - 2.0f * y1) / 2.0f;
+        if (a != 0.0f) {
+            float correction = (y0 - y2) / (4.0f * a);
+            if (correction > -0.5f && correction < 0.5f) {
+                bestTau = (int)(bestTau + correction);
+            }
+        }
+    }
+
     float freq = 48000.0f / bestTau;
-
-    // Clamp to guitar range
     if (freq < MIN_FREQ || freq > MAX_FREQ) return 0.0f;
-
     return freq;
 }
 
@@ -72,99 +81,154 @@ void Transcriber::updateTrack(const float* audio, int32_t numSamples, int32_t sa
     track_.measures.clear();
     track_.sampleRate = sampleRate;
 
-    std::vector<TabNote> allNotes;
-    float prevFreq = 0.0f;
-    float noteStart = 0.0f;
-    float prevAmp = 0.0f;
-    bool noteActive = false;
-
     int numWindows = (numSamples - YIN_WINDOW) / HOP_SIZE;
     if (numWindows <= 0) return;
+
+    // Collect raw note events: (time, freq, amp)
+    struct RawEvent { float time, freq, amp; };
+    std::vector<RawEvent> events;
+    events.reserve(numWindows);
 
     for (int w = 0; w < numWindows; ++w) {
         int startSample = w * HOP_SIZE;
         if (startSample + YIN_WINDOW > numSamples) break;
-
         progress_ = (float)w / numWindows;
 
         const float* window = audio + startSample;
         float freq = yinPitch(window, YIN_WINDOW);
 
-        // Compute amplitude in window
-        float amp = 0.0f;
+        // RMS amplitude
+        float sumSq = 0.0f;
         for (int i = 0; i < YIN_WINDOW; ++i) {
-            amp += fabsf(window[i]);
+            sumSq += window[i] * window[i];
         }
-        amp /= YIN_WINDOW;
+        float rms = sqrtf(sumSq / YIN_WINDOW);
 
         float timeSec = (float)startSample / sampleRate;
+        events.push_back({timeSec, freq, rms});
+    }
 
-        if (freq > 0 && amp > 0.003f) {
-            // Note detected
-            if (!noteActive || fabsf(freq - prevFreq) > 3.0f) {
-                // New note
-                if (noteActive) {
-                    // Finalize previous note
-                    allNotes.back().duration = timeSec - allNotes.back().startTime;
-                }
-                TabNote note;
-                note.pitch = freq;
-                note.midiNote = (int)roundf(TabMapper::freqToMidiNote(freq));
-                note.startTime = timeSec;
-                note.duration = 0.0f;
-                note.amplitude = amp;
-                // Map to string/fret
-                int string = TabMapper::freqToClosestString(note.pitch, track_.tuning, 6);
-                if (string >= 0) {
-                    note.stringNum = string;
-                    float stringFreq = track_.tuning[string];
-                    float midiNote = TabMapper::freqToMidiNote(freq);
-                    float stringMidi = TabMapper::freqToMidiNote(stringFreq);
-                    note.fret = (int)roundf(midiNote - stringMidi);
-                    if (note.fret < 0) note.fret = 0;
-                }
+    // Group events into sustained notes
+    std::vector<TabNote> allNotes;
+    float prevMidi = 0.0f;
+    float noteStartTime = 0.0f;
+    float noteFreqSum = 0.0f;
+    int noteFreqCount = 0;
+    bool inNote = false;
+    int silenceCounter = 0;
+    const int maxSilenceHops = 4; // ~43ms of silence before note break
 
-                allNotes.push_back(note);
-                noteActive = true;
+    for (size_t i = 0; i < events.size(); ++i) {
+        const auto& ev = events[i];
+
+        if (ev.freq > 0.0f && ev.amp > 0.002f) {
+            float currMidi = TabMapper::freqToMidiNote(ev.freq);
+
+            if (!inNote) {
+                // Start new note
+                inNote = true;
+                silenceCounter = 0;
+                noteStartTime = ev.time;
+                noteFreqSum = currMidi;
+                noteFreqCount = 1;
+                prevMidi = currMidi;
             } else {
-                // Update ongoing note frequency
-                if (!allNotes.empty()) {
-                    allNotes.back().pitch = (allNotes.back().pitch + TabMapper::freqToMidiNote(freq)) * 0.5f;
+                // Check if this is still the same note (within 1 semitone)
+                if (fabsf(currMidi - prevMidi) <= 1.5f) {
+                    noteFreqSum += currMidi;
+                    noteFreqCount++;
+                    prevMidi = currMidi;
+                    silenceCounter = 0;
+                } else {
+                    // New different note - finalize previous
+                    TabNote note;
+                    note.pitch = noteFreqSum / noteFreqCount;
+                    note.midiNote = (int)roundf(note.pitch);
+                    note.startTime = noteStartTime;
+                    note.duration = ev.time - noteStartTime;
+                    note.amplitude = ev.amp;
+                    int string = TabMapper::freqToClosestString(
+                        TabMapper::midiNoteToFreq(note.pitch), track_.tuning, 6);
+                    if (string >= 0) {
+                        note.stringNum = string;
+                        float stringFreq = track_.tuning[string];
+                        float stringMidi = TabMapper::freqToMidiNote(stringFreq);
+                        note.fret = (int)roundf(note.pitch - stringMidi);
+                        if (note.fret < 0) note.fret = 0;
+                        if (note.fret > 24) note.fret = 24;
+                    }
+                    allNotes.push_back(note);
+
+                    // Start new note
+                    noteStartTime = ev.time;
+                    noteFreqSum = currMidi;
+                    noteFreqCount = 1;
+                    prevMidi = currMidi;
                 }
             }
-            prevFreq = freq;
         } else {
-            // No note - silence or noise
-            if (noteActive && !allNotes.empty()) {
-                allNotes.back().duration = timeSec - allNotes.back().startTime;
-                noteActive = false;
+            if (inNote) {
+                silenceCounter++;
+                if (silenceCounter > maxSilenceHops) {
+                    // End the note
+                    TabNote note;
+                    note.pitch = noteFreqCount > 0 ? noteFreqSum / noteFreqCount : 0;
+                    note.midiNote = (int)roundf(note.pitch);
+                    note.startTime = noteStartTime;
+                    float endTime = events[i - maxSilenceHops > 0 ? i - maxSilenceHops : 0].time;
+                    note.duration = endTime - noteStartTime;
+                    if (note.duration < 0.05f) note.duration = 0.05f;
+                    note.amplitude = ev.amp;
+                    int string = TabMapper::freqToClosestString(
+                        TabMapper::midiNoteToFreq(note.pitch), track_.tuning, 6);
+                    if (string >= 0) {
+                        note.stringNum = string;
+                        float stringFreq = track_.tuning[string];
+                        float stringMidi = TabMapper::freqToMidiNote(stringFreq);
+                        note.fret = (int)roundf(note.pitch - stringMidi);
+                        if (note.fret < 0) note.fret = 0;
+                        if (note.fret > 24) note.fret = 24;
+                    }
+                    allNotes.push_back(note);
+                    inNote = false;
+                }
             }
         }
-        prevAmp = amp;
-
-        // Update freq for next note
-        if (freq > 0) prevFreq = freq;
     }
 
-    // Close last note
-    if (noteActive && !allNotes.empty()) {
-        float totalTime = (float)numSamples / sampleRate;
-        allNotes.back().duration = totalTime - allNotes.back().startTime;
+    // Close last note if still active
+    if (inNote && noteFreqCount > 0) {
+        TabNote note;
+        note.pitch = noteFreqSum / noteFreqCount;
+        note.midiNote = (int)roundf(note.pitch);
+        note.startTime = noteStartTime;
+        note.duration = events.empty() ? 0.5f : events.back().time - noteStartTime;
+        if (note.duration < 0.05f) note.duration = 0.05f;
+        note.amplitude = events.empty() ? 0 : events.back().amp;
+        int string = TabMapper::freqToClosestString(
+            TabMapper::midiNoteToFreq(note.pitch), track_.tuning, 6);
+        if (string >= 0) {
+            note.stringNum = string;
+            float stringFreq = track_.tuning[string];
+            float stringMidi = TabMapper::freqToMidiNote(stringFreq);
+            note.fret = (int)roundf(note.pitch - stringMidi);
+            if (note.fret < 0) note.fret = 0;
+            if (note.fret > 24) note.fret = 24;
+        }
+        allNotes.push_back(note);
     }
-
-    // Group notes into measures
-    float bps = track_.tempo / 60.0f;
-    float beatDuration = 1.0f / bps;
-    float measureDuration = beatDuration * 4; // 4/4 time
 
     if (allNotes.empty()) {
         hasResult_ = true;
         return;
     }
 
+    // Group into measures (4/4 time, ~120bpm default)
     float totalDuration = (float)numSamples / sampleRate;
+    float beatDuration = 60.0f / track_.tempo;
+    float measureDuration = beatDuration * 4.0f;
     int numMeasures = (int)ceilf(totalDuration / measureDuration);
-    if (numMeasures <= 0) numMeasures = 1;
+    if (numMeasures < 1) numMeasures = 1;
 
     track_.measures.resize(numMeasures);
     for (int m = 0; m < numMeasures; ++m) {
@@ -175,9 +239,9 @@ void Transcriber::updateTrack(const float* audio, int32_t numSamples, int32_t sa
     }
 
     for (auto& note : allNotes) {
-        int measureIdx = (int)(note.startTime / measureDuration);
-        if (measureIdx >= 0 && measureIdx < numMeasures) {
-            track_.measures[measureIdx].notes.push_back(note);
+        int mIdx = (int)(note.startTime / measureDuration);
+        if (mIdx >= 0 && mIdx < numMeasures) {
+            track_.measures[mIdx].notes.push_back(note);
         }
     }
 
@@ -193,11 +257,9 @@ bool Transcriber::transcribe(const float* audio, int32_t numSamples, int32_t sam
 }
 
 bool Transcriber::transcribeSeparated(const float* guitarAudio, int32_t numSamples, int32_t sampleRate) {
-    // Same as transcribe for now - when Demucs model is loaded, use it first
     return transcribe(guitarAudio, numSamples, sampleRate);
 }
 
 bool Transcriber::loadSeparationModel(const char* modelPath) {
-    // TODO: Load TFLite model for Demucs source separation
     return false;
 }
