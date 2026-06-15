@@ -406,3 +406,46 @@ Java_com_kaosnet_krank_KrankEngine_nativeSetMidiLearnTarget(JNIEnv*, jobject,
 }
 
 } // extern "C"
+
+// Tab export JNI
+JNIEXPORT jboolean JNICALL
+Java_com_kaosnet_krank_KrankEngine_nativeExportTabToMidi(JNIEnv* env, jobject,
+    jlong ptr, jstring path) {
+    auto* engine = getEngine(ptr);
+    if (!engine) return JNI_FALSE;
+    const char* cpath = env->GetStringUTFChars(path, nullptr);
+    bool result = engine->exportTabToMidi(cpath);
+    env->ReleaseStringUTFChars(path, cpath);
+    return result ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_kaosnet_krank_KrankEngine_nativeExportTabToAbc(JNIEnv* env, jobject,
+    jlong ptr, jstring path) {
+    auto* engine = getEngine(ptr);
+    if (!engine) return JNI_FALSE;
+    const char* cpath = env->GetStringUTFChars(path, nullptr);
+    bool result = engine->exportTabToAbc(cpath);
+    env->ReleaseStringUTFChars(path, cpath);
+    return result ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_kaosnet_krank_KrankEngine_nativeGetTabNoteCount(JNIEnv*, jobject, jlong ptr) {
+    auto* engine = getEngine(ptr);
+    if (!engine) return 0;
+    auto* track = engine->getTabTrack();
+    if (!track) return 0;
+    int total = 0;
+    for (const auto& m : track->measures) total += (int)m.notes.size();
+    return total;
+}
+
+JNIEXPORT jfloat JNICALL
+Java_com_kaosnet_krank_KrankEngine_nativeGetTabTempo(JNIEnv*, jobject, jlong ptr) {
+    auto* engine = getEngine(ptr);
+    if (!engine) return 120.0f;
+    auto* track = engine->getTabTrack();
+    if (!track) return 120.0f;
+    return track->tempo;
+}

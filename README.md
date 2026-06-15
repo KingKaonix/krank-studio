@@ -1,7 +1,7 @@
 # KRANK STUDIO
 
 [![Build](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml/badge.svg)](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml)
-[![Release](https://img.shields.io/badge/release-v1.1.0-22d3ee)](https://github.com/KaosNet/krank-studio/releases)
+[![Release](https://img.shields.io/badge/release-v1.2.0-22d3ee)](https://github.com/KaosNet/krank-studio/releases)
 [![License](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 **KRANK STUDIO** is a professional-grade, low-latency guitar effects processor and audio toolkit for Android. Built from the ground up with a hybrid C++ audio engine and a premium hardware-amp-inspired UI, it delivers studio-quality sound processing directly on your phone or tablet — no cloud, no latency, no compromises.
@@ -83,6 +83,12 @@ Load any audio file (WAV, MP3, AAC, OGG, FLAC) or record from your mic — KRANK
 ### Song Transcriber
 Load a WAV or MP3 of a guitar part — the YIN-based monophonic pitch detection engine transcribes audio into standard tablature with fret positions, string assignments, and timing.
 
+### Song Transcriber
+Load a WAV or MP3 of a guitar part — the YIN-based monophonic pitch detection engine transcribes audio into standard tablature with fret positions, string assignments, and timing.
+
+### Tab Export
+Export transcribed tablature to **MIDI** (.mid) — the industry-standard format compatible with Guitar Pro, TuxGuitar, MuseScore, DAWs, and every major notation editor. Also exports to **ABC notation** (.abc) — a plain-text format readable by any text editor or ABC player.
+
 ### WAV Recording
 Record your playing directly to high-quality WAV files (32-bit float, 48 kHz) with a single tap.
 
@@ -152,14 +158,17 @@ Or grab a tagged release from the [Releases page](https://github.com/KaosNet/kra
 
 ## Roadmap
 
-- [ ] MIDI footswitch support
-- [ ] Tuner output to amp (mute dry signal)
-- [ ] Preset save/load from files
-- [ ] Polyphonic transcription (ML source separation)
-- [ ] Looper pedal
-- [ ] Metronome with tap tempo
-- [ ] Audio input monitoring via headphones
-- [ ] Bluetooth LE foot controller
+- [x] MIDI footswitch support
+- [x] Tuner output to amp (mute dry signal)
+- [x] Preset save/load from files
+- [x] Polyphonic transcription (ML source separation)
+- [x] Looper pedal
+- [x] Metronome with tap tempo
+- [x] Audio input monitoring via headphones
+- [x] Bluetooth LE foot controller
+- [ ] Tab playback synchronized with audio
+- [ ] Guitar Pro format export
+- [ ] Internal audio capture (streaming)
 
 ---
 

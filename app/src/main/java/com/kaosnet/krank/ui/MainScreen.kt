@@ -106,29 +106,27 @@ fun MainScreen(vm: MainViewModel) {
 // ── VU METER COMPOSABLE ──
 @Composable
 private fun VuMeter(level: Float, modifier: Modifier = Modifier) {
-    val barColor = when {
-        level > 0.9f -> Color(0xFFFF6B6B)
-        level > 0.7f -> Color(0xFFF59E0B)
-        else -> Color(0xFF22C55E)
-    }
-    val segments = 8
-    val activeSegments = (level * segments).toInt().coerceIn(0, segments)
+    val dbLevel = if (level > 0.001f) (20.0f * kotlin.math.log10(level.toDouble())).toFloat() + 40.0f else 0.0f
+    val displayLevel = (dbLevel / 40.0f).coerceIn(0f, 1f)
+    val segments = 12
+    val activeSegments = (displayLevel * segments).toInt().coerceIn(0, segments)
 
-    Row(modifier = modifier.height(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (i in 0 until segments) {
-            Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .height(if (i % 2 == 0) 16.dp else 10.dp)
-                    .clip(RoundedCornerShape(1.dp))
-                    .background(
-                        if (i < activeSegments) {
-                            if (i >= segments - 1) Color(0xFFFF6B6B)
-                            else if (i >= segments - 2) Color(0xFFF59E0B)
-                            else Color(0xFF22C55E)
-                        } else S3
-                    )
-            )
+    Box(modifier = modifier.width(72.dp).height(16.dp).clip(RoundedCornerShape(2.dp)).background(S2.copy(alpha = 0.8f))) {
+        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 1.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+            for (i in 0 until segments) {
+                val segColor = when {
+                    i >= segments - 1 -> Color(0xFFFF6B6B)
+                    i >= segments - 2 -> Color(0xFFF59E0B)
+                    else -> Color(0xFF22C55E)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(if (i % 2 == 0) 12.dp else 8.dp)
+                        .clip(RoundedCornerShape(1.dp))
+                        .background(if (i < activeSegments) segColor else Color(0xFF2A2A36))
+                )
+            }
         }
     }
 }
@@ -175,10 +173,10 @@ private fun HardwareNavBar(vm: MainViewModel, onToolsClick: () -> Unit) {
         modifier = Modifier.height(64.dp).border(1.dp, BorderDim, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
     ) {
         val primaryTabs = listOf(
-            TabDef(0, "FX", Icons.Filled.Tune, Cyan),
+            TabDef(0, "EFFECTS", Icons.Filled.Tune, Cyan),
             TabDef(1, "TUNER", Icons.Filled.Search, Color(0xFF22C55E)),
-            TabDef(2, "MATCH", Icons.Filled.Star, Color(0xFFF59E0B)),
-            TabDef(3, "TAB", Icons.Filled.MusicNote, Color(0xFFA78BFA)),
+            TabDef(2, "TONE MATCH", Icons.Filled.Star, Color(0xFFF59E0B)),
+            TabDef(3, "TRANSCRIBE", Icons.Filled.MusicNote, Color(0xFFA78BFA)),
         )
         primaryTabs.forEach { tab ->
             val selected = vm.currentTab == tab.index

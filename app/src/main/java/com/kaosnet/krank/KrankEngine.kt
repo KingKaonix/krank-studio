@@ -153,6 +153,12 @@ class KrankEngine {
     // Preset serialization
     fun savePresetToFile(path: String, presetIndex: Int): Boolean = nativeSavePresetToFile(nativePtr, path, presetIndex)
     fun loadPresetFromFile(path: String): Boolean = nativeLoadPresetFromFile(nativePtr, path)
+    // Tab export
+    fun exportTabToMidi(path: String): Boolean = nativeExportTabToMidi(nativePtr, path)
+    fun exportTabToAbc(path: String): Boolean = nativeExportTabToAbc(nativePtr, path)
+    fun getTabNoteCount(): Int = nativeGetTabNoteCount(nativePtr)
+    fun getTabTempo(): Float = nativeGetTabTempo(nativePtr)
+
 
     // MIDI
     fun setMidiCcMapping(cc: Int, effectIndex: Int, paramId: Int) = nativeSetMidiCcMapping(nativePtr, cc, effectIndex, paramId)
@@ -259,4 +265,10 @@ class KrankEngine {
     private external fun nativeHandleMidiMessage(ptr: Long, status: Int, data1: Int, data2: Int)
     private external fun nativeSetMidiLearnMode(ptr: Long, enabled: Boolean)
     private external fun nativeSetMidiLearnTarget(ptr: Long, effectIdx: Int, paramId: Int)
+    // Tab export
+    private external fun nativeExportTabToMidi(ptr: Long, path: String): Boolean
+    private external fun nativeExportTabToAbc(ptr: Long, path: String): Boolean
+    private external fun nativeGetTabNoteCount(ptr: Long): Int
+    private external fun nativeGetTabTempo(ptr: Long): Float
+
 }

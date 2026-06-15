@@ -371,6 +371,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         looperLoopDuration = 0f
     }
 
+    // Tab export
+    var exportMidiPath by mutableStateOf(""); private set
+    var exportAbcPath by mutableStateOf(""); private set
+    var exportMessage by mutableStateOf(""); private set
+ 
+    fun exportTabMidi(path: String) {
+        val success = engine.exportTabToMidi(path)
+        exportMidiPath = if (success) path else ""
+        exportMessage = if (success) "Exported MIDI to $path" else "No transcription to export"
+    }
+    fun exportTabAbc(path: String) {
+        val success = engine.exportTabToAbc(path)
+        exportAbcPath = if (success) path else ""
+        exportMessage = if (success) "Exported ABC to $path" else "No transcription to export"
+    }
+    fun getTabNoteCount(): Int = engine.getTabNoteCount()
+    fun getTabTempo(): Float = engine.getTabTempo()
+ 
+
     // MIDI
     fun toggleMidiLearnMode() {
         midiLearnMode = !midiLearnMode

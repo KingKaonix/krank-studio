@@ -7,6 +7,7 @@
 #include "effects/chorus.h"
 #include "effects/noise_gate.h"
 #include "effects/compressor.h"
+#include "effects/midi_exporter.h"
 #include <oboe/Oboe.h>
 #include <algorithm>
 #include <cstring>
@@ -289,9 +290,9 @@ void AudioEngine::processInput(float* buffer, int32_t numFrames) {
         ringBufferReadPos_ = ringBufferWritePos_ - RING_BUFFER_CAPACITY;
     }
     // Decay peak for VU meter display (with gain for sensitivity)
-    inputPeakDecay_ = std::max(inputPeakDecay_ * 0.97f, inputPeak_ * 3.0f);
+    inputPeakDecay_ = std::max(inputPeakDecay_ * 0.985f, inputPeak_ * 6.0f);
     if (inputPeakDecay_ > 1.0f) inputPeakDecay_ = 1.0f;
-    inputPeak_ *= 0.90f;
+    inputPeak_ *= 0.95f;
 }
 
 void AudioEngine::buildSignalChain(float* buffer, int32_t numFrames, int32_t numChannels) {
@@ -718,4 +719,20 @@ void AudioEngine::handleMidiMessage(int status, int data1, int data2) {
 void AudioEngine::setMidiLearnTarget(int effectIdx, int paramId) {
     midiLearnEffect_ = effectIdx;
     midiLearnParam_ = paramId;
+}
+
+// Tab export
+bool AudioEngine::exportTabToMidi(const char* path) {
+    if (!transcriber_ || !transcriber_->hasResult()) return false;
+    return MidiExporter::exportToMidi(transcriber_->getTabTrack(), path);
+}
+
+bool AudioEngine::exportTabToAbc(const char* path) {
+    if (!transcriber_ || !transcriber_->hasResult()) return false;
+    return MidiExporter::exportToAbc(transcriber_->getTabTrack(), path);
+}
+
+const TabTrack* AudioEngine::getTabTrack() const {
+    if (!transcriber_ || !transcriber_->hasResult()) return nullptr;
+    return &transcriber_->getTabTrack();
 }

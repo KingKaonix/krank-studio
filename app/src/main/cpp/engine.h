@@ -126,6 +126,11 @@ public:
     int getMidiLearnParam() const { return midiLearnParam_; }
     void setMidiLearnTarget(int effectIdx, int paramId);
 
+    // Tab export
+    bool exportTabToMidi(const char* path);
+    bool exportTabToAbc(const char* path);
+    const TabTrack* getTabTrack() const;
+
     // oboe callbacks
     oboe::DataCallbackResult onAudioReady(
         oboe::AudioStream *audioStream, void *audioData, int32_t numFrames) override;

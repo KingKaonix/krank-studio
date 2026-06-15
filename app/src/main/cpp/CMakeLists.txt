@@ -22,6 +22,7 @@ add_library(krank_engine SHARED
     effects/tuner.cpp
     effects/tone_matcher.cpp
     effects/transcriber.cpp
+    effects/midi_exporter.cpp
     effects/metronome.cpp
     effects/looper.cpp
 )

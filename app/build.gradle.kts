@@ -11,8 +11,8 @@ android {
         applicationId = "com.kaosnet.krank"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 4
+        versionName = "1.2.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a")
