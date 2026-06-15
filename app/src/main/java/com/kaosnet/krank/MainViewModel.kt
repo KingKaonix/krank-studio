@@ -120,6 +120,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var transcribeNumMeasures by mutableIntStateOf(0); private set
     var transcribeNotes by mutableStateOf<List<TabNoteData>>(emptyList()); private set
     var polyphonicEnabled by mutableStateOf(false); private set
+    // Tab playback
+    var tabPlayer = TabPlayer()
+    var playbackState by mutableStateOf(TabPlayer.PlaybackState()); private set
+    var playbackBackingAudio by mutableStateOf<FloatArray?>(null); private set
+    var playbackSampleRate by mutableIntStateOf(44100); private set
     var polyphonicHasResult by mutableStateOf(false); private set
     var polyphonicNoteCount by mutableIntStateOf(0); private set
 
@@ -306,6 +311,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // Transcription
     fun transcribeAudio(data: FloatArray, sampleRate: Int) {
+        playbackBackingAudio = data
+        playbackSampleRate = sampleRate
         val result = engine.transcribeAudio(data, data.size, sampleRate)
         transcribeHasResult = result
         if (result) {
@@ -315,6 +322,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     fun transcribePolyphonic(data: FloatArray, sampleRate: Int) {
+        playbackBackingAudio = data
+        playbackSampleRate = sampleRate
         val result = engine.transcribePolyphonic(data, data.size, sampleRate)
         polyphonicHasResult = result
         if (result) {
@@ -389,6 +398,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getTabNoteCount(): Int = engine.getTabNoteCount()
     fun getTabTempo(): Float = engine.getTabTempo()
  
+
+    // Tab playback
+    var recordingFileName by mutableStateOf(""); private set
+
+    fun playTranscription() {
+        tabPlayer.load(transcribeNotes, playbackBackingAudio, playbackSampleRate)
+        tabPlayer.play()
+    }
+    fun pauseTranscription() { tabPlayer.pause() }
+    fun stopTranscription() { tabPlayer.stop() }
+    fun seekTranscription(posMs: Long) { tabPlayer.seekTo(posMs) }
+
+    // Init tab player listener
+    init {
+        tabPlayer.setStateListener { state ->
+            playbackState = state
+        }
+    }
 
     // MIDI
     fun toggleMidiLearnMode() {
