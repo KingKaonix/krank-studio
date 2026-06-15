@@ -35,12 +35,31 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Update app version
         run: |
-          sed -i "s/versionCode = [0-9]*/versionCode = ${{ github.run_number }}/" app/build.gradle.kts
-          sed -i "s/versionName = \"[^\"]*\"/versionName = \"${{ steps.version.outputs.VERSION }}\"/" app/build.gradle.kts
+          # Read current versionCode and versionName from version.properties
+          VERSION_CODE=$(grep versionCode version.properties | cut -d= -f2)
+          VERSION_NAME=$(grep versionName version.properties | cut -d= -f2)
+
+          # Increment versionCode
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+
+          # Update versionCode in build.gradle.kts
+          sed -i "s/versionCode = [0-9]*/versionCode = $NEW_VERSION_CODE/" app/build.gradle.kts
+
+          # Update versionName in build.gradle.kts
+          sed -i "s/versionName = \"[0-9.]\+\"/versionName = \"$VERSION_NAME\"/" app/build.gradle.kts
+
+          # Update version.properties with new versionCode
+          sed -i "s/versionCode = [0-9]*/versionCode = $NEW_VERSION_CODE/" version.properties
+
+          # Print version update
+          echo "Updated versionCode from $VERSION_CODE to $NEW_VERSION_CODE"
+          echo "Updated versionName to $VERSION_NAME"
 
       - name: Build Release APK
         run: ./gradlew assembleDebug
@@ -62,8 +81,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: KRANK STUDIO v${{ steps.version.outputs.VERSION }}
+          name: KRANK STUDIO ${{ steps.version.outputs.VERSION }}
           body: ${{ steps.notes.outputs.notes }}
           fail_on_unmatched_files: true
           files: |
-            app/build/outputs/apk/debug/krank-v*.apk
+            app/build/outputs/apk/debug/krank-v${{ steps.version.outputs.VERSION }}.apk
