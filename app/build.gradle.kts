@@ -13,6 +13,14 @@ android {
         targetSdk = 34
         versionCode = 2
         versionName = "1.1.0"
+
+        externalNativeBuild {
+            cmake {
+                arguments += "-DCMAKE_C_COMPILER=/data/data/com.termux/files/usr/bin/aarch64-linux-android-clang"
+                arguments += "-DCMAKE_CXX_COMPILER=/data/data/com.termux/files/usr/bin/aarch64-linux-android-clang++"
+                cppFlags += "-O2 -ffast-math -funroll-loops"
+            }
+        }
     }
 
     buildTypes {
@@ -42,7 +50,6 @@ android {
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
         }
     }
 
