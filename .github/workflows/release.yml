@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -62,6 +66,7 @@ jobs:
           echo "Updated versionName to $VERSION_NAME"
 
       - name: Build Release APK
+        timeout-minutes: 10
         run: ./gradlew assembleDebug
 
       - name: Rename APK
