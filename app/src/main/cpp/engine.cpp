@@ -289,7 +289,7 @@ void AudioEngine::processInput(float* buffer, int32_t numFrames) {
         ringBufferReadPos_ = ringBufferWritePos_ - RING_BUFFER_CAPACITY;
     }
     // Decay peak for VU meter display (with gain for sensitivity)
-    inputPeakDecay_ = max(inputPeakDecay_ * 0.97f, inputPeak_ * 3.0f);
+    inputPeakDecay_ = std::max(inputPeakDecay_ * 0.97f, inputPeak_ * 3.0f);
     if (inputPeakDecay_ > 1.0f) inputPeakDecay_ = 1.0f;
     inputPeak_ *= 0.90f;
 }
