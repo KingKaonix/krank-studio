@@ -129,6 +129,7 @@ public:
     // Tab export
     bool exportTabToMidi(const char* path);
     bool exportTabToAbc(const char* path);
+    bool exportTabToMusicXml(const char* path);
     const TabTrack* getTabTrack() const;
 
     // oboe callbacks

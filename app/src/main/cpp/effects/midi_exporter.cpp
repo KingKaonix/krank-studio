@@ -239,3 +239,257 @@ bool MidiExporter::exportToAbc(const TabTrack& track, const char* path) {
     fclose(f);
     return true;
 }
+
+bool MidiExporter::exportToMusicXml(const TabTrack& track, const char* path) {
+    FILE* f = fopen(path, "w");
+    if (!f) return false;
+
+    // Collect all notes sorted by time
+    std::vector<std::pair<float, TabNote>> allNotes;
+    for (const auto& measure : track.measures) {
+        for (const auto& note : measure.notes) {
+            allNotes.push_back({note.startTime, note});
+        }
+    }
+    std::sort(allNotes.begin(), allNotes.end(),
+        [](const auto& a, const auto& b) { return a.first < b.first; });
+
+    if (allNotes.empty()) {
+        fclose(f);
+        return false;
+    }
+
+    float totalDuration = 0.0f;
+    for (const auto& p : allNotes) {
+        float end = p.first + p.second.duration;
+        if (end > totalDuration) totalDuration = end;
+    }
+
+    float beatDuration = 60.0f / track.tempo;
+    float divisions = 4.0f;
+
+    fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    fprintf(f, "<!DOCTYPE score-partwise PUBLIC \"-//Recordare//DTD MusicXML 4.0 Partwise//EN\"\n");
+    fprintf(f, "  \"http://www.musicxml.org/dtds/partwise.dtd\">\n");
+    fprintf(f, "<score-partwise version=\"4.0\">\n");
+
+    // Work (song) info
+    fprintf(f, "  <work>\n    <work-title>%s</work-title>\n  </work>\n", track.name.c_str());
+    fprintf(f, "  <movement-title>%s</movement-title>\n", track.name.c_str());
+
+    // Identification
+    fprintf(f, "  <identification>\n");
+    fprintf(f, "    <encoding>\n");
+    fprintf(f, "      <software>KRANK STUDIO v1.3.0</software>\n");
+    fprintf(f, "      <encoding-date>2026-06-15</encoding-date>\n");
+    fprintf(f, "      <supports attribute=\"new-system\" element=\"print\" type=\"yes\" value=\"yes\"/>\n");
+    fprintf(f, "    </encoding>\n");
+    fprintf(f, "  </identification>\n");
+
+    // Part list
+    fprintf(f, "  <part-list>\n");
+    fprintf(f, "    <score-part id=\"P1\">\n");
+    fprintf(f, "      <part-name>%s</part-name>\n", track.name.c_str());
+    fprintf(f, "      <part-abbreviation>Gtr</part-abbreviation>\n");
+    fprintf(f, "      <score-instrument id=\"P1-I1\">\n");
+    fprintf(f, "        <instrument-name>Electric Guitar</instrument-name>\n");
+    fprintf(f, "      </score-instrument>\n");
+    fprintf(f, "      <midi-device id=\"P1-I1\" port=\"1\"></midi-device>\n");
+    fprintf(f, "      <midi-instrument id=\"P1-I1\">\n");
+    fprintf(f, "        <midi-channel>1</midi-channel>\n");
+    fprintf(f, "        <midi-program>25</midi-program>\n");
+    fprintf(f, "        <volume>78.7402</volume>\n");
+    fprintf(f, "        <pan>0</pan>\n");
+    fprintf(f, "      </midi-instrument>\n");
+    fprintf(f, "    </score-part>\n");
+    fprintf(f, "  </part-list>\n");
+
+    // Part
+    fprintf(f, "  <part id=\"P1\">\n");
+
+    // Group notes into measures (4/4 time)
+    float measureDuration = beatDuration * 4.0f;
+    int numMeasures = (int)ceilf(totalDuration / measureDuration);
+    if (numMeasures < 1) numMeasures = 1;
+
+    // String names for tab
+    const char* stringNames[] = {"E", "A", "D", "G", "B", "E"};
+
+    int noteIndex = 0;
+    for (int m = 0; m < numMeasures; m++) {
+        float measureStart = m * measureDuration;
+        float measureEnd = measureStart + measureDuration;
+
+        fprintf(f, "    <measure number=\"%d\">\n", m + 1);
+
+        // Attributes on first measure
+        if (m == 0) {
+            fprintf(f, "      <attributes>\n");
+            fprintf(f, "        <divisions>%d</divisions>\n", (int)divisions);
+            fprintf(f, "        <key>\n");
+            fprintf(f, "          <fifths>0</fifths>\n");
+            fprintf(f, "          <mode>major</mode>\n");
+            fprintf(f, "        </key>\n");
+            fprintf(f, "        <time>\n");
+            fprintf(f, "          <beats>4</beats>\n");
+            fprintf(f, "          <beat-type>4</beat-type>\n");
+            fprintf(f, "        </time>\n");
+            fprintf(f, "        <clef>\n");
+            fprintf(f, "          <sign>TAB</sign>\n");
+            fprintf(f, "          <line>5</line>\n");
+            fprintf(f, "        </clef>\n");
+            fprintf(f, "        <staff-details>\n");
+            fprintf(f, "          <staff-lines>6</staff-lines>\n");
+            fprintf(f, "          <staff-tuning line=\"1\">\n");
+            fprintf(f, "            <tuning-step>E</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>4</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "          <staff-tuning line=\"2\">\n");
+            fprintf(f, "            <tuning-step>B</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>3</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "          <staff-tuning line=\"3\">\n");
+            fprintf(f, "            <tuning-step>G</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>3</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "          <staff-tuning line=\"4\">\n");
+            fprintf(f, "            <tuning-step>D</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>3</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "          <staff-tuning line=\"5\">\n");
+            fprintf(f, "            <tuning-step>A</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>2</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "          <staff-tuning line=\"6\">\n");
+            fprintf(f, "            <tuning-step>E</tuning-step>\n");
+            fprintf(f, "            <tuning-octave>2</tuning-octave>\n");
+            fprintf(f, "          </staff-tuning>\n");
+            fprintf(f, "        </staff-details>\n");
+            fprintf(f, "      </attributes>\n");
+
+            // Direction for tempo
+            fprintf(f, "      <direction placement=\"above\">\n");
+            fprintf(f, "        <direction-type>\n");
+            fprintf(f, "          <words default-y=\"20\" font-style=\"italic\">Quarter = %d</words>\n", (int)track.tempo);
+            fprintf(f, "        </direction-type>\n");
+            fprintf(f, "        <sound tempo=\"%.1f\"/>\n", track.tempo);
+            fprintf(f, "      </direction>\n");
+        }
+
+        // Add notes in this measure
+        while (noteIndex < (int)allNotes.size()) {
+            const auto& pair = allNotes[noteIndex];
+            const auto& note = pair.second;
+            if (pair.first >= measureEnd) break; // not in this measure
+
+            float noteStartInMeasure = pair.first - measureStart;
+            float noteDur = note.duration;
+
+            // Duration in quarters
+            float quarters = noteDur / beatDuration;
+            int durDiv = (int)(quarters * divisions + 0.5f);
+            if (durDiv < 1) durDiv = 1;
+
+            // Type
+            const char* type = "eighth";
+            if (quarters >= 4.0f) type = "whole";
+            else if (quarters >= 2.0f) type = "half";
+            else if (quarters >= 0.99f) type = "quarter";
+            else if (quarters >= 0.49f) type = "eighth";
+            else if (quarters >= 0.24f) type = "16th";
+            else type = "32nd";
+
+            int dots = 0;
+
+            fprintf(f, "      <note>\n");
+
+            // Pitch (use MIDI note for standard notation)
+            if (note.midiNote > 0) {
+                int step_idx = note.midiNote % 12;
+                const char* steps[] = {"C", "C", "D", "D", "E", "F", "F", "G", "G", "A", "A", "B"};
+                const char* step = steps[step_idx % 12];
+                int alter = (step_idx == 1 || step_idx == 3 || step_idx == 6 || step_idx == 8 || step_idx == 10) ? 1 : 0;
+                int octave = (note.midiNote / 12) - 1;
+                fprintf(f, "        <pitch>\n");
+                fprintf(f, "          <step>%s</step>\n", step);
+                if (alter) fprintf(f, "          <alter>%d</alter>\n", alter);
+                fprintf(f, "          <octave>%d</octave>\n", octave);
+                fprintf(f, "        </pitch>\n");
+            }
+
+            fprintf(f, "        <duration>%d</duration>\n", durDiv);
+            if (dots > 0) fprintf(f, "        <dot/>\n");
+            fprintf(f, "        <voice>1</voice>\n");
+            fprintf(f, "        <type>%s</type>\n", type);
+            if (note.fret >= 0) {
+                fprintf(f, "        <notations>\n");
+                fprintf(f, "          <technical>\n");
+                // Convert string number: our 0=highE=line1, MusicXML 1=highE=line1
+                fprintf(f, "            <string>%d</string>\n", note.stringNum + 1);
+                fprintf(f, "            <fret>%d</fret>\n", note.fret);
+                fprintf(f, "          </technical>\n");
+                fprintf(f, "        </notations>\n");
+            }
+            fprintf(f, "      </note>\n");
+
+            noteIndex++;
+        }
+
+        // If no notes in this measure, add a rest
+        if (noteIndex > 0) {
+            int prevIdx = noteIndex - 1;
+            if (prevIdx < (int)allNotes.size() && allNotes[prevIdx].first < measureStart) {
+                // We started a note before this measure, need to track it
+            }
+        }
+
+        // Add rest for empty measures
+        bool hasNotesInMeasure = false;
+        int checkIdx = noteIndex - 1;
+        while (checkIdx >= 0) {
+            const auto& p = allNotes[checkIdx];
+            if (p.first >= measureStart && p.first < measureEnd) {
+                hasNotesInMeasure = true;
+                break;
+            }
+            if (p.first < measureStart) break;
+            checkIdx--;
+        }
+
+        // Check using the processed notes
+        int measureNoteStart = noteIndex;
+        // Count how many notes were in this measure
+        bool foundNote = false;
+        for (int i = 0; i < noteIndex; i++) {
+            if (allNotes[i].first >= measureStart && allNotes[i].first < measureEnd) {
+                foundNote = true;
+                break;
+            }
+        }
+        if (!foundNote && noteIndex > 0) {
+            // Add rest only if no notes found
+            int restDur = (int)(4.0f * divisions + 0.5f);
+            fprintf(f, "      <note>\n");
+            fprintf(f, "        <rest/>\n");
+            fprintf(f, "        <duration>%d</duration>\n", restDur);
+            fprintf(f, "        <voice>1</voice>\n");
+            fprintf(f, "        <type>whole</type>\n");
+            fprintf(f, "      </note>\n");
+        }
+
+        // Barline on last measure
+        if (m == numMeasures - 1) {
+            fprintf(f, "      <barline location=\"final\">\n");
+            fprintf(f, "        <bar-style>light-heavy</bar-style>\n");
+            fprintf(f, "      </barline>\n");
+        }
+
+        fprintf(f, "    </measure>\n");
+    }
+
+    fprintf(f, "  </part>\n");
+    fprintf(f, "</score-partwise>\n");
+
+    fclose(f);
+    return true;
+}

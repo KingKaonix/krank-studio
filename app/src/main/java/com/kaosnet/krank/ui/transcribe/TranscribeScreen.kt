@@ -120,6 +120,24 @@ fun TranscribeScreen(vm: MainViewModel) {
         }
     }
 
+    val musicXmlExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/xml")
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val tempFile = java.io.File(context.cacheDir, "export_temp.xml")
+                val exported = vm.engine.exportTabToMusicXml(tempFile.absolutePath)
+                if (exported) {
+                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                        tempFile.inputStream().use { `in` -> `in`.copyTo(out) }
+                    }
+                    exportMessage = "Exported MusicXML successfully"
+                } else exportMessage = "Export failed - no transcription data"
+                tempFile.delete()
+            } catch (e: Exception) { exportMessage = "Export error: ${e.message}" }
+        }
+    }
+
     Column(
         Modifier.fillMaxSize().background(Bg),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -318,6 +336,11 @@ fun TranscribeScreen(vm: MainViewModel) {
                                         text = { Text("Export as ABC", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = TPrimary) },
                                         onClick = { showExport = false; abcExportLauncher.launch("krank_transcription.abc") },
                                         leadingIcon = { Icon(Icons.Filled.Code, null, tint = Green, modifier = Modifier.size(16.dp)) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Export as MusicXML", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = TPrimary) },
+                                        onClick = { showExport = false; musicXmlExportLauncher.launch("krank_transcription.xml") },
+                                        leadingIcon = { Icon(Icons.Filled.Description, null, tint = Cyan, modifier = Modifier.size(16.dp)) }
                                     )
                                 }
                             }

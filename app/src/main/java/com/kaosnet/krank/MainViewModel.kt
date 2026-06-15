@@ -395,6 +395,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         exportAbcPath = if (success) path else ""
         exportMessage = if (success) "Exported ABC to $path" else "No transcription to export"
     }
+    fun exportTabMusicXml(path: String) {
+        val success = engine.exportTabToMusicXml(path)
+        exportMessage = if (success) "Exported MusicXML to $path" else "No transcription to export"
+    }
     fun getTabNoteCount(): Int = engine.getTabNoteCount()
     fun getTabTempo(): Float = engine.getTabTempo()
  
@@ -403,7 +407,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var recordingFileName by mutableStateOf(""); private set
 
     fun playTranscription() {
-        tabPlayer.load(transcribeNotes, playbackBackingAudio, playbackSampleRate)
+        tabPlayer.setBackingAudio(playbackBackingAudio, playbackSampleRate)
+        tabPlayer.load(transcribeNotes)
         tabPlayer.play()
     }
     fun pauseTranscription() { tabPlayer.pause() }

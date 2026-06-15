@@ -11,6 +11,7 @@
 class MidiExporter {
 public:
     static bool exportToMidi(const TabTrack& track, const char* path);
+    static bool exportToMusicXml(const TabTrack& track, const char* path);
     static bool exportToAbc(const TabTrack& track, const char* path);
 
 private:

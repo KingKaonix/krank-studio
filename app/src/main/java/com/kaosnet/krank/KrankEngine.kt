@@ -156,6 +156,7 @@ class KrankEngine {
     // Tab export
     fun exportTabToMidi(path: String): Boolean = nativeExportTabToMidi(nativePtr, path)
     fun exportTabToAbc(path: String): Boolean = nativeExportTabToAbc(nativePtr, path)
+    fun exportTabToMusicXml(path: String): Boolean = nativeExportTabToMusicXml(nativePtr, path)
     fun getTabNoteCount(): Int = nativeGetTabNoteCount(nativePtr)
     fun getTabTempo(): Float = nativeGetTabTempo(nativePtr)
 
@@ -268,6 +269,7 @@ class KrankEngine {
     // Tab export
     private external fun nativeExportTabToMidi(ptr: Long, path: String): Boolean
     private external fun nativeExportTabToAbc(ptr: Long, path: String): Boolean
+    private external fun nativeExportTabToMusicXml(ptr: Long, path: String): Boolean
     private external fun nativeGetTabNoteCount(ptr: Long): Int
     private external fun nativeGetTabTempo(ptr: Long): Float
 
