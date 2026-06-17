@@ -82,7 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- Monitoring ---
     var monitoringEnabled by mutableStateOf(false); private set
-    var irLoaded by mutableStateOf(false); private set
+    var irLoaded by mutableStateOf(false)
     var inputPeakLevel by mutableFloatStateOf(0.0f); private set
 
     // --- Metronome ---
