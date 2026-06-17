@@ -311,6 +311,57 @@ private fun ToolsSheetContent(vm: MainViewModel, onNavigate: (String) -> Unit) {
                 }
             }
         }
+        Spacer(Modifier.height(8.dp))
+
+        // IR Loader
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = S2),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            val irLabel = if (vm.irLoaded) "IR LOADED" else "LOAD IMPULSE RESPONSE"
+            val irColor = if (vm.irLoaded) Color(0xFF22C55E) else Color(0xFFF59E0B)
+            Column(Modifier.padding(12.dp)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Waves, null, tint = irColor, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("CAB SIM (IR)", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TPrimary, letterSpacing = 1.sp)
+                    }
+                    vm.irLoaded.let { loaded ->
+                        if (loaded) {
+                            Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF22C55E)))
+                        }
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    var irFileName by androidx.compose.runtime.remember { mutableStateOf("") }
+                    val irFilePicker = androidx.activity.compose.rememberLauncherForActivityResult(
+                        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+                    ) { uri ->
+                        if (uri != null) {
+                            try {
+                                val result = vm.loadIrFromUri(context, uri)
+                                irFileName = if (result) (uri.lastPathSegment ?: "IR loaded") else "Failed to load IR"
+                            } catch (e: Exception) {
+                                vm.irLoaded = false
+                                irFileName = "Error: ${e.message}"
+                            }
+                        }
+                    }
+                    SmallButton("BROWSE", irColor) {
+                        irFilePicker.launch(arrayOf("audio/wav", "audio/x-wav"))
+                    }
+                    if (vm.irLoaded) {
+                        SmallButton("CLEAR", Color(0xFFFF6B6B)) {
+                            vm.clearIr()
+                        }
+                    }
+                }
+            }
+        }
         Spacer(Modifier.height(24.dp))
     }
 }

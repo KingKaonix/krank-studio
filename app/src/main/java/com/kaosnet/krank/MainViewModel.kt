@@ -82,6 +82,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- Monitoring ---
     var monitoringEnabled by mutableStateOf(false); private set
+    var irLoaded by mutableStateOf(false); private set
     var inputPeakLevel by mutableFloatStateOf(0.0f); private set
 
     // --- Metronome ---
@@ -420,6 +421,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         tabPlayer.setStateListener { state ->
             playbackState = state
         }
+    }
+
+    // IR
+    fun loadIrFromUri(context: android.content.Context, uri: android.net.Uri): Boolean {
+        return try {
+            val tempFile = java.io.File(context.cacheDir, "ir_temp.wav")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                tempFile.outputStream().use { output -> input.copyTo(output) }
+            }
+            val result = engine.loadImpulseResponse(tempFile.absolutePath)
+            irLoaded = result
+            tempFile.delete()
+            result
+        } catch (e: Exception) {
+            irLoaded = false
+            false
+        }
+    }
+    fun clearIr() {
+        engine.loadImpulseResponse("")
+        irLoaded = false
     }
 
     // MIDI
