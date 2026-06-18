@@ -242,6 +242,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                 }
                 Spacer(Modifier.height(16.dp))
                 Text("IMPORT TAB", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
+                var tabImportMessage by androidx.compose.runtime.remember { mutableStateOf("") }
                 val tabPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
                     androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
                 ) { uri ->
@@ -250,7 +251,6 @@ fun TranscribeScreen(vm: MainViewModel) {
                         tabImportMessage = "Imported: ${uri.lastPathSegment}"
                     }
                 }
-                var tabImportMessage by androidx.compose.runtime.remember { mutableStateOf("") }
                 OutlinedButton(
                     onClick = { tabPickerLauncher.launch(arrayOf("audio/midi", "audio/x-midi", "application/xml", "text/xml", "*/*")) },
                     modifier = Modifier.fillMaxWidth().height(44.dp),
