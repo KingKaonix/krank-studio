@@ -25,6 +25,17 @@ import com.kaosnet.krank.MainViewModel
 import com.kaosnet.krank.KrankEngine
 
 @Composable
+@Composable
+fun EffectsScreen(vm: MainViewModel) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top = 8.dp)) {
+        PresetRow(vm)
+        Spacer(Modifier.height(16.dp))
+        EffectCards(vm)
+        Spacer(Modifier.height(20.dp))
+    }
+}
+
+@Composable
 fun PresetRow(vm: MainViewModel) {
     Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         KrankEngine.presetNames.forEachIndexed { idx, name ->
