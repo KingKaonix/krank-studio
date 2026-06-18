@@ -400,6 +400,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val success = engine.exportTabToMusicXml(path)
         exportMessage = if (success) "Exported MusicXML to $path" else "No transcription to export"
     }
+    fun exportTabGp5(path: String) {
+        val tempo = engine.getTabTempo().coerceIn(30f, 300f)
+        val notes = transcribeNotes.toList()
+        val success = if (notes.isNotEmpty()) {
+            Gp5Exporter.export(notes, path, tempo)
+        } else false
+        exportMessage = if (success) "Exported GP5 to $path" else "No transcription to export"
+    }
     fun getTabNoteCount(): Int = engine.getTabNoteCount()
     fun getTabTempo(): Float = engine.getTabTempo()
  

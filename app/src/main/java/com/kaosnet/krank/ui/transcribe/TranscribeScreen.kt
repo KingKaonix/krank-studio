@@ -138,6 +138,22 @@ fun TranscribeScreen(vm: MainViewModel) {
         }
     }
 
+    val gp5ExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/octet-stream")
+    ) { uri: Uri? ->
+        if (uri != null) {
+            try {
+                val tempFile = java.io.File(context.cacheDir, "export_temp.gp5")
+                vm.exportTabGp5(tempFile.absolutePath)
+                context.contentResolver.openOutputStream(uri)?.use { out ->
+                    tempFile.inputStream().use { `in` -> `in`.copyTo(out) }
+                }
+                tempFile.delete()
+            } catch (e: Exception) { exportMessage = "Export error: ${e.message}" }
+        }
+    }
+
+
     Column(
         Modifier.fillMaxSize().background(Bg),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -358,6 +374,12 @@ fun TranscribeScreen(vm: MainViewModel) {
                                         onClick = { showExport = false; midiExportLauncher.launch("krank_transcription.mid") },
                                         leadingIcon = { Icon(Icons.Filled.MusicNote, null, tint = Cyan, modifier = Modifier.size(16.dp)) }
                                     )
+                                    DropdownMenuItem(
+                                        text = { Text("Export as GP5 (Guitar Pro)", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = TPrimary) },
+                                        onClick = { showExport = false; gp5ExportLauncher.launch("krank_transcription.gp5") },
+                                        leadingIcon = { Icon(Icons.Filled.LibraryMusic, null, tint = Yellow, modifier = Modifier.size(16.dp)) }
+                                    )
+
                                     DropdownMenuItem(
                                         text = { Text("Export as ABC", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = TPrimary) },
                                         onClick = { showExport = false; abcExportLauncher.launch("krank_transcription.abc") },

@@ -17,7 +17,7 @@
 | **Chromatic Tuner** | 12 tuning presets + strobe display | Basic tuner only |
 | **Audio-to-Tab Transcription** | Real-time & file-based pitch detection | ❌ |
 | **Tab Import** | MIDI + MusicXML | Own format only |
-| **Tab Export** | MIDI, MusicXML, ABC notation | GP format only |
+| **Tab Export** | MIDI, MusicXML, GP5, ABC notation | GP format only |
 | **Tone Matcher** | WAV/MP3 analysis → auto-effect tuning | ❌ |
 | **Metronome** | Tap tempo 40-240 BPM | ❌ |
 | **Looper** | Record/play/overdub/clear | ❌ |
@@ -114,6 +114,7 @@ Open MIDI (.mid) or MusicXML (.xml) tab files directly in the app:
 ### Tab Export
 Export transcribed tablature to multiple industry-standard formats:
 - **MIDI** (.mid) — compatible with Guitar Pro, TuxGuitar, MuseScore, DAWs
+- **Guitar Pro 5** (.gp5) — native Guitar Pro format, readable by GP5+, TuxGuitar, MuseScore, and any GP-compatible software
 - **MusicXML** (.xml) — readable by Sibelius, Finale, Dorico, MuseScore
 - **ABC notation** (.abc) — plain-text format for quick sharing
 
@@ -218,8 +219,8 @@ The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 - [x] Bluetooth LE foot controller
 - [x] Tab import (MIDI + MusicXML)
 - [x] Tab playback with backing audio
-- [x] Multi-format tab export (MIDI, MusicXML, ABC)
-- [ ] Guitar Pro format export
+- [x] Multi-format tab export (MIDI, MusicXML, GP5, ABC)
+- [x] Guitar Pro format export
 - [ ] Internal audio capture (streaming)
 - [ ] Multi-track looper
 
