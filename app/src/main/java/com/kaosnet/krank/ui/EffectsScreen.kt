@@ -25,7 +25,6 @@ import com.kaosnet.krank.MainViewModel
 import com.kaosnet.krank.KrankEngine
 
 @Composable
-@Composable
 fun EffectsScreen(vm: MainViewModel) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(top = 8.dp)) {
         PresetRow(vm)

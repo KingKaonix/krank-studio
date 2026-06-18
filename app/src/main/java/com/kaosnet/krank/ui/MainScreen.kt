@@ -253,9 +253,9 @@ fun MetronomeScreen(vm: MainViewModel) {
             ) {
                 Text(if (vm.metronomeEnabled) "ON" else "OFF", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp)
             }
+            if (vm.metronomeEnabled) {
                 Box(Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(12.dp)).background(KrankColors.Cyan.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
-                    Text("u25cf", fontSize = 18.sp, color = KrankColors.Cyan.copy(alpha = 0.5f))
-                }
+                    Text("●", fontSize = 18.sp, color = KrankColors.Cyan.copy(alpha = 0.5f))
                 }
             }
         }
