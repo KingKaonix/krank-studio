@@ -268,7 +268,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                     }
                 }
                 OutlinedButton(
-                    onClick = { tabPickerLauncher.launch(arrayOf("audio/midi", "audio/x-midi", "application/xml", "text/xml", "*/*")) },
+                    onClick = { tabPickerLauncher.launch(arrayOf("audio/midi", "audio/x-midi", "application/xml", "text/xml", "application/octet-stream", "*/*")) },
                     modifier = Modifier.fillMaxWidth().height(44.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFA78BFA)),
@@ -276,7 +276,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                 ) {
                     Icon(Icons.Filled.FileOpen, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("OPEN MIDI / MUSICXML TAB", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, fontFamily = FontFamily.Monospace)
+                    Text("OPEN TAB (MIDI / XML / GP5)", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, fontFamily = FontFamily.Monospace)
                 }
                 if (tabImportMessage.isNotEmpty()) {
                     Spacer(Modifier.height(6.dp))

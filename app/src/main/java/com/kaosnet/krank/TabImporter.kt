@@ -30,6 +30,7 @@ object TabImporter {
                     header == "MThd" -> parseMidi(bytes)
                     bytes[0] == 0x3C.toByte() && bytes[1] == 0x3F.toByte() -> parseMusicXml(bytes)
                     bytes[0] == 0x3C.toByte() -> parseMusicXml(bytes)
+                    bytes.size >= 30 && String(bytes.sliceArray(0..29), Charsets.US_ASCII).contains("FICHIER GUITAR PRO") -> Gp5Importer.import(bytes)
                     else -> null // unsupported format
                 }
             }
