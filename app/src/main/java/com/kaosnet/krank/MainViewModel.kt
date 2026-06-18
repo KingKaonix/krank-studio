@@ -416,6 +416,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun stopTranscription() { tabPlayer.stop() }
     fun seekTranscription(posMs: Long) { tabPlayer.seekTo(posMs) }
 
+    var tabImportTitle by mutableStateOf(""); private set
+
+    fun importTabFile(context: android.content.Context, uri: android.net.Uri) {
+        val result = TabImporter.import(context, uri)
+        if (result != null) {
+            transcribeNotes = result.notes
+            transcribeHasResult = true
+            transcribeNumMeasures = result.numMeasures
+            tabImportTitle = result.title
+        }
+    }
+
     // Init tab player listener
     init {
         tabPlayer.setStateListener { state ->

@@ -240,6 +240,32 @@ fun TranscribeScreen(vm: MainViewModel) {
                         Text(exportMessage, fontSize = 10.sp, color = Cyan, fontFamily = FontFamily.Monospace)
                     }
                 }
+                Spacer(Modifier.height(16.dp))
+                Text("IMPORT TAB", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
+                val tabPickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+                    androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
+                ) { uri ->
+                    if (uri != null) {
+                        vm.importTabFile(context, uri)
+                        tabImportMessage = "Imported: ${uri.lastPathSegment}"
+                    }
+                }
+                var tabImportMessage by androidx.compose.runtime.remember { mutableStateOf("") }
+                OutlinedButton(
+                    onClick = { tabPickerLauncher.launch(arrayOf("audio/midi", "audio/x-midi", "application/xml", "text/xml", "*/*")) },
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFA78BFA)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Border)
+                ) {
+                    Icon(Icons.Filled.FileOpen, null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("OPEN MIDI / MUSICXML TAB", fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp, fontFamily = FontFamily.Monospace)
+                }
+                if (tabImportMessage.isNotEmpty()) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(tabImportMessage, fontSize = 10.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace)
+                }
             }
             Spacer(Modifier.height(20.dp))
 
@@ -356,6 +382,7 @@ fun TranscribeScreen(vm: MainViewModel) {
                     Text("ABOUT", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.5.sp, modifier = Modifier.padding(bottom = 8.dp))
                     Text("1. Load an MP3/AAC/OGG/WAV file or record from your microphone", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                     Text("2. System detects notes and maps them to fret positions", fontSize = 11.sp, color = TSecondary, fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
+                    Text("3. Or import an existing MIDI (.mid) or MusicXML (.xml) tab file", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                     if (vm.polyphonicEnabled) {
                         Text("3. Polyphonic mode - attempts multi-note/chord detection", fontSize = 11.sp, color = Color(0xFFA78BFA), fontFamily = FontFamily.Monospace, lineHeight = 18.sp)
                     } else {
