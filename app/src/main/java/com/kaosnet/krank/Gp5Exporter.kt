@@ -427,7 +427,7 @@ object Gp5Exporter {
         out.writeByte(noteFlags)
 
         // String number (0-5, where 0 = high E)
-        out.writeByte(note.stringNum)
+        out.writeByte(note.string)
 
         // Fret number
         out.writeByte(note.fret.coerceIn(0, 24))
