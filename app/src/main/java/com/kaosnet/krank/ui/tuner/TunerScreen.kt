@@ -33,16 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kaosnet.krank.MainViewModel
 
-private val Bg         = Color(0xFF0A0A0E)
-private val S1         = Color(0xFF1A1A22)
-private val S2         = Color(0xFF22222E)
-private val Border     = Color(0xFF2A2A3A)
-private val Cyan       = Color(0xFF22D3EE)
-private val CyanDim    = Color(0xFF1BA3BB)
-private val Green      = Color(0xFF22C55E)
-private val TPrimary   = Color(0xFFF1F1F5)
-private val TSecondary = Color(0xFF8888A0)
-private val TMuted     = Color(0xFF555570)
+private val Bg         = com.kaosnet.krank.ui.KrankColors.Bg
+private val S1         = com.kaosnet.krank.ui.KrankColors.SurfaceCard
+private val S2         = com.kaosnet.krank.ui.KrankColors.Surface
+private val Border     = com.kaosnet.krank.ui.KrankColors.BorderBold
+private val Cyan       = com.kaosnet.krank.ui.KrankColors.Cyan
+private val CyanDim    = com.kaosnet.krank.ui.KrankColors.CyanDim
+private val Green      = com.kaosnet.krank.ui.KrankColors.Green
+private val TPrimary   = com.kaosnet.krank.ui.KrankColors.Primary
+private val TSecondary = com.kaosnet.krank.ui.KrankColors.Secondary
+private val TMuted     = com.kaosnet.krank.ui.KrankColors.Muted
 private val tuningNames = listOf("Standard", "Drop D", "Drop C", "Open D", "Open G", "Open E", "DADGAD",
     "Half-Step Down", "Full-Step Down", "Drop B", "Open A", "Custom")
 

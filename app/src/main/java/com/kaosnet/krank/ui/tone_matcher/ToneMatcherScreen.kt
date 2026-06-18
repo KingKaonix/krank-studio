@@ -36,7 +36,7 @@ private val S2 = Color(0xFF22222E)
 private val Border = Color(0xFF2A2A3A)
 private val Cyan = Color(0xFF22D3EE)
 private val TPrimary = Color(0xFFF1F1F5)
-private val TSecondary = Color(0xFF8888A0)
+private val TSecondary = com.kaosnet.krank.ui.KrankColors.Secondary
 private val TMuted = Color(0xFF555570)
 
 @Composable

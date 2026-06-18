@@ -15,55 +15,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-// ── KRANK Brand Colors - Hardware Amp Inspired ──
+// ── KRANK Premium Color Palette - Glass / High-End ──
 object KrankColors {
-    val Bg = Color(0xFF0A0A0E)
-    val Surface0 = Color(0xFF121216)
-    val Surface1 = Color(0xFF1A1A22)
-    val Surface2 = Color(0xFF22222E)
-    val Surface3 = Color(0xFF2A2A36)
-    val Border = Color(0xFF2A2A3A)
-    val BorderDim = Color(0xFF1E1E2A)
-    val BorderBright = Color(0xFF3A3A4E)
+    val Bg = Color(0xFF080810)
+    val BgGradientTop = Color(0xFF0C0C1A)
+    val BgGradientBottom = Color(0xFF06060D)
+    val Surface = Color(0x0CFFFFFF)   // glass base
+    val SurfaceElevated = Color(0x10FFFFFF)
+    val SurfaceCard = Color(0x0FFFFFFF)
+    val SurfaceActive = Color(0x18FFFFFF)
+    val Border = Color(0x0FFFFFFF)
+    val BorderBold = Color(0x1AFFFFFF)
+    val BorderDim = Color(0x08FFFFFF)
     val Cyan = Color(0xFF22D3EE)
+    val CyanGlow = Color(0x3322D3EE)
     val CyanDim = Color(0xFF1BA3BB)
-    val CyanGlow = Color(0x5522D3EE)
     val Green = Color(0xFF22C55E)
-    val GreenGlow = Color(0x5522C55E)
-    val Red = Color(0xFFFF6B6B)
-    val RedGlow = Color(0x55FF6B6B)
+    val GreenGlow = Color(0x3322C55E)
+    val Red = Color(0xFFEF4444)
+    val RedGlow = Color(0x33EF4444)
     val Orange = Color(0xFFF59E0B)
-    val OrangeGlow = Color(0x55F59E0B)
+    val Purple = Color(0xFFA78BFA)
+    val Pink = Color(0xFFF472B6)
+    val Yellow = Color(0xFFF9E79F)
     val Primary = Color(0xFFF1F1F5)
     val Secondary = Color(0xFF8888A0)
     val Muted = Color(0xFF555570)
     val Dim = Color(0xFF2E2E3A)
-    val White = Color(0xFFFFFFFF)
 
-    // Effect accent colors
-    val Distortion = Color(0xFFFF6B6B)
-    val AmpSim = Color(0xFF4ECDC4)
-    val EQ = Color(0xFF45B7D1)
-    val Chorus = Color(0xFF96CEB4)
+    // Effect accent colors - premium muted palette
+    val Distortion = Color(0xFFEF4444)
+    val AmpSim = Color(0xFF14B8A6)
+    val EQ = Color(0xFF3B82F6)
+    val Chorus = Color(0xFF84CC16)
     val NoiseGate = Color(0xFFA78BFA)
     val Compressor = Color(0xFFF472B6)
-    val Delay = Color(0xFFF9E79F)
-    val Reverb = Color(0xFFFFD700)
+    val Delay = Color(0xFFF59E0B)
+    val Reverb = Color(0xFFF9E79F)
 }
 
-// Hardware panel gradients
+// Premium gradients
 object KrankGradients {
-    val PanelDark = Brush.verticalGradient(listOf(
-        Color(0xFF14141A), Color(0xFF0E0E12)
-    ))
-    val PanelLight = Brush.verticalGradient(listOf(
-        Color(0xFF1E1E28), Color(0xFF181820)
-    ))
-    val GlassOverlay = Brush.verticalGradient(listOf(
-        Color(0x08FFFFFF), Color(0x04FFFFFF)
-    ))
+    val Bg = Brush.verticalGradient(listOf(KrankColors.BgGradientTop, KrankColors.BgGradientBottom))
+    val GlassOverlay = Brush.verticalGradient(listOf(Color(0x0CFFFFFF), Color(0x04FFFFFF)))
     val GlowCyan = Brush.radialGradient(
-        listOf(KrankColors.Cyan.copy(alpha = 0.3f), Color.Transparent),
+        listOf(KrankColors.Cyan.copy(alpha = 0.12f), Color.Transparent),
+        radius = 1f
+    )
+    val GlowPurple = Brush.radialGradient(
+        listOf(KrankColors.Purple.copy(alpha = 0.08f), Color.Transparent),
         radius = 1f
     )
 }
@@ -73,14 +73,14 @@ private val KrankColorScheme = darkColorScheme(
     secondary = KrankColors.Secondary,
     tertiary = KrankColors.Green,
     background = KrankColors.Bg,
-    surface = KrankColors.Surface1,
-    surfaceVariant = KrankColors.Surface0,
+    surface = KrankColors.Surface,
+    surfaceVariant = KrankColors.SurfaceCard,
     onPrimary = KrankColors.Bg,
     onSecondary = KrankColors.Primary,
     onBackground = KrankColors.Primary,
     onSurface = KrankColors.Primary,
     onSurfaceVariant = KrankColors.Secondary,
-    outline = KrankColors.Border
+    outline = KrankColors.Border.copy(alpha = 0.3f)
 )
 
 @Composable
@@ -104,37 +104,37 @@ fun effectColor(name: String): Color = when (name) {
     else -> KrankColors.Cyan
 }
 
-// Glass card composable helper
+// Glass card composable
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    accentColor: Color = KrankColors.Cyan,
     content: @Composable () -> Unit
 ) {
-    val accent = KrankColors.Cyan
-    val borderColor = if (enabled) KrankColors.BorderBright.copy(alpha = 0.6f) else KrankColors.BorderDim
-    val bgColor = if (enabled) KrankColors.Surface1 else KrankColors.Surface0
+    val borderColor = if (enabled) accentColor.copy(alpha = 0.2f) else KrankColors.BorderDim
+    val cardBg = if (enabled) KrankColors.SurfaceCard else KrankColors.Surface.copy(alpha = 0.3f)
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(bgColor)
-            .border(1.dp, borderColor, RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(cardBg)
+            .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
             .padding(14.dp)
     ) {
         content()
     }
 }
 
-// Glow effect modifier
+// Glow border modifier
 fun Modifier.glowBorder(
     enabled: Boolean,
     color: Color = KrankColors.Cyan,
     cornerRadius: Dp = 12.dp
 ): Modifier = this.then(
     if (enabled) {
-        Modifier.border(1.5.dp, color.copy(alpha = 0.6f), RoundedCornerShape(cornerRadius))
-            .border(0.5.dp, color.copy(alpha = 0.2f), RoundedCornerShape(cornerRadius + 1.dp))
+        Modifier.border(1.dp, color.copy(alpha = 0.35f), RoundedCornerShape(cornerRadius))
+            .border(0.5.dp, color.copy(alpha = 0.15f), RoundedCornerShape(cornerRadius + 1.dp))
     } else {
-        Modifier.border(1.dp, KrankColors.BorderDim, RoundedCornerShape(cornerRadius))
+        Modifier.border(0.5.dp, KrankColors.BorderDim, RoundedCornerShape(cornerRadius))
     }
 )

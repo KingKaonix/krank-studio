@@ -39,510 +39,294 @@ import com.kaosnet.krank.ui.tuner.TunerScreen
 import com.kaosnet.krank.ui.tone_matcher.ToneMatcherScreen
 import com.kaosnet.krank.ui.transcribe.TranscribeScreen
 
-private val Bg          = Color(0xFF0A0A0E)
-private val S0          = Color(0xFF121216)
-private val S1          = Color(0xFF1A1A22)
-private val S2          = Color(0xFF22222E)
-private val S3          = Color(0xFF2A2A36)
-private val BorderOn    = Color(0xFF2A2A3A)
-private val BorderDim   = Color(0xFF1E1E2A)
-private val Cyan        = Color(0xFF22D3EE)
-private val TPrimary    = Color(0xFFF1F1F5)
-private val TSecondary  = Color(0xFF8888A0)
-private val TMuted      = Color(0xFF555570)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(vm: MainViewModel) {
     val navController = rememberNavController()
     var showToolsSheet by remember { mutableStateOf(false) }
 
-    Scaffold(
-        containerColor = Bg,
-        topBar = { HardwareTopBar(vm) },
-        bottomBar = { HardwareNavBar(vm, onToolsClick = { showToolsSheet = true }) }
-    ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding)) {
-            NavHost(modifier = Modifier.fillMaxSize(),
-                navController = navController,
-                startDestination = "effects"
-            ) {
-                composable("effects") { EffectsScreen(vm) }
-                composable("tuner") { TunerScreen(vm) }
-                composable("tone_matcher") { ToneMatcherScreen(vm) }
-                composable("transcribe") { TranscribeScreen(vm) }
-                composable("metronome") { MetronomeScreen(vm) }
-                composable("looper") { LooperScreen(vm) }
-                composable("midi") { MidiScreen(vm) }
-                composable("ble") { BleScreen(vm) }
-                composable("tools") { ToolsScreen(vm) }
+    // Ambient background glow
+    Box(modifier = Modifier.fillMaxSize().background(KrankColors.Bg).then(Modifier.background(KrankGradients.Bg))) {
+        // Ambient glow spots
+        Canvas(Modifier.fillMaxSize()) {
+            drawCircle(KrankColors.Cyan.copy(alpha = 0.03f), radius = size.width * 0.4f, center = Offset(size.width * 0.7f, size.height * 0.15f))
+            drawCircle(KrankColors.Purple.copy(alpha = 0.02f), radius = size.width * 0.5f, center = Offset(size.width * 0.2f, size.height * 0.5f))
+        }
+
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = { GlassTopBar(vm) },
+            bottomBar = { GlassNavBar(vm, vm.currentTab) { idx ->
+                vm.currentTab = idx
+            }}
+        ) { padding ->
+            Box(modifier = Modifier.fillMaxSize().padding(padding)) {
+                NavHost(modifier = Modifier.fillMaxSize(),
+                    navController = navController,
+                    startDestination = "effects"
+                ) {
+                    composable("effects") { EffectsScreen(vm) }
+                    composable("tuner") { TunerScreen(vm) }
+                    composable("tone_matcher") { ToneMatcherScreen(vm) }
+                    composable("transcribe") { TranscribeScreen(vm) }
+                    composable("metronome") { MetronomeScreen(vm) }
+                    composable("looper") { LooperScreen(vm) }
+                    composable("midi") { MidiScreen(vm) }
+                    composable("ble") { BleScreen(vm) }
+                    composable("tools") { ToolsScreen(vm) }
+                }
             }
         }
-    }
 
-    // Tools bottom sheet
-    if (showToolsSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showToolsSheet = false },
-            containerColor = S1,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
-        ) {
-            ToolsSheetContent(vm, onNavigate = { route ->
-                showToolsSheet = false
-                navController.navigate(route) { popUpTo(route) { inclusive = true } }
-            })
+        // Tools bottom sheet
+        if (showToolsSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showToolsSheet = false },
+                containerColor = KrankColors.BgGradientTop,
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+            ) {
+                ToolsSheetContent(vm, onNavigate = { route ->
+                    showToolsSheet = false
+                    navController.navigate(route) { popUpTo(route) { inclusive = true } }
+                })
+            }
         }
-    }
 
-    var initialTab by remember { mutableStateOf(true) }
-    LaunchedEffect(vm.currentTab) {
-        if (initialTab) { initialTab = false; return@LaunchedEffect }
-        val routes = listOf("effects", "tuner", "tone_matcher", "transcribe")
-        val route = routes.getOrElse(vm.currentTab) { "effects" }
-        navController.navigate(route) { popUpTo(route) { inclusive = true } }
+        // Tab sync
+        var initialTab by remember { mutableStateOf(true) }
+        LaunchedEffect(vm.currentTab) {
+            if (initialTab) { initialTab = false; return@LaunchedEffect }
+            val routes = listOf("effects", "tuner", "tone_matcher", "transcribe")
+            val route = routes.getOrElse(vm.currentTab) { "effects" }
+            navController.navigate(route) { popUpTo(route) { inclusive = true } }
+        }
     }
 }
 
-// ── VU METER COMPOSABLE ──
+// ── GLASS TOP BAR ──
 @Composable
-private fun VuMeter(level: Float, modifier: Modifier = Modifier) {
-    val dbLevel = if (level > 0.001f) (20.0f * kotlin.math.log10(level.toDouble())).toFloat() + 40.0f else 0.0f
-    val displayLevel = (dbLevel / 40.0f).coerceIn(0f, 1f)
-    val segments = 12
-    val activeSegments = (displayLevel * segments).toInt().coerceIn(0, segments)
+private fun GlassTopBar(vm: MainViewModel) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(KrankColors.Surface)
+            .border(0.5.dp, KrankColors.Border, RoundedCornerShape(20.dp))
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Brand
+        Column {
+            Text("KRANK", fontFamily = FontFamily.Monospace, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = KrankColors.Primary, letterSpacing = 2.sp)
+            Text("Studio", fontFamily = FontFamily.Monospace, fontSize = 8.sp, color = KrankColors.Secondary, letterSpacing = 1.sp)
+        }
 
-    Box(modifier = modifier.width(72.dp).height(16.dp).clip(RoundedCornerShape(2.dp)).background(S2.copy(alpha = 0.8f))) {
-        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 1.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-            for (i in 0 until segments) {
-                val segColor = when {
-                    i >= segments - 1 -> Color(0xFFFF6B6B)
-                    i >= segments - 2 -> Color(0xFFF59E0B)
-                    else -> Color(0xFF22C55E)
-                }
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(if (i % 2 == 0) 12.dp else 8.dp)
-                        .clip(RoundedCornerShape(1.dp))
-                        .background(if (i < activeSegments) segColor else Color(0xFF2A2A36))
+        // VU Meter - premium bar
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text("IN", fontFamily = FontFamily.Monospace, fontSize = 8.sp, color = KrankColors.Muted, letterSpacing = 1.sp)
+            VuMeterBar(vm.inputLevel)
+        }
+
+        // Status dot
+        Box(Modifier.size(8.dp).clip(CircleShape).background(KrankColors.Green.copy(alpha = 0.8f)))
+    }
+}
+
+// ── PREMIUM VU METER BAR ──
+@Composable
+private fun VuMeterBar(level: Float, modifier: Modifier = Modifier) {
+    val segments = 16
+    val activeSegments = (level.coerceIn(0f, 1f) * segments).toInt().coerceIn(0, segments)
+
+    Row(modifier = modifier.height(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+        for (i in 0 until segments) {
+            val isActive = i < activeSegments
+            val color = when {
+                i < 10 -> if (isActive) KrankColors.Green else KrankColors.BorderDim
+                i < 13 -> if (isActive) KrankColors.Orange else KrankColors.BorderDim
+                else -> if (isActive) KrankColors.Red else KrankColors.BorderDim
+            }
+            val alpha = if (isActive) 0.9f else 0.3f
+            Box(
+                Modifier
+                    .width(3.dp)
+                    .height(if (i % 4 == 3) 12.dp else 8.dp)
+                    .clip(RoundedCornerShape(1.dp))
+                    .background(color.copy(alpha = alpha))
+            )
+        }
+    }
+}
+
+// ── GLASS BOTTOM NAV ──
+@Composable
+private fun GlassNavBar(vm: MainViewModel, selectedTab: Int, onTabSelected: (Int) -> Unit) {
+    val tabs = listOf("Effects", "Tuner", "Match", "Trans")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(KrankColors.Surface)
+            .border(0.5.dp, KrankColors.Border, RoundedCornerShape(24.dp))
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        tabs.forEachIndexed { idx, label ->
+            val selected = idx == selectedTab
+            val bgColor by animateColorAsState(
+                if (selected) KrankColors.SurfaceActive else Color.Transparent,
+                spring(Spring.DampingRatioMediumBouncy)
+            )
+            val textColor by animateColorAsState(
+                if (selected) KrankColors.Cyan else KrankColors.Muted,
+                spring(Spring.DampingRatioMediumBouncy)
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(bgColor)
+                    .clickable { onTabSelected(idx) },
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    label,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 10.sp,
+                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                    color = textColor,
+                    letterSpacing = 1.2.sp
                 )
             }
         }
     }
 }
 
-// ── TOP BAR ──
-@OptIn(ExperimentalMaterial3Api::class)
+// ── METRONOME SCREEN ──
 @Composable
-private fun HardwareTopBar(vm: MainViewModel) {
-    val ledCol by animateColorAsState(if (vm.isRunning) Color(0xFF22C55E) else TMuted, spring(Spring.DampingRatioMediumBouncy))
-    TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(10.dp).clip(CircleShape).background(ledCol))
-                Spacer(Modifier.width(8.dp))
-                Text("KRANK", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, color = TPrimary, letterSpacing = 4.sp, fontSize = 18.sp)
-                Spacer(Modifier.width(4.dp))
-                Text("STUDIO", fontFamily = FontFamily.Monospace, color = TSecondary, letterSpacing = 2.sp, fontSize = 7.sp)
-            }
-        },
-        actions = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // VU Meter
-                if (vm.isRunning) {
-                    VuMeter(level = vm.inputPeakLevel)
-                    Spacer(Modifier.width(12.dp))
-                }
-                // Power LED + switch
-                Text(if (vm.isRunning) "ON" else "OFF", fontFamily = FontFamily.Monospace, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = if (vm.isRunning) Color(0xFF22C55E) else TMuted, letterSpacing = 1.5.sp)
-                Spacer(Modifier.width(6.dp))
-                Switch(checked = vm.isRunning, onCheckedChange = { vm.toggleEngine() },
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFF22C55E), checkedTrackColor = Color(0xFF22C55E).copy(alpha = 0.3f), uncheckedThumbColor = Color(0xFF3A3A4A), uncheckedTrackColor = Color(0xFF1A1A22)),
-                    modifier = Modifier.padding(end = 12.dp))
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = S0, titleContentColor = TPrimary)
-    )
-}
-
-// ── BOTTOM NAV (4 primary tabs + tools) ──
-@Composable
-private fun HardwareNavBar(vm: MainViewModel, onToolsClick: () -> Unit) {
-    NavigationBar(
-        containerColor = S0, tonalElevation = 0.dp,
-        modifier = Modifier.height(64.dp).border(1.dp, BorderDim, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-    ) {
-        val primaryTabs = listOf(
-            TabDef(0, "EFFECTS", Icons.Filled.Tune, Cyan),
-            TabDef(1, "TUNER", Icons.Filled.Search, Color(0xFF22C55E)),
-            TabDef(2, "TONE MATCH", Icons.Filled.Star, Color(0xFFF59E0B)),
-            TabDef(3, "TRANSCRIBE", Icons.Filled.MusicNote, Color(0xFFA78BFA)),
-        )
-        primaryTabs.forEach { tab ->
-            val selected = vm.currentTab == tab.index
-            val itemBg by animateColorAsState(if (selected) tab.color.copy(alpha = 0.15f) else Color.Transparent, spring(Spring.DampingRatioMediumBouncy))
-            val iconTint by animateColorAsState(if (selected) tab.color else TMuted, spring(Spring.DampingRatioMediumBouncy))
-
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = 6.dp, horizontal = 2.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(itemBg)
-                    .clickable { vm.setTab(tab.index) }
-                    .padding(vertical = 4.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = tab.icon, contentDescription = tab.label, tint = iconTint, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.height(2.dp))
-                    Text(tab.label, fontFamily = FontFamily.Monospace, fontSize = 8.sp, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium, color = iconTint, letterSpacing = 0.8.sp, maxLines = 1)
-                }
-            }
-        }
-
-        // Tools button
-        val toolsColor = Color(0xFF8888A0)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 6.dp, horizontal = 2.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(S1.copy(alpha = 0.5f))
-                .clickable { onToolsClick() }
-                .padding(vertical = 4.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(
-                    modifier = Modifier.size(20.dp).clip(RoundedCornerShape(4.dp)).background(S2),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Filled.Add, null, tint = toolsColor, modifier = Modifier.size(14.dp))
-                }
-                Spacer(Modifier.height(2.dp))
-                Text("MORE", fontFamily = FontFamily.Monospace, fontSize = 8.sp, fontWeight = FontWeight.Medium, color = toolsColor, letterSpacing = 0.8.sp, maxLines = 1)
-            }
-        }
-    }
-}
-
-private data class TabDef(val index: Int, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val color: Color)
-
-// ── TOOLS BOTTOM SHEET ──
-@Composable
-private fun ToolsSheetContent(vm: MainViewModel, onNavigate: (String) -> Unit) {
-    val tools = listOf(
-        ToolItem("Metronome", Icons.Filled.Timer, Color(0xFFFF6B6B), "metronome"),
-        ToolItem("Looper", Icons.Filled.Repeat, Color(0xFF4ECDC4), "looper"),
-        ToolItem("MIDI", Icons.Filled.SettingsInputComponent, Color(0xFFA78BFA), "midi"),
-        ToolItem("BLE", Icons.Filled.Bluetooth, Color(0xFF22D3EE), "ble"),
-    )
-
-    Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
-        Text("TOOLS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TSecondary, letterSpacing = 2.sp)
-        Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            tools.take(2).forEach { tool ->
-                ToolButton(tool, onNavigate, Modifier.weight(1f))
-            }
-        }
-        Spacer(Modifier.height(12.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            tools.drop(2).forEach { tool ->
-                ToolButton(tool, onNavigate, Modifier.weight(1f))
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-
-        // Preset save/load inline
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = S2),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Save, null, tint = Color(0xFFF59E0B), modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("PRESETS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TPrimary, letterSpacing = 1.sp)
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    val context = androidx.compose.ui.platform.LocalContext.current
-                    SmallButton("SAVE", Color(0xFFF59E0B)) {
-                        val path = context.getExternalFilesDir(null)?.absolutePath + "/preset_${vm.currentPresetIndex}.json"
-                        vm.engine.savePresetToFile(path, vm.currentPresetIndex)
-                    }
-                    SmallButton("LOAD", Cyan) {
-                        val path = context.getExternalFilesDir(null)?.absolutePath + "/preset_${vm.currentPresetIndex}.json"
-                        vm.engine.loadPresetFromFile(path)
-                        vm.syncParamsFromPreset(vm.currentPresetIndex)
-                    }
-                }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-
-        // Tuner mute & Monitor toggles
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = S2),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Column(Modifier.padding(12.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Hearing, null, tint = if (vm.tunerMuteDry) Color(0xFFFF6B6B) else TMuted, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("TUNER MUTE", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TPrimary, letterSpacing = 0.5.sp)
-                    }
-                    Switch(checked = vm.tunerMuteDry, onCheckedChange = { vm.toggleTunerMuteDry() },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFFF6B6B), checkedTrackColor = Color(0xFFFF6B6B).copy(alpha = 0.3f)))
-                }
-                Spacer(Modifier.height(4.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Headphones, null, tint = if (vm.monitoringEnabled) Color(0xFF22C55E) else TMuted, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("MONITOR", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TPrimary, letterSpacing = 0.5.sp)
-                    }
-                    Switch(checked = vm.monitoringEnabled, onCheckedChange = { vm.toggleMonitoring() },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFF22C55E), checkedTrackColor = Color(0xFF22C55E).copy(alpha = 0.3f)))
-                }
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-
-        // IR Loader
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = S2),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            val irLabel = if (vm.irLoaded) "IR LOADED" else "LOAD IMPULSE RESPONSE"
-            val irColor = if (vm.irLoaded) Color(0xFF22C55E) else Color(0xFFF59E0B)
-            Column(Modifier.padding(12.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Waves, null, tint = irColor, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("CAB SIM (IR)", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TPrimary, letterSpacing = 1.sp)
-                    }
-                    vm.irLoaded.let { loaded ->
-                        if (loaded) {
-                            Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF22C55E)))
-                        }
-                    }
-                }
-                Spacer(Modifier.height(8.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    val context = androidx.compose.ui.platform.LocalContext.current
-                    var irFileName by androidx.compose.runtime.remember { mutableStateOf("") }
-                    val irFilePicker = androidx.activity.compose.rememberLauncherForActivityResult(
-                        androidx.activity.result.contract.ActivityResultContracts.OpenDocument()
-                    ) { uri ->
-                        if (uri != null) {
-                            try {
-                                val result = vm.loadIrFromUri(context, uri)
-                                irFileName = if (result) (uri.lastPathSegment ?: "IR loaded") else "Failed to load IR"
-                            } catch (e: Exception) {
-                                vm.irLoaded = false
-                                irFileName = "Error: ${e.message}"
-                            }
-                        }
-                    }
-                    SmallButton("BROWSE", irColor) {
-                        irFilePicker.launch(arrayOf("audio/wav", "audio/x-wav"))
-                    }
-                    if (vm.irLoaded) {
-                        SmallButton("CLEAR", Color(0xFFFF6B6B)) {
-                            vm.clearIr()
-                        }
-                    }
-                }
-            }
-        }
+fun MetronomeScreen(vm: MainViewModel) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.height(20.dp))
+        Text("METRONOME", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Secondary, letterSpacing = 2.sp)
         Spacer(Modifier.height(24.dp))
-    }
-}
 
-private data class ToolItem(val name: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val color: Color, val route: String)
+        // BPM display
+        Text("${vm.metronomeBpm.toInt()}", fontFamily = FontFamily.Monospace, fontSize = 64.sp, fontWeight = FontWeight.Bold, color = KrankColors.Cyan)
+        Text("BPM", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = KrankColors.Muted, letterSpacing = 3.sp)
+        Spacer(Modifier.height(16.dp))
 
-@Composable
-private fun ToolButton(tool: ToolItem, onNavigate: (String) -> Unit, modifier: Modifier = Modifier) {
-    OutlinedButton(
-        onClick = { onNavigate(tool.route) },
-        modifier = modifier.height(60.dp),
-        shape = RoundedCornerShape(14.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = tool.color, containerColor = tool.color.copy(alpha = 0.05f))
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(tool.icon, null, modifier = Modifier.size(20.dp), tint = tool.color)
-            Spacer(Modifier.height(2.dp))
-            Text(tool.name, fontFamily = FontFamily.Monospace, fontSize = 9.sp, fontWeight = FontWeight.Bold, color = tool.color, letterSpacing = 0.5.sp)
-        }
-    }
-}
+        // Slider
+        Slider(
+            value = vm.metronomeBpm,
+            onValueChange = { vm.updateMetronomeBpm(it) },
+            valueRange = 40f..240f,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            colors = SliderDefaults.colors(thumbColor = KrankColors.Cyan, activeTrackColor = KrankColors.Cyan, inactiveTrackColor = KrankColors.BorderDim)
+        )
+        Spacer(Modifier.height(16.dp))
 
-@Composable
-private fun SmallButton(text: String, color: Color, onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier.height(28.dp),
-        shape = RoundedCornerShape(6.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = color)
-    ) {
-        Text(text, fontFamily = FontFamily.Monospace, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
-    }
-}
-
-// ── Effects Screen ──
-@Composable
-private fun EffectsScreen(vm: MainViewModel) {
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(12.dp))
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp).clip(RoundedCornerShape(8.dp)).background(S1).border(1.dp, BorderOn, RoundedCornerShape(8.dp)).padding(10.dp)
+        // Tap tempo
+        OutlinedButton(
+            onClick = { vm.tapTempo() },
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Cyan),
+            border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Cyan.copy(alpha = 0.3f))
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text("CHANNEL STRIP", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 2.sp)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(6.dp).clip(CircleShape).background(if (vm.isRunning) Color(0xFF22C55E) else TMuted))
-                    Spacer(Modifier.width(4.dp))
-                    Text(if (vm.isRunning) "SIGNAL FLOW" else "BYPASS", fontFamily = FontFamily.Monospace, fontSize = 8.sp, color = if (vm.isRunning) Color(0xFF22C55E) else TMuted, letterSpacing = 1.sp)
+            Text("TAP TEMPO", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)
+        }
+        Spacer(Modifier.height(12.dp))
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = { vm.toggleMetronome() },
+                modifier = Modifier.weight(1f).height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = if (vm.metronomeEnabled) KrankColors.Green else KrankColors.Muted),
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (vm.metronomeEnabled) KrankColors.Green.copy(alpha = 0.3f) else KrankColors.BorderDim)
+            ) {
+                Text(if (vm.metronomeEnabled) "ON" else "OFF", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+            }
+            if (vm.metronomeEnabled) {
+                val visualBeat = vm.metronomeVisualBeat
+                Box(Modifier.weight(1f).height(48.dp).clip(RoundedCornerShape(12.dp)).background(if (visualBeat != 0) KrankColors.Cyan.copy(alpha = if (visualBeat == 1) 0.3f else 0.1f) else KrankColors.SurfaceCard), contentAlignment = Alignment.Center) {
+                    Text(if (visualBeat != 0) "●" else "○", fontSize = 18.sp, color = KrankColors.Cyan)
                 }
             }
         }
-        Spacer(Modifier.height(12.dp))
-        PresetRow(vm)
-        Spacer(Modifier.height(12.dp))
-        EffectCards(vm)
         Spacer(Modifier.height(40.dp))
     }
 }
 
-// ── Metronome Screen ──
+// ── LOOPER SCREEN ──
 @Composable
-private fun MetronomeScreen(vm: MainViewModel) {
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(20.dp)) {
-            Column(Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("BPM", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TSecondary, letterSpacing = 2.sp)
-                Spacer(Modifier.height(8.dp))
-                Text("%.0f".format(vm.metronomeBpm), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 64.sp, color = Color(0xFFFF6B6B), letterSpacing = 4.sp)
-                Spacer(Modifier.height(16.dp))
-                Slider(value = (vm.metronomeBpm - 40f) / 200f, onValueChange = { vm.updateMetronomeBpm(40f + it * 200f) },
-                    colors = SliderDefaults.colors(thumbColor = Color(0xFFFF6B6B), activeTrackColor = Color(0xFFFF6B6B), inactiveTrackColor = Color(0xFF2A2A36)),
-                    modifier = Modifier.fillMaxWidth())
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("40", fontSize = 10.sp, color = TMuted, fontFamily = FontFamily.Monospace)
-                    Text("240", fontSize = 10.sp, color = TMuted, fontFamily = FontFamily.Monospace)
-                }
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = { vm.tapTempo() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF6B6B), containerColor = Color(0xFFFF6B6B).copy(alpha = 0.05f))) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.TouchApp, null, modifier = Modifier.size(20.dp)); Text("TAP", fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                }
-            }
-            OutlinedButton(onClick = { vm.toggleMetronome() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = if (vm.metronomeEnabled) Color(0xFFFF6B6B) else TMuted,
-                    containerColor = if (vm.metronomeEnabled) Color(0xFFFF6B6B).copy(alpha = 0.1f) else Color.Transparent)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(if (vm.metronomeEnabled) Icons.Filled.MusicNote else Icons.Filled.MusicOff, null, modifier = Modifier.size(20.dp))
-                    Text(if (vm.metronomeEnabled) "ON" else "OFF", fontSize = 10.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
-                }
-            }
-        }
-        Spacer(Modifier.height(16.dp))
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(12.dp)) {
-            Column(Modifier.padding(16.dp)) {
-                Text("VOLUME", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.sp)
-                Slider(value = vm.metronomeVolume, onValueChange = { vm.updateMetronomeVolume(it) },
-                    colors = SliderDefaults.colors(thumbColor = Color(0xFFFF6B6B), activeTrackColor = Color(0xFFFF6B6B), inactiveTrackColor = Color(0xFF2A2A36)))
-            }
-        }
-    }
-}
-
-// ── Looper Screen ──
-@Composable
-private fun LooperScreen(vm: MainViewModel) {
-    val modeLabel = when (vm.looperMode) { 0 -> "STOPPED"; 1 -> "RECORDING"; 2 -> "PLAYING"; 3 -> "OVERDUB"; else -> "STOPPED" }
-    val modeColor = when (vm.looperMode) { 1 -> Color(0xFFFF6B6B); 2 -> Color(0xFF22C55E); 3 -> Color(0xFFF59E0B); else -> TMuted }
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(20.dp)) {
-            Column(Modifier.padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Box(modifier = Modifier.size(80.dp).clip(CircleShape).background(modeColor.copy(alpha = 0.1f)).border(2.dp, modeColor, CircleShape), contentAlignment = Alignment.Center) {
-                    Icon(when (vm.looperMode) { 1 -> Icons.Filled.FiberManualRecord; 2 -> Icons.Filled.PlayArrow; 3 -> Icons.Filled.AddCircleOutline; else -> Icons.Filled.Stop }, null, tint = modeColor, modifier = Modifier.size(40.dp))
-                }
-                Spacer(Modifier.height(16.dp))
-                Text(modeLabel, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = modeColor, letterSpacing = 3.sp)
-                if (vm.looperLoopDuration > 0) Text("%.1fs".format(vm.looperLoopDuration), fontFamily = FontFamily.Monospace, fontSize = 12.sp, color = TSecondary)
-            }
-        }
+fun LooperScreen(vm: MainViewModel) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.height(20.dp))
+        Text("LOOPER", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Secondary, letterSpacing = 2.sp)
         Spacer(Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { vm.looperToggleRecord() }, modifier = Modifier.weight(1f).height(64.dp), shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = modeColor.copy(alpha = 0.2f))) {
-                Icon(when (vm.looperMode) { 1 -> Icons.Filled.Stop; else -> Icons.Filled.FiberManualRecord }, null, tint = modeColor, modifier = Modifier.size(28.dp))
+
+        // Mode display
+        val modeText = when (vm.looperMode) { 0 -> "IDLE"; 1 -> "RECORDING"; 2 -> "PLAYING"; 3 -> "OVERDUB"; else -> "IDLE" }
+        val modeColor = when (vm.looperMode) { 0 -> KrankColors.Muted; 1 -> KrankColors.Red; 2 -> KrankColors.Green; 3 -> KrankColors.Orange; else -> KrankColors.Muted }
+        Text(modeText, fontFamily = FontFamily.Monospace, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = modeColor, letterSpacing = 2.sp)
+        Spacer(Modifier.height(24.dp))
+
+        // Control buttons
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { vm.looperRecord() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Red), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Red.copy(alpha = 0.3f))) {
+                Text("REC", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
             }
-            OutlinedButton(onClick = { vm.looperClear() }, modifier = Modifier.weight(1f).height(64.dp), shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TMuted)) {
-                Icon(Icons.Filled.Delete, null, modifier = Modifier.size(28.dp))
+            OutlinedButton(onClick = { vm.looperPlay() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Green), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Green.copy(alpha = 0.3f))) {
+                Text("PLAY", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
+            }
+            OutlinedButton(onClick = { vm.looperOverdub() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Orange), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Orange.copy(alpha = 0.3f))) {
+                Text("DUB", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
             }
         }
-        Spacer(Modifier.height(16.dp))
-        Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(S1).border(1.dp, BorderOn, RoundedCornerShape(12.dp)).padding(16.dp)) {
-            Text("Record a loop by pressing REC, play it back, or overdub by pressing REC again while playing.", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TSecondary, lineHeight = 18.sp)
+        Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = { vm.looperClear() }, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Muted), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.BorderDim)) {
+            Text("CLEAR", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
         }
+        Spacer(Modifier.height(40.dp))
     }
 }
 
-// ── MIDI Screen ──
+// ── MIDI SCREEN ──
 @Composable
-private fun MidiScreen(vm: MainViewModel) {
-    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(14.dp)) {
-            Column(Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.SettingsInputComponent, null, tint = Color(0xFFA78BFA), modifier = Modifier.size(28.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Text("MIDI FOOT CONTROLLER", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TPrimary, letterSpacing = 1.sp)
-                }
-                Spacer(Modifier.height(8.dp))
-                Text("Connect a USB MIDI foot controller. CC#64 (sustain) toggles looper. Use Learn mode to map CCs to effect params.", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TSecondary, lineHeight = 16.sp)
+fun MidiScreen(vm: MainViewModel) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(Modifier.height(20.dp))
+        Text("MIDI FOOTSWITCH", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Secondary, letterSpacing = 2.sp)
+        Spacer(Modifier.height(16.dp))
+        GlassCard(Modifier.fillMaxWidth(), enabled = true, accentColor = KrankColors.Cyan) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("LEARN MODE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = KrankColors.Cyan, letterSpacing = 1.sp)
                 Spacer(Modifier.height(12.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("MIDI LEARN MODE", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, color = TPrimary, letterSpacing = 1.sp)
-                    Switch(checked = vm.midiLearnMode, onCheckedChange = { vm.toggleMidiLearnMode() },
-                        colors = SwitchDefaults.colors(checkedThumbColor = Color(0xFFA78BFA), checkedTrackColor = Color(0xFFA78BFA).copy(alpha = 0.3f)))
+                Text("Press a MIDI CC to map it", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { vm.toggleMidiLearn() }, modifier = Modifier.height(40.dp), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = if (vm.midiLearnMode) KrankColors.Green else KrankColors.Muted), border = androidx.compose.foundation.BorderStroke(1.dp, if (vm.midiLearnMode) KrankColors.Green.copy(alpha = 0.3f) else KrankColors.BorderDim)) {
+                        Text(if (vm.midiLearnMode) "LEARNING..." else "LEARN", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    }
                 }
             }
         }
         Spacer(Modifier.height(16.dp))
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(14.dp)) {
-            Column(Modifier.padding(16.dp)) {
-                Text("EFFECT MAPPINGS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.sp)
+        GlassCard(Modifier.fillMaxWidth(), enabled = true, accentColor = KrankColors.Purple) {
+            Column {
+                Text("EFFECT MAPPINGS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = KrankColors.Secondary, letterSpacing = 1.sp)
                 Spacer(Modifier.height(8.dp))
                 listOf("Distortion", "Amp Sim", "EQ", "Chorus", "Noise Gate", "Compressor", "Delay", "Reverb").forEachIndexed { idx, name ->
                     Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(name, fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TPrimary)
-                        Text("CC#$idx", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TSecondary)
+                        Text(name, fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Primary)
+                        Text("CC#$idx", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Secondary)
                     }
-                    if (idx < 7) Divider(color = Color(0xFF1E1E2A), thickness = 0.5.dp)
+                    if (idx < 7) Divider(color = KrankColors.BorderDim, thickness = 0.5.dp)
                 }
             }
         }
@@ -552,21 +336,21 @@ private fun MidiScreen(vm: MainViewModel) {
 
 // ── BLE Screen ──
 @Composable
-private fun BleScreen(vm: MainViewModel) {
+fun BleScreen(vm: MainViewModel) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(14.dp)) {
-            Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.Bluetooth, null, tint = if (vm.bleConnected) Color(0xFF22D3EE) else TMuted, modifier = Modifier.size(48.dp))
+        GlassCard(Modifier.fillMaxWidth(), enabled = true, accentColor = if (vm.bleConnected) KrankColors.Cyan else KrankColors.Muted) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(Icons.Filled.Bluetooth, null, tint = if (vm.bleConnected) KrankColors.Cyan else KrankColors.Muted, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(8.dp))
-                Text("BLE FOOT CONTROLLER", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TPrimary, letterSpacing = 1.sp)
+                Text("BLE FOOT CONTROLLER", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Primary, letterSpacing = 1.sp)
                 Spacer(Modifier.height(4.dp))
-                Text(if (vm.bleConnected) "Connected to ${vm.bleDeviceName}" else "Not connected", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = if (vm.bleConnected) Color(0xFF22C55E) else TSecondary)
+                Text(if (vm.bleConnected) "Connected to ${vm.bleDeviceName}" else "Not connected", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = if (vm.bleConnected) KrankColors.Green else KrankColors.Secondary)
                 Spacer(Modifier.height(16.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { vm.updateBleScanning(true) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)) {
+                    OutlinedButton(onClick = { vm.updateBleScanning(true) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Cyan), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Cyan.copy(alpha = 0.3f))) {
                         Text("SCAN", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
                     }
-                    OutlinedButton(onClick = { vm.setBleConnected(false) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp)) {
+                    OutlinedButton(onClick = { vm.setBleConnected(false) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Muted), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.BorderDim)) {
                         Text("DISCONNECT", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
                     }
                 }
@@ -574,32 +358,61 @@ private fun BleScreen(vm: MainViewModel) {
         }
         Spacer(Modifier.height(16.dp))
         if (vm.bleScanning) {
-            Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1), shape = RoundedCornerShape(14.dp)) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("NEARBY DEVICES", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.sp)
+            GlassCard(Modifier.fillMaxWidth(), enabled = true, accentColor = KrankColors.Cyan) {
+                Column {
+                    Text("NEARBY DEVICES", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = KrankColors.Secondary, letterSpacing = 1.sp)
                     Spacer(Modifier.height(8.dp))
-                    Text("Scanning...", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TMuted)
+                    Text("Scanning...", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
                 }
             }
         }
         Spacer(Modifier.height(16.dp))
-        Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = S1.copy(alpha = 0.5f)), shape = RoundedCornerShape(10.dp)) {
-            Column(Modifier.padding(16.dp)) {
-                Text("COMPATIBLE DEVICES", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = TSecondary, letterSpacing = 1.sp)
+        GlassCard(Modifier.fillMaxWidth(), enabled = false) {
+            Column {
+                Text("COMPATIBLE DEVICES", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp, color = KrankColors.Secondary, letterSpacing = 1.sp)
                 Spacer(Modifier.height(6.dp))
-                Text("• AirTurn BT-200/500", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TMuted)
-                Text("• PageFlip Firefly", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TMuted)
-                Text("• iRig BlueTurn", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = TMuted)
+                Text("• AirTurn BT-200/500", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
+                Text("• PageFlip Firefly", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
+                Text("• iRig BlueTurn", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
             }
         }
         Spacer(Modifier.height(40.dp))
     }
 }
 
-// ── Tools Screen (fallback for direct nav) ──
+// ── Tools Screen ──
 @Composable
 private fun ToolsScreen(vm: MainViewModel) {
     Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)) {
-        Text("USE THE MORE BUTTON IN THE BOTTOM NAV", fontFamily = FontFamily.Monospace, fontSize = 12.sp, color = TSecondary)
+        Text("TOOLS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Secondary, letterSpacing = 2.sp)
+        Spacer(Modifier.height(16.dp))
+        GlassCard(Modifier.fillMaxWidth(), enabled = true, accentColor = KrankColors.Cyan) {
+            Text("USE THE MORE BUTTON IN THE TOOLS SHEET", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
+        }
+        Spacer(Modifier.height(40.dp))
+    }
+}
+
+// ── TOOLS SHEET ──
+@Composable
+private fun ToolsSheetContent(vm: MainViewModel, onNavigate: (String) -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(16.dp)) {
+        Text("TOOLS", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = KrankColors.Secondary, letterSpacing = 2.sp)
+        Spacer(Modifier.height(16.dp))
+        listOf(
+            "metronome" to "METRONOME",
+            "looper" to "LOOPER",
+            "midi" to "MIDI FOOTSWITCH",
+            "ble" to "BLE CONTROLLER"
+        ).forEach { (route, label) ->
+            Box(
+                Modifier.fillMaxWidth().height(52.dp).clip(RoundedCornerShape(12.dp)).background(KrankColors.SurfaceCard).clickable { onNavigate(route) },
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text("  $label", fontFamily = FontFamily.Monospace, fontSize = 11.sp, color = KrankColors.Primary, letterSpacing = 1.sp)
+            }
+            Spacer(Modifier.height(6.dp))
+        }
+        Spacer(Modifier.height(24.dp))
     }
 }

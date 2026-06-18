@@ -16,51 +16,57 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kaosnet.krank.MainViewModel
 import com.kaosnet.krank.KrankEngine
 
-private val S0 = Color(0xFF121216)
-private val S1 = Color(0xFF1A1A22)
-private val S2 = Color(0xFF22222E)
-private val S3 = Color(0xFF2A2A36)
-private val Border = Color(0xFF2A2A3A)
-private val Cyan = Color(0xFF22D3EE)
-private val TPrimary = Color(0xFFF1F1F5)
-private val TSecondary = Color(0xFF8888A0)
-private val TMuted = Color(0xFF555570)
-
 @Composable
 fun PresetRow(vm: MainViewModel) {
-    Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         KrankEngine.presetNames.forEachIndexed { idx, name ->
             val sel = idx == vm.currentPresetIndex
-            val bg by animateColorAsState(if (sel) Cyan else S1, spring(Spring.DampingRatioMediumBouncy))
-            val tc by animateColorAsState(if (sel) S0 else TSecondary, spring(Spring.DampingRatioMediumBouncy))
+            val bg by animateColorAsState(
+                if (sel) KrankColors.Cyan else KrankColors.SurfaceCard,
+                spring(Spring.DampingRatioMediumBouncy)
+            )
+            val tc by animateColorAsState(
+                if (sel) KrankColors.Bg else KrankColors.Secondary,
+                spring(Spring.DampingRatioMediumBouncy)
+            )
+            val borderColor by animateColorAsState(
+                if (sel) KrankColors.Cyan.copy(alpha = 0.3f) else KrankColors.BorderDim,
+                spring(Spring.DampingRatioMediumBouncy)
+            )
             Surface(
                 onClick = { vm.loadPreset(idx) },
-                modifier = Modifier.weight(1f).height(44.dp),
-                shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.weight(1f).height(40.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = bg,
-                tonalElevation = if (sel) 4.dp else 0.dp
+                tonalElevation = 0.dp
             ) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(name.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = tc, letterSpacing = 1.2.sp, fontFamily = FontFamily.Monospace)
+                Box(
+                    Modifier.fillMaxSize().border(0.5.dp, borderColor, RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(name.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Bold, color = tc, letterSpacing = 1.sp, fontFamily = FontFamily.Monospace)
                 }
             }
         }
     }
 }
 
+// ── EFFECT CARDS ──
+
+data class EffectData(val name: String, val enabled: Boolean, val onToggle: () -> Unit, val accent: Color, val params: List<ParamDef>)
+data class ParamDef(val label: String, val value: Float, val onChange: (Float) -> Unit)
+
 @Composable
 fun EffectCards(vm: MainViewModel) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         val allEffects = listOf(
             EffectData("Amp Sim", vm.ampSimOn, { vm.toggleAmpSim() }, KrankColors.AmpSim, listOf(
                 ParamDef("Drive", vm.ampSimGain, { vm.updateAmpSimGain(it) }),
@@ -105,70 +111,121 @@ fun EffectCards(vm: MainViewModel) {
         )
 
         allEffects.forEach { effect ->
-            AmpStyleCard(
+            GlassEffectCard(
                 name = effect.name,
                 enabled = effect.enabled,
                 accent = effect.accent,
                 onToggle = effect.onToggle,
                 params = effect.params
             )
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
-private data class EffectData(val name: String, val enabled: Boolean, val onToggle: () -> Unit, val accent: Color, val params: List<ParamDef>)
-private data class ParamDef(val label: String, val value: Float, val onChange: (Float) -> Unit)
-
+// ── GLASS EFFECT CARD ──
 @Composable
-private fun AmpStyleCard(name: String, enabled: Boolean, accent: Color, onToggle: () -> Unit, params: List<ParamDef>) {
-    val bg by animateColorAsState(if (enabled) S1 else S0, spring(Spring.DampingRatioMediumBouncy))
-    val border by animateColorAsState(if (enabled) Border.copy(alpha = 0.8f) else Border.copy(alpha = 0.4f), spring(Spring.DampingRatioMediumBouncy))
+private fun GlassEffectCard(
+    name: String,
+    enabled: Boolean,
+    accent: Color,
+    onToggle: () -> Unit,
+    params: List<ParamDef>
+) {
+    val borderColor by animateColorAsState(
+        if (enabled) accent.copy(alpha = 0.25f) else KrankColors.BorderDim,
+        spring(Spring.DampingRatioMediumBouncy)
+    )
+    val bgColor = if (enabled) KrankColors.SurfaceCard else KrankColors.Surface.copy(alpha = 0.3f)
 
-    Surface(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), color = bg, tonalElevation = 0.dp) {
-        Column(Modifier.border(1.dp, border, RoundedCornerShape(16.dp)).padding(16.dp)) {
-            // Header
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(bgColor)
+            .border(0.5.dp, borderColor, RoundedCornerShape(16.dp))
+    ) {
+        Column {
+            // Top accent bar
+            Box(Modifier.fillMaxWidth().height(2.dp).background(if (enabled) accent.copy(alpha = 0.5f) else KrankColors.BorderDim))
+
+            Row(
+                Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // LED
-                    Box(Modifier.size(10.dp).clip(CircleShape).background(if (enabled) accent else TMuted).border(0.5.dp, if (enabled) accent.copy(alpha = 0.5f) else Color.Transparent, CircleShape))
+                    // Glow dot
+                    Box(
+                        Modifier
+                            .size(8.dp)
+                            .clip(CircleShape)
+                            .background(if (enabled) accent else KrankColors.Muted.copy(alpha = 0.5f))
+                    )
                     Spacer(Modifier.width(10.dp))
-                    Text(name, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = if (enabled) TPrimary else TSecondary, letterSpacing = 1.sp)
+                    Text(
+                        name,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (enabled) KrankColors.Primary else KrankColors.Secondary,
+                        letterSpacing = 1.sp
+                    )
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (enabled) "ON" else "OFF", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 9.sp, color = if (enabled) accent else TMuted, letterSpacing = 1.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Switch(checked = enabled, onCheckedChange = { onToggle() },
-                        colors = SwitchDefaults.colors(checkedThumbColor = accent, checkedTrackColor = accent.copy(alpha = 0.3f), uncheckedThumbColor = Color(0xFF3A3A4A), uncheckedTrackColor = Color(0xFF1A1A22)))
+                    Text(
+                        if (enabled) "ON" else "OFF",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (enabled) accent else KrankColors.Muted,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Switch(
+                        checked = enabled,
+                        onCheckedChange = { onToggle() },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = accent,
+                            checkedTrackColor = accent.copy(alpha = 0.25f),
+                            uncheckedThumbColor = KrankColors.Dim,
+                            uncheckedTrackColor = KrankColors.BorderDim
+                        ),
+                        modifier = Modifier.height(20.dp)
+                    )
                 }
             }
-            Spacer(Modifier.height(14.dp))
+
             // Sliders
-            params.forEach { param ->
-                ParamSlider(label = param.label, value = param.value, onChange = param.onChange, enabled = enabled, accent = accent)
-                Spacer(Modifier.height(8.dp))
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
+                params.forEach { param ->
+                    PremiumSlider(label = param.label, value = param.value, onChange = param.onChange, enabled = enabled, accent = accent)
+                    Spacer(Modifier.height(6.dp))
+                }
             }
         }
     }
 }
 
+// ── PREMIUM SLIDER ──
 @Composable
-private fun ParamSlider(label: String, value: Float, onChange: (Float) -> Unit, enabled: Boolean, accent: Color) {
+private fun PremiumSlider(label: String, value: Float, onChange: (Float) -> Unit, enabled: Boolean, accent: Color) {
     val displayValue = remember(value) {
         when (label) {
             "Time" -> "${(value * 2000).toInt()} ms"
             "Ratio" -> "%.1f:1".format(1f + value * 19f)
             "Threshold" -> "%.0f dB".format(-60f + value * 60f)
-            "Drive", "Tone", "Level", "Gain", "Master" -> "${(value * 10).toInt()}"
+            "Drive", "Tone", "Level", "Gain", "Master" -> "${(value * 100).toInt()}"
+            "Bass", "Mid", "Treble" -> "${(value * 100).toInt()}"
             else -> "${(value * 100).toInt()}%"
         }
     }
-    val activeColor = if (enabled) accent else TMuted
+    val activeColor = if (enabled) accent else KrankColors.Muted
 
     Column {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(label, fontFamily = FontFamily.Monospace, fontSize = 10.sp, fontWeight = FontWeight.Medium, color = TSecondary, letterSpacing = 0.5.sp)
-            Text(displayValue, fontFamily = FontFamily.Monospace, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = activeColor, letterSpacing = 0.5.sp)
+            Text(label, fontFamily = FontFamily.Monospace, fontSize = 9.sp, fontWeight = FontWeight.Medium, color = KrankColors.Secondary, letterSpacing = 0.5.sp)
+            Text(displayValue, fontFamily = FontFamily.Monospace, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = activeColor)
         }
         Spacer(Modifier.height(2.dp))
         Slider(
@@ -178,12 +235,12 @@ private fun ParamSlider(label: String, value: Float, onChange: (Float) -> Unit, 
             colors = SliderDefaults.colors(
                 thumbColor = activeColor,
                 activeTrackColor = activeColor,
-                inactiveTrackColor = S3,
-                disabledThumbColor = TMuted,
-                disabledActiveTrackColor = TMuted,
-                disabledInactiveTrackColor = S3
+                inactiveTrackColor = KrankColors.BorderDim,
+                disabledThumbColor = KrankColors.Muted,
+                disabledActiveTrackColor = KrankColors.Muted.copy(alpha = 0.3f),
+                disabledInactiveTrackColor = KrankColors.BorderDim
             ),
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(20.dp)
         )
     }
 }
