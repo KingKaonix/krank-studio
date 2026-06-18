@@ -38,6 +38,7 @@ import com.kaosnet.krank.MainViewModel
 import com.kaosnet.krank.ui.tuner.TunerScreen
 import com.kaosnet.krank.ui.tone_matcher.ToneMatcherScreen
 import com.kaosnet.krank.ui.transcribe.TranscribeScreen
+import com.kaosnet.krank.ui.EffectsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,11 +54,12 @@ fun MainScreen(vm: MainViewModel) {
             drawCircle(KrankColors.Purple.copy(alpha = 0.02f), radius = size.width * 0.5f, center = Offset(size.width * 0.2f, size.height * 0.5f))
         }
 
+        var selectedTab by remember { mutableIntStateOf(0) }
         Scaffold(
             containerColor = Color.Transparent,
             topBar = { GlassTopBar(vm) },
-            bottomBar = { GlassNavBar(vm, vm.currentTab) { idx ->
-                vm.currentTab = idx
+            bottomBar = { GlassNavBar(vm, selectedTab) { idx ->
+                selectedTab = idx
             }}
         ) { padding ->
             Box(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -126,7 +128,7 @@ private fun GlassTopBar(vm: MainViewModel) {
         // VU Meter - premium bar
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("IN", fontFamily = FontFamily.Monospace, fontSize = 8.sp, color = KrankColors.Muted, letterSpacing = 1.sp)
-            VuMeterBar(vm.inputLevel)
+            VuMeterBar(vm.engine.getInputPeakLevel())
         }
 
         // Status dot
@@ -278,13 +280,13 @@ fun LooperScreen(vm: MainViewModel) {
 
         // Control buttons
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { vm.looperRecord() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Red), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Red.copy(alpha = 0.3f))) {
+            OutlinedButton(onClick = { vm.looperToggleRecord() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Red), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Red.copy(alpha = 0.3f))) {
                 Text("REC", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
             }
-            OutlinedButton(onClick = { vm.looperPlay() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Green), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Green.copy(alpha = 0.3f))) {
+            OutlinedButton(onClick = { vm.looperToggleRecord() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Green), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Green.copy(alpha = 0.3f))) {
                 Text("PLAY", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
             }
-            OutlinedButton(onClick = { vm.looperOverdub() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Orange), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Orange.copy(alpha = 0.3f))) {
+            OutlinedButton(onClick = { vm.looperToggleRecord() }, modifier = Modifier.weight(1f).height(56.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = KrankColors.Orange), border = androidx.compose.foundation.BorderStroke(1.dp, KrankColors.Orange.copy(alpha = 0.3f))) {
                 Text("DUB", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)
             }
         }
@@ -310,7 +312,7 @@ fun MidiScreen(vm: MainViewModel) {
                 Text("Press a MIDI CC to map it", fontFamily = FontFamily.Monospace, fontSize = 10.sp, color = KrankColors.Muted)
                 Spacer(Modifier.height(16.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { vm.toggleMidiLearn() }, modifier = Modifier.height(40.dp), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = if (vm.midiLearnMode) KrankColors.Green else KrankColors.Muted), border = androidx.compose.foundation.BorderStroke(1.dp, if (vm.midiLearnMode) KrankColors.Green.copy(alpha = 0.3f) else KrankColors.BorderDim)) {
+                    OutlinedButton(onClick = { vm.toggleMidiLearnMode() }, modifier = Modifier.height(40.dp), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = if (vm.midiLearnMode) KrankColors.Green else KrankColors.Muted), border = androidx.compose.foundation.BorderStroke(1.dp, if (vm.midiLearnMode) KrankColors.Green.copy(alpha = 0.3f) else KrankColors.BorderDim)) {
                         Text(if (vm.midiLearnMode) "LEARNING..." else "LEARN", fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                     }
                 }

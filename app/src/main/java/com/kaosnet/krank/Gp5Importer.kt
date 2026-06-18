@@ -8,6 +8,7 @@ import java.io.DataInputStream
  * Based on the reverse-engineered GP5 format specification.
  */
 object Gp5Importer {
+    private var tickToSecond: Double = 0.0
 
     fun import(bytes: ByteArray): TabImporter.ImportResult? {
         return try {
@@ -135,7 +136,7 @@ object Gp5Importer {
         }
 
         // ── MEASURES ──
-        val tickToSecond = 60.0 / (tempo * 120) // 120 ticks per quarter, tempo in BPM
+        tickToSecond = 60.0 / (tempo * 120) // 120 ticks per quarter, tempo in BPM
 
         val notes = mutableListOf<TabNoteData>()
         val stringCounts = tracks.map { it.strings.size }
@@ -294,6 +295,7 @@ object Gp5Importer {
         durationSeconds: Float,
         numStrings: Int
     ): TabNoteData? {
+        val tickToSecond = this.tickToSecond
         val noteFlags = input.readUnsignedByte()
 
         val isTie = (noteFlags and 0x01) != 0
