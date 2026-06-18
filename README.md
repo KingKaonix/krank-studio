@@ -1,7 +1,7 @@
 # KRANK STUDIO
 
-[![Build](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml/badge.svg)](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml)
-[![Release](https://img.shields.io/badge/release-v1.2.0-22d3ee)](https://github.com/KaosNet/krank-studio/releases)
+[![Build](https://github.com/KingKaonix/krank-studio/actions/workflows/build.yml/badge.svg)](https://github.com/KingKaonix/krank-studio/actions/workflows/build.yml)
+[![Release](https://img.shields.io/badge/release-v1.6.0-22d3ee)](https://github.com/KingKaonix/krank-studio/releases)
 [![License](https://img.shields.io/badge/license-MIT-22c55e)](LICENSE)
 
 **KRANK STUDIO** is a professional-grade, low-latency guitar effects processor and audio toolkit for Android. Built from the ground up with a hybrid C++ audio engine and a premium hardware-amp-inspired UI, it delivers studio-quality sound processing directly on your phone or tablet — no cloud, no latency, no compromises.
@@ -9,6 +9,25 @@
 ---
 
 ## Why KRANK STUDIO?
+
+### vs. Guitar Pro
+| Feature | KRANK STUDIO | Guitar Pro Mobile |
+|---|---|---|
+| **Live Effects Processing** | 8 effects in chain + cab sim IR loader | ❌ |
+| **Chromatic Tuner** | 12 tuning presets + strobe display | Basic tuner only |
+| **Audio-to-Tab Transcription** | Real-time & file-based pitch detection | ❌ |
+| **Tab Import** | MIDI + MusicXML | Own format only |
+| **Tab Export** | MIDI, MusicXML, ABC notation | GP format only |
+| **Tone Matcher** | WAV/MP3 analysis → auto-effect tuning | ❌ |
+| **Metronome** | Tap tempo 40-240 BPM | ❌ |
+| **Looper** | Record/play/overdub/clear | ❌ |
+| **IR Cab Sim** | Convolution impulse response loader | ❌ |
+| **MIDI Footswitch** | Learn mode + looper toggle | ❌ |
+| **BLE Foot Controller** | Scan & connect | ❌ |
+| **Audio Monitoring** | Real-time headphone monitoring | ❌ |
+| **WAV Recording** | 32-bit float direct-to-FLAC | ❌ |
+| **File Support** | WAV + MP3 + AAC + OGG + FLAC | GP only |
+| **Price** | Free | $12.99/month |
 
 ### vs. ToneStack Pro
 | Feature | KRANK STUDIO | ToneStack Pro |
@@ -22,6 +41,7 @@
 | **UI** | Hardware amp aesthetic, glass cards | Generic icons |
 | **File Support** | WAV + MP3 + AAC + OGG + FLAC | WAV only |
 | **Mic Recording** | Live capture → analyze/transcribe | ❌ |
+| **Tab Import/Playback** | MIDI + MusicXML with backing audio | ❌ |
 | **Price** | Free | $9.99+ per amp pack |
 
 ### vs. AmpliTube Mobile
@@ -70,6 +90,7 @@ Clean → Crunch → Lead → Metal → Ambient — instant tone switching with 
 - Needle cents indicator with color zones (green = in tune, yellow = close, red = off)
 - Frequency readout accurate to 0.1 Hz
 - Real-time note detection with audio processing
+- **Tuner mute** — cuts dry signal to amp for silent tuning
 
 ### Tone Matcher
 Load any audio file (WAV, MP3, AAC, OGG, FLAC) or record from your mic — KRANK analyzes the spectral content and recommends optimal effect settings to match the target tone:
@@ -83,11 +104,41 @@ Load any audio file (WAV, MP3, AAC, OGG, FLAC) or record from your mic — KRANK
 ### Song Transcriber
 Load a WAV or MP3 of a guitar part — the YIN-based monophonic pitch detection engine transcribes audio into standard tablature with fret positions, string assignments, and timing.
 
-### Song Transcriber
-Load a WAV or MP3 of a guitar part — the YIN-based monophonic pitch detection engine transcribes audio into standard tablature with fret positions, string assignments, and timing.
+### Tab Import & Playback
+Open MIDI (.mid) or MusicXML (.xml) tab files directly in the app:
+- **MIDI import** — pitch-to-string mapping with fret assignment
+- **MusicXML import** — reads fret/string notation
+- **Backing audio mixing** — play tabs in time with the original track
+- **Scrolling fretboard visualization** with real-time note highlighting
 
 ### Tab Export
-Export transcribed tablature to **MIDI** (.mid) — the industry-standard format compatible with Guitar Pro, TuxGuitar, MuseScore, DAWs, and every major notation editor. Also exports to **ABC notation** (.abc) — a plain-text format readable by any text editor or ABC player.
+Export transcribed tablature to multiple industry-standard formats:
+- **MIDI** (.mid) — compatible with Guitar Pro, TuxGuitar, MuseScore, DAWs
+- **MusicXML** (.xml) — readable by Sibelius, Finale, Dorico, MuseScore
+- **ABC notation** (.abc) — plain-text format for quick sharing
+
+### Metronome
+- Tap tempo input (40-240 BPM)
+- Visual beat indicator
+- Precision timing reference for practice and recording
+
+### Looper Pedal
+- Record, play, overdub, and clear loop layers
+- Full-duplex operation — play over your loops in real time
+- MIDI footswitch assignable for hands-free control
+
+### MIDI Footswitch Support
+- Learn mode — map any MIDI CC to any action
+- Looper toggle, effect bypass, tuner, presets
+- Compatible with standard MIDI USB controllers
+
+### Bluetooth LE Foot Controller
+- Scan and connect to BLE foot controllers
+- Low-latency wireless control for live performance
+
+### Audio Input Monitoring
+- Real-time headphone monitoring with zero added latency
+- Hear your processed signal through the effects chain
 
 ### WAV Recording
 Record your playing directly to high-quality WAV files (32-bit float, 48 kHz) with a single tap.
@@ -106,6 +157,7 @@ Load impulse response WAV files for convolution-based cabinet simulation.
 | **Pitch Detection** | YIN algorithm (monophonic) |
 | **FFT Analysis** | Tone matching via spectral comparison |
 | **FFT Library** | PocketFFT (header-only, MIT) |
+| **Tab Parsing** | MIDI (pitches → strings/frets), MusicXML (fret/string notation) |
 | **JNI Bridge** | Custom C++/Kotlin interop layer |
 | **UI** | Kotlin, Jetpack Compose, Material 3 |
 | **Navigation** | Jetpack Navigation Compose |
@@ -128,7 +180,7 @@ Load impulse response WAV files for convolution-based cabinet simulation.
 ## Building from Source
 
 ```bash
-git clone https://github.com/KaosNet/krank-studio.git
+git clone https://github.com/KingKaonix/krank-studio.git
 cd krank-studio
 ./gradlew assembleDebug
 ```
@@ -145,14 +197,12 @@ The APK will be at `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Download
 
-[![Download from GitHub Actions](https://img.shields.io/badge/download-latest%20build-22d3ee)](https://github.com/KaosNet/krank-studio/actions/workflows/build.yml)
+[![Latest Release](https://img.shields.io/badge/download-latest%20release-22d3ee)](https://github.com/KingKaonix/krank-studio/releases/latest)
 
-1. Click the badge above or go to **Actions → Build → latest green run**
-2. Scroll to **Artifacts**
-3. Download `krank-debug.zip`
-4. Unzip and install the APK
-
-Or grab a tagged release from the [Releases page](https://github.com/KaosNet/krank-studio/releases).
+1. Go to the [Releases page](https://github.com/KingKaonix/krank-studio/releases)
+2. Download the latest APK
+3. Enable "Install from unknown sources" on your device
+4. Install and KRANK
 
 ---
 
@@ -166,9 +216,12 @@ Or grab a tagged release from the [Releases page](https://github.com/KaosNet/kra
 - [x] Metronome with tap tempo
 - [x] Audio input monitoring via headphones
 - [x] Bluetooth LE foot controller
-- [ ] Tab playback synchronized with audio
+- [x] Tab import (MIDI + MusicXML)
+- [x] Tab playback with backing audio
+- [x] Multi-format tab export (MIDI, MusicXML, ABC)
 - [ ] Guitar Pro format export
 - [ ] Internal audio capture (streaming)
+- [ ] Multi-track looper
 
 ---
 
