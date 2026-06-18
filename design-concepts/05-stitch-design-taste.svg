@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f5f0"/>
+      <stop offset="100%" style="stop-color:#f0ebe4"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#fcfaf7"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c73b3b"/>
+      <stop offset="100%" style="stop-color:#d95c5c"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Phone body -->
+  <rect x="20" y="20" width="560" height="1160" rx="48" fill="#d4cec6" stroke="#c4beb6" stroke-width="1"/>
+  <rect x="35" y="35" width="530" height="1130" rx="40" fill="url(#bg)"/>
+  
+  <!-- Warm ambient -->
+  <rect x="35" y="35" width="530" height="200" rx="40" fill="rgba(230,220,210,0.3)"/>
+  
+  <!-- Status -->
+  <text x="50" y="68" font-family="'Outfit',sans-serif" font-size="12" fill="#3a3530" font-weight="400">9:41</text>
+  
+  <!-- Header -->
+  <text x="50" y="115" font-family="'Outfit',sans-serif" font-size="22" fill="#2a2520" font-weight="500" letter-spacing="-0.3">KRANK Studio</text>
+  <text x="50" y="135" font-family="'Outfit',sans-serif" font-size="11" fill="#8a8580" font-weight="400">Guitar Processor</text>
+  
+  <!-- Live badge -->
+  <rect x="460" y="103" width="90" height="24" rx="12" fill="#3a3530"/>
+  <text x="505" y="119" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="9" fill="#f5f0eb" letter-spacing="1">LIVE</text>
+  
+  <!-- VU Meter -->
+  <rect x="50" y="160" width="500" height="36" rx="10" fill="rgba(0,0,0,0.02)"/>
+  <text x="65" y="183" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Input</text>
+  <g transform="translate(120, 166)">
+    <rect x="0" y="0" width="280" height="24" rx="8" fill="rgba(0,0,0,0.03)"/>
+    <rect x="2" y="2" width="30" height="20" rx="6" fill="#5a9e6f" opacity="0.8"/>
+    <rect x="34" y="2" width="30" height="20" rx="6" fill="#5a9e6f" opacity="0.6"/>
+    <rect x="66" y="2" width="30" height="20" rx="6" fill="#5a9e6f" opacity="0.4"/>
+    <rect x="98" y="2" width="30" height="20" rx="6" fill="#d4a04a" opacity="0.5"/>
+    <rect x="130" y="2" width="30" height="20" rx="6" fill="#d4a04a" opacity="0.3"/>
+    <rect x="162" y="2" width="30" height="20" rx="6" fill="#c73b3b" opacity="0.15"/>
+    <rect x="194" y="2" width="30" height="20" rx="6" fill="#c73b3b" opacity="0.08"/>
+  </g>
+  <text x="480" y="183" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">-8 dB</text>
+  
+  <!-- Effect cards - warm editorial style -->
+  <g transform="translate(50, 215)">
+    <!-- Distortion -->
+    <rect x="0" y="0" width="500" height="60" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    <rect x="0" y="0" width="3" height="60" rx="1" fill="#c73b3b"/>
+    <text x="18" y="25" font-family="'Outfit',sans-serif" font-size="14" fill="#2a2520" font-weight="500">Distortion</text>
+    <text x="18" y="44" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Drive 72 · Tone 54 · Level 81</text>
+    <g transform="translate(260, 14)">
+      <rect x="0" y="0" width="160" height="2" fill="rgba(0,0,0,0.06)"/>
+      <rect x="0" y="0" width="100" height="2" fill="#c73b3b"/>
+    </g>
+    <text x="470" y="25" text-anchor="end" font-family="'Outfit',sans-serif" font-size="9" fill="#c73b3b">On</text>
+    
+    <!-- Amp Sim -->
+    <rect x="0" y="68" width="500" height="52" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    <rect x="0" y="68" width="3" height="52" rx="1" fill="#4a8c7a"/>
+    <text x="18" y="89" font-family="'Outfit',sans-serif" font-size="14" fill="#2a2520" font-weight="500">Amp Sim</text>
+    <text x="18" y="108" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Drive 45 · Tone 78 · Level 62</text>
+    <g transform="translate(260, 82)">
+      <rect x="0" y="0" width="160" height="2" fill="rgba(0,0,0,0.06)"/>
+      <rect x="0" y="0" width="130" height="2" fill="#4a8c7a"/>
+    </g>
+    <text x="470" y="89" text-anchor="end" font-family="'Outfit',sans-serif" font-size="9" fill="#4a8c7a">On</text>
+    
+    <!-- EQ -->
+    <rect x="0" y="128" width="500" height="52" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    <rect x="0" y="128" width="3" height="52" rx="1" fill="#5a7a9e"/>
+    <text x="18" y="149" font-family="'Outfit',sans-serif" font-size="14" fill="#2a2520" font-weight="500">Equalizer</text>
+    <text x="18" y="168" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Bass 38 · Mid 52 · Treble 67</text>
+    <g transform="translate(260, 142)">
+      <rect x="0" y="0" width="160" height="2" fill="rgba(0,0,0,0.06)"/>
+      <rect x="30" y="0" width="100" height="2" fill="#5a7a9e"/>
+    </g>
+    <text x="470" y="149" text-anchor="end" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Off</text>
+    
+    <!-- Chorus -->
+    <rect x="0" y="188" width="500" height="52" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    <rect x="0" y="188" width="3" height="52" rx="1" fill="#8a9e5a"/>
+    <text x="18" y="209" font-family="'Outfit',sans-serif" font-size="14" fill="#2a2520" font-weight="500">Chorus</text>
+    <text x="18" y="228" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Rate 22 · Depth 45 · Mix 38</text>
+    <g transform="translate(260, 202)">
+      <rect x="0" y="0" width="160" height="2" fill="rgba(0,0,0,0.06)"/>
+      <rect x="0" y="0" width="50" height="2" fill="#8a9e5a"/>
+    </g>
+    <text x="470" y="209" text-anchor="end" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Off</text>
+    
+    <!-- Noise Gate -->
+    <rect x="0" y="248" width="500" height="52" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+    <rect x="0" y="248" width="3" height="52" rx="1" fill="#9e7a5a"/>
+    <text x="18" y="269" font-family="'Outfit',sans-serif" font-size="14" fill="#2a2520" font-weight="500">Noise Gate</text>
+    <text x="18" y="288" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580">Threshold · Attack · Release</text>
+    <g transform="translate(260, 262)">
+      <rect x="0" y="0" width="160" height="2" fill="rgba(0,0,0,0.06)"/>
+      <rect x="0" y="0" width="110" height="2" fill="#9e7a5a"/>
+    </g>
+    <text x="470" y="269" text-anchor="end" font-family="'Outfit',sans-serif" font-size="9" fill="#9e7a5a">On</text>
+  </g>
+  
+  <!-- Tuner -->
+  <rect x="50" y="530" width="500" height="80" rx="10" fill="url(#card)" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+  <text x="70" y="555" font-family="'Outfit',sans-serif" font-size="9" fill="#8a8580" letter-spacing="1">TUNER</text>
+  <text x="300" y="580" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="38" fill="#2a2520" font-weight="400">A</text>
+  <text x="345" y="580" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">440.0 Hz</text>
+  <rect x="250" y="595" width="200" height="2" fill="rgba(0,0,0,0.06)"/>
+  <rect x="340" y="595" width="20" height="2" fill="#5a9e6f"/>
+  
+  <!-- Bottom nav -->
+  <rect x="35" y="1065" width="530" height="100" fill="#ffffff" rx="24" stroke="rgba(0,0,0,0.03)" stroke-width="1"/>
+  <g transform="translate(50, 1078)">
+    <rect x="0" y="0" width="96" height="74" rx="10" fill="#f5f2ee"/>
+    <text x="48" y="35" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="10" fill="#2a2520" font-weight="500">Effects</text>
+    <text x="48" y="55" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="8" fill="#8a8580">chain</text>
+    
+    <rect x="104" y="0" width="96" height="74" rx="10" fill="none"/>
+    <text x="152" y="35" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">Tuner</text>
+    
+    <rect x="208" y="0" width="96" height="74" rx="10" fill="none"/>
+    <text x="256" y="35" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">Match</text>
+    
+    <rect x="312" y="0" width="96" height="74" rx="10" fill="none"/>
+    <text x="360" y="35" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">Transcribe</text>
+    
+    <rect x="416" y="0" width="96" height="74" rx="10" fill="none"/>
+    <text x="464" y="35" text-anchor="middle" font-family="'Outfit',sans-serif" font-size="10" fill="#8a8580">Tools</text>
+  </g>
+</svg>
