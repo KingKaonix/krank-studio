@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KRANK STUDIO — Professional Guitar Effects for Android</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #0f0f23;
+  --bg-card: #1a1a3e;
+  --bg-soft: #15152e;
+  --cyan: #22d3ee;
+  --purple: #7c3aed;
+  --green: #22c55e;
+  --pink: #ec4899;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --glass: rgba(255,255,255,0.03);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Noise overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hero section */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  margin-bottom: 2rem;
+  background: rgba(34,211,238,0.08);
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 0%, #22d3ee 50%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+  letter-spacing: -2px;
+}
+
+.hero p {
+  font-size: 1.25rem;
+  color: var(--muted);
+  max-width: 600px;
+  margin-bottom: 2.5rem;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--purple), #2563eb);
+  border: none;
+  border-radius: 100px;
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(124,58,237,0.4);
+}
+
+.stats {
+  display: flex;
+  gap: 4rem;
+  margin-top: 4rem;
+  padding: 2rem;
+  border-radius: 16px;
+  background: var(--glass);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--cyan);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Sections */
+.section {
+  position: relative;
+  z-index: 1;
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  color: var(--cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  margin-bottom: 3rem;
+}
+
+/* Feature cards */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  padding: 2rem;
+  border-radius: 16px;
+  background: rgba(26,26,62,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.feature-card.dist::before { background: var(--red); }
+.feature-card.tuner::before { background: var(--cyan); }
+.feature-card.matcher::before { background: var(--green); }
+.feature-card.transcribe::before { background: var(--purple); }
+.feature-card.tab::before { background: var(--yellow); }
+.feature-card.looper::before { background: var(--pink); }
+.feature-card.midi::before { background: #14b8a6; }
+.feature-card.engine::before { background: #3b82f6; }
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.feature-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  margin-top: 1rem;
+  letter-spacing: 0.5px;
+}
+
+/* Screenshot mockup */
+.screenshots {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 4rem 0;
+}
+
+.screenshot-frame {
+  width: 280px;
+  padding: 1rem 1rem 1.5rem;
+  background: #1a1a2e;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.screenshot-display {
+  width: 100%;
+  aspect-ratio: 9/16;
+  background: linear-gradient(180deg, #15152e, #0f0f23);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.screenshot-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Comparison table */
+.comparison {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.comparison th {
+  padding: 1rem;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  background: rgba(255,255,255,0.03);
+}
+
+.comparison th:first-child { color: var(--muted); }
+.comparison th:nth-child(2) { color: var(--cyan); }
+.comparison th:nth-child(3) { color: var(--muted); }
+
+.comparison td {
+  padding: 0.85rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.9rem;
+}
+
+.comparison tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+
+.check { color: var(--green); }
+.cross { color: var(--red); }
+.warn { color: var(--yellow); }
+
+/* Download section */
+.download-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.download-card {
+  padding: 2rem;
+  border-radius: 16px;
+  background: rgba(26,26,62,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+}
+
+.download-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+}
+
+.download-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.download-btn {
+  display: inline-block;
+  padding: 12px 32px;
+  border-radius: 100px;
+  background: var(--purple);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.download-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124,58,237,0.3);
+}
+
+.download-btn.outline {
+  background: transparent;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+}
+
+/* Footer */
+.footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.footer a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .stats { flex-direction: column; gap: 1.5rem; align-items: center; }
+  .features-grid { grid-template-columns: 1fr; }
+  .section { padding: 3rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-badge">v1.6.0 — Now Available</div>
+  <h1>KRANK STUDIO</h1>
+  <p>The most powerful guitar effects processor and audio toolkit for Android. 8 studio effects, real-time transcription, MIDI control — all free.</p>
+  <a class="hero-cta" href="https://github.com/KingKaonix/krank-studio/releases/latest">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download for Android
+  </a>
+  <div class="stats">
+    <div><div class="stat-value">&lt;10ms</div><div class="stat-label">Latency</div></div>
+    <div><div class="stat-value">8</div><div class="stat-label">Studio Effects</div></div>
+    <div><div class="stat-value">12</div><div class="stat-label">Tuning Presets</div></div>
+    <div><div class="stat-value">3</div><div class="stat-label">Export Formats</div></div>
+    <div><div class="stat-value">$0</div><div class="stat-label">Price</div></div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section">
+  <p class="section-subtitle">FEATURES</p>
+  <h2 class="section-title">Everything you need to <span style="background:linear-gradient(135deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">KRANK</span></h2>
+  
+  <div class="features-grid">
+    <div class="feature-card dist">
+      <div class="feature-icon" style="background:rgba(239,68,68,0.15);color:var(--red)">⚡</div>
+      <h3>8 Effects Chain</h3>
+      <p>Distortion, Amp Sim, EQ, Chorus, Noise Gate, Compressor, Delay, and Reverb — each with independent bypass and precision sliders.</p>
+      <span class="feature-tag" style="background:rgba(239,68,68,0.12);color:var(--red)">LOW LATENCY</span>
+    </div>
+
+    <div class="feature-card tuner">
+      <div class="feature-icon" style="background:rgba(34,211,238,0.15);color:var(--cyan)">🎵</div>
+      <h3>Chromatic Tuner</h3>
+      <p>12 tuning presets with strobe-style display, cents needle indicator, and frequency readout. Tuner mute cuts dry signal for silent tuning.</p>
+      <span class="feature-tag" style="background:rgba(34,211,238,0.12);color:var(--cyan)">±1 CENT</span>
+    </div>
+
+    <div class="feature-card matcher">
+      <div class="feature-icon" style="background:rgba(34,197,94,0.15);color:var(--green)">🎯</div>
+      <h3>Tone Matcher</h3>
+      <p>Load any audio file — KRANK analyzes the spectral content and recommends optimal effect settings to match the target tone.</p>
+      <span class="feature-tag" style="background:rgba(34,197,94,0.12);color:var(--green)">FFT ANALYSIS</span>
+    </div>
+
+    <div class="feature-card transcribe">
+      <div class="feature-icon" style="background:rgba(168,85,247,0.15);color:var(--purple)">📝</div>
+      <h3>Song Transcriber</h3>
+      <p>Load a WAV or MP3 — YIN-based pitch detection transcribes audio into standard tablature with fret positions, string assignments, and timing.</p>
+      <span class="feature-tag" style="background:rgba(168,85,247,0.12);color:var(--purple)">POLYPHONIC</span>
+    </div>
+
+    <div class="feature-card tab">
+      <div class="feature-icon" style="background:rgba(245,158,11,0.15);color:var(--yellow)">📂</div>
+      <h3>Tab Import &amp; Export</h3>
+      <p>Open MIDI and MusicXML tab files directly. Export to MIDI, MusicXML, or ABC notation — compatible with Guitar Pro, MuseScore, and DAWs.</p>
+      <span class="feature-tag" style="background:rgba(245,158,11,0.12);color:var(--yellow)">3 FORMATS</span>
+    </div>
+
+    <div class="feature-card looper">
+      <div class="feature-icon" style="background:rgba(236,72,153,0.15);color:var(--pink)">🔄</div>
+      <h3>Looper + Metronome</h3>
+      <p>Record, play, overdub, and clear loop layers. Tap tempo metronome from 40-240 BPM. MIDI footswitch assignable for hands-free control.</p>
+      <span class="feature-tag" style="background:rgba(236,72,153,0.12);color:var(--pink)">HANDS-FREE</span>
+    </div>
+
+    <div class="feature-card midi">
+      <div class="feature-icon" style="background:rgba(20,184,166,0.15);color:#14b8a6">🎛️</div>
+      <h3>MIDI + BLE Control</h3>
+      <p>MIDI footswitch learn mode with effect bypass, tuner, and preset switching. Bluetooth LE foot controller scanning for wireless performance.</p>
+      <span class="feature-tag" style="background:rgba(20,184,166,0.12);color:#14b8a6">WIRELESS</span>
+    </div>
+
+    <div class="feature-card engine">
+      <div class="feature-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6">🔊</div>
+      <h3>Audio Engine</h3>
+      <p>Oboe exclusive mode with &lt;10ms round-trip latency. 48 kHz / 32-bit float processing. Convolution reverb with IR cab sim loading.</p>
+      <span class="feature-tag" style="background:rgba(59,130,246,0.12);color:#3b82f6">C++ OBOE</span>
+    </div>
+  </div>
+</section>
+
+<!-- Comparison -->
+<section class="section">
+  <p class="section-subtitle">COMPARISON</p>
+  <h2 class="section-title">Why KRANK STUDIO?</h2>
+  
+  <table class="comparison">
+    <tr>
+      <th>Feature</th>
+      <th>KRANK STUDIO</th>
+      <th>Guitar Pro Mobile</th>
+    </tr>
+    <tr><td>Live Effects Processing</td><td class="check">✓ 8 effects chain + IR cab sim</td><td class="cross">✗ No real-time effects</td></tr>
+    <tr><td>Chromatic Tuner</td><td class="check">✓ 12 presets, strobe display</td><td class="warn">⚠ Basic tuner only</td></tr>
+    <tr><td>Audio-to-Tab Transcription</td><td class="check">✓ YIN pitch detection engine</td><td class="cross">✗ No transcription</td></tr>
+    <tr><td>Tab Import</td><td class="check">✓ MIDI + MusicXML</td><td class="warn">⚠ Own format only</td></tr>
+    <tr><td>Tab Export</td><td class="check">✓ MIDI, MusicXML, ABC</td><td class="check">✓ GP format only</td></tr>
+    <tr><td>IR Cab Sim Loader</td><td class="check">✓ Convolution impulses</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>Looper Pedal</td><td class="check">✓ Record/overdub/clear</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>Metronome</td><td class="check">✓ Tap tempo 40-240 BPM</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>MIDI Footswitch</td><td class="check">✓ Learn mode</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>BLE Foot Controller</td><td class="check">✓ Wireless scanning</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>WAV Recording</td><td class="check">✓ 32-bit float</td><td class="cross">✗ Not available</td></tr>
+    <tr><td>Price</td><td class="check">✓ Free</td><td class="cross">✗ $12.99/month</td></tr>
+  </table>
+</section>
+
+<!-- Screenshots -->
+<section class="section">
+  <p class="section-subtitle">SCREENSHOTS</p>
+  <h2 class="section-title">Built for guitarists</h2>
+  
+  <div class="screenshots">
+    <div class="screenshot-frame">
+      <div class="screenshot-display" style="padding:1rem;gap:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan)">KRANK STUDIO</span>
+          <div style="display:flex;gap:4px;">
+            <div style="width:24px;height:12px;border-radius:3px;background:var(--green);opacity:0.5"></div>
+            <div style="width:24px;height:12px;border-radius:3px;background:var(--green);opacity:0.7"></div>
+            <div style="width:24px;height:12px;border-radius:3px;background:var(--yellow);opacity:0.5"></div>
+            <div style="width:24px;height:12px;border-radius:3px;background:var(--red);opacity:0.2"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;">
+          <div style="flex:1;border-radius:6px;border-left:3px solid var(--red);padding:4px 8px;background:rgba(255,255,255,0.03);">
+            <div style="font-size:10px;color:var(--red);font-weight:600">DISTORTION</div>
+            <div style="font-size:8px;color:var(--muted)">Drive · Tone · Level</div>
+            <div style="height:3px;width:60%;background:var(--red);border-radius:2px;margin-top:4px"></div>
+          </div>
+          <div style="flex:1;border-radius:6px;border-left:3px solid #14b8a6;padding:4px 8px;background:rgba(255,255,255,0.03);">
+            <div style="font-size:10px;color:#14b8a6;font-weight:600">AMP SIM</div>
+            <div style="height:3px;width:80%;background:#14b8a6;border-radius:2px;margin-top:4px"></div>
+          </div>
+          <div style="flex:1;border-radius:6px;border-left:3px solid #3b82f6;padding:4px 8px;background:rgba(255,255,255,0.03);">
+            <div style="font-size:10px;color:#3b82f6;font-weight:600">EQ</div>
+            <div style="height:3px;width:40%;background:#3b82f6;border-radius:2px;margin-top:4px"></div>
+          </div>
+          <div style="flex:1;border-radius:6px;border-left:3px solid var(--pink);padding:4px 8px;background:rgba(255,255,255,0.03);">
+            <div style="font-size:10px;color:var(--pink);font-weight:600">COMPRESSOR</div>
+            <div style="height:3px;width:55%;background:var(--pink);border-radius:2px;margin-top:4px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="screenshot-label">Channel Strip — Effects Chain</div>
+    </div>
+
+    <div class="screenshot-frame">
+      <div class="screenshot-display" style="padding:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:1rem;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan)">CHROMATIC TUNER</span>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;">
+          <div style="font-size:3rem;font-weight:800;color:var(--cyan);text-shadow:0 0 20px rgba(34,211,238,0.4)">A</div>
+          <div style="font-size:0.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace">440.0 Hz</div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <span style="font-size:0.6rem;color:var(--red)">-50¢</span>
+            <div style="width:80px;height:4px;background:#333;border-radius:2px;position:relative;">
+              <div style="position:absolute;left:45%;width:10px;height:6px;background:var(--green);border-radius:2px;top:-1px"></div>
+            </div>
+            <span style="font-size:0.6rem;color:var(--red)">+50¢</span>
+          </div>
+        </div>
+      </div>
+      <div class="screenshot-label">Chromatic Tuner — Strobe Display</div>
+    </div>
+
+    <div class="screenshot-frame">
+      <div class="screenshot-display" style="padding:1rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:1rem;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan)">TRANSCRIBER</span>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;line-height:1.4;">
+          <div style="color:var(--cyan)">e|--3--5--7--5--3--5--7--</div>
+          <div style="color:var(--muted)">B|---5--7--------7--5--7--</div>
+          <div style="color:var(--muted)">G|---4--6--7--6--4--------</div>
+          <div style="color:var(--muted)">D|--5-----7-----5--------</div>
+          <div style="color:var(--muted)">A|---5--7--8--7--5--------</div>
+          <div style="color:var(--muted)">E|--3-----5-----3--------</div>
+        </div>
+      </div>
+      <div class="screenshot-label">Transcriber — Tablature View</div>
+    </div>
+  </div>
+</section>
+
+<!-- Download -->
+<section class="section" style="text-align:center">
+  <p class="section-subtitle">DOWNLOAD</p>
+  <h2 class="section-title">Get KRANK STUDIO</h2>
+  <p style="color:var(--muted);font-size:1.1rem;margin-bottom:2rem;">Free. No subscriptions. No microtransactions. Just great tone.</p>
+  
+  <div class="download-grid">
+    <div class="download-card">
+      <h3>Latest Release</h3>
+      <p>Download the latest stable APK directly from GitHub Releases.</p>
+      <a class="download-btn" href="https://github.com/KingKaonix/krank-studio/releases/latest">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download APK
+      </a>
+    </div>
+    <div class="download-card">
+      <h3>Build from Source</h3>
+      <p>Clone the repository and build with Gradle + NDK 27.</p>
+      <a class="download-btn outline" href="https://github.com/KingKaonix/krank-studio">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        GitHub Repository
+      </a>
+    </div>
+    <div class="download-card">
+      <h3>Nightly Build</h3>
+      <p>Get the latest development build from Actions artifacts.</p>
+      <a class="download-btn outline" href="https://github.com/KingKaonix/krank-studio/actions/workflows/build.yml">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Action Builds
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>Built by real guitarists, for real guitarists.</p>
+  <p style="margin-top:0.5rem">
+    <a href="https://github.com/KingKaonix/krank-studio">GitHub</a> ·
+    <a href="https://github.com/KingKaonix/krank-studio/releases">Releases</a> ·
+    <a href="https://github.com/KingKaonix/krank-studio/blob/main/LICENSE">MIT License</a>
+  </p>
+  <p style="margin-top:0.5rem;font-size:0.75rem">KRANK STUDIO v1.6.0</p>
+</footer>
+
+</body>
+</html>

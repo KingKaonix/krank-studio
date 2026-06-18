@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23"/>
+      <stop offset="100%" style="stop-color:#1a1a3e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="100%" style="stop-color:#22d3ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#bg)"/>
+  
+  <!-- Header -->
+  <text x="600" y="80" text-anchor="middle" font-family="sans-serif" font-size="52" fill="#fff" font-weight="bold">KRANK STUDIO</text>
+  <text x="600" y="120" text-anchor="middle" font-family="monospace" font-size="14" fill="#22d3ee" letter-spacing="4">PROFESSIONAL GUITAR PROCESSOR FOR ANDROID</text>
+  
+  <!-- Feature grid -->
+  <g transform="translate(40, 160)">
+    <!-- Row 1 -->
+    <rect x="0" y="0" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#ef4444" stroke-width="1"/>
+    <circle cx="30" cy="30" r="8" fill="#ef4444" opacity="0.3"/>
+    <circle cx="30" cy="30" r="4" fill="#ef4444"/>
+    <text x="50" y="34" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">8 Effects Chain</text>
+    <text x="20" y="60" font-family="sans-serif" font-size="13" fill="#aaa">Distortion, Amp Sim, EQ, Chorus,</text>
+    <text x="20" y="80" font-family="sans-serif" font-size="13" fill="#aaa">Noise Gate, Compressor, Delay, Reverb</text>
+    <text x="20" y="105" font-family="monospace" font-size="11" fill="#ef4444">Independent bypass · Precision sliders</text>
+    
+    <rect x="380" y="0" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#22d3ee" stroke-width="1"/>
+    <circle cx="410" cy="30" r="8" fill="#22d3ee" opacity="0.3"/>
+    <circle cx="410" cy="30" r="4" fill="#22d3ee"/>
+    <text x="430" y="34" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Chromatic Tuner</text>
+    <text x="400" y="60" font-family="sans-serif" font-size="13" fill="#aaa">12 tuning presets ±1 cent accuracy</text>
+    <text x="400" y="80" font-family="sans-serif" font-size="13" fill="#aaa">Strobe display with needle meter</text>
+    <text x="400" y="105" font-family="monospace" font-size="11" fill="#22d3ee">Tuner mute · Frequency readout</text>
+
+    <rect x="760" y="0" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#22c55e" stroke-width="1"/>
+    <circle cx="790" cy="30" r="8" fill="#22c55e" opacity="0.3"/>
+    <circle cx="790" cy="30" r="4" fill="#22c55e"/>
+    <text x="810" y="34" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Tone Matcher</text>
+    <text x="780" y="60" font-family="sans-serif" font-size="13" fill="#aaa">Load WAV/MP3 — KRANK analyzes and</text>
+    <text x="780" y="80" font-family="sans-serif" font-size="13" fill="#aaa">recommends optimal effect settings</text>
+    <text x="780" y="105" font-family="monospace" font-size="11" fill="#22c55e">Spectral comparison engine</text>
+
+    <!-- Row 2 -->
+    <rect x="0" y="150" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#a855f7" stroke-width="1"/>
+    <circle cx="30" cy="180" r="8" fill="#a855f7" opacity="0.3"/>
+    <circle cx="30" cy="180" r="4" fill="#a855f7"/>
+    <text x="50" y="184" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Song Transcriber</text>
+    <text x="20" y="210" font-family="sans-serif" font-size="13" fill="#aaa">Audio → tablature with fret positions,</text>
+    <text x="20" y="230" font-family="sans-serif" font-size="13" fill="#aaa">string assignments, and timing</text>
+    <text x="20" y="255" font-family="monospace" font-size="11" fill="#a855f7">YIN pitch detection · Polyphonic mode</text>
+
+    <rect x="380" y="150" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#f59e0b" stroke-width="1"/>
+    <circle cx="410" cy="180" r="8" fill="#f59e0b" opacity="0.3"/>
+    <circle cx="410" cy="180" r="4" fill="#f59e0b"/>
+    <text x="430" y="184" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Tab Import / Export</text>
+    <text x="400" y="210" font-family="sans-serif" font-size="13" fill="#aaa">MIDI + MusicXML import with playback</text>
+    <text x="400" y="230" font-family="sans-serif" font-size="13" fill="#aaa">Export to MIDI, MusicXML, ABC notation</text>
+    <text x="400" y="255" font-family="monospace" font-size="11" fill="#f59e0b">Guitar Pro · MuseScore · DAW compatible</text>
+
+    <rect x="760" y="150" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#ec4899" stroke-width="1"/>
+    <circle cx="790" cy="180" r="8" fill="#ec4899" opacity="0.3"/>
+    <circle cx="790" cy="180" r="4" fill="#ec4899"/>
+    <text x="810" y="184" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Looper + Metronome</text>
+    <text x="780" y="210" font-family="sans-serif" font-size="13" fill="#aaa">Record, play, overdub, clear loops</text>
+    <text x="780" y="230" font-family="sans-serif" font-size="13" fill="#aaa">Tap tempo metronome 40-240 BPM</text>
+    <text x="780" y="255" font-family="monospace" font-size="11" fill="#ec4899">MIDI footswitch assignable</text>
+
+    <!-- Row 3 -->
+    <rect x="0" y="300" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#14b8a6" stroke-width="1"/>
+    <circle cx="30" cy="330" r="8" fill="#14b8a6" opacity="0.3"/>
+    <circle cx="30" cy="330" r="4" fill="#14b8a6"/>
+    <text x="50" y="334" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">MIDI + BLE Foot Control</text>
+    <text x="20" y="360" font-family="sans-serif" font-size="13" fill="#aaa">MIDI footswitch learn mode + mapping</text>
+    <text x="20" y="380" font-family="sans-serif" font-size="13" fill="#aaa">Bluetooth LE foot controller scanning</text>
+    <text x="20" y="405" font-family="monospace" font-size="11" fill="#14b8a6">Wireless live performance</text>
+
+    <rect x="380" y="300" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#3b82f6" stroke-width="1"/>
+    <circle cx="410" cy="330" r="8" fill="#3b82f6" opacity="0.3"/>
+    <circle cx="410" cy="330" r="4" fill="#3b82f6"/>
+    <text x="430" y="334" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Audio Engine</text>
+    <text x="400" y="360" font-family="sans-serif" font-size="13" fill="#aaa">&lt; 10ms round-trip latency (Oboe exklusive)</text>
+    <text x="400" y="380" font-family="sans-serif" font-size="13" fill="#aaa">48 kHz / 32-bit float processing</text>
+    <text x="400" y="405" font-family="monospace" font-size="11" fill="#3b82f6">Convolution reverb · IR cab sim</text>
+
+    <rect x="760" y="300" width="350" height="130" rx="16" fill="#1e1e3a" stroke="#f97316" stroke-width="1"/>
+    <circle cx="790" cy="330" r="8" fill="#f97316" opacity="0.3"/>
+    <circle cx="790" cy="330" r="4" fill="#f97316"/>
+    <text x="810" y="334" font-family="sans-serif" font-size="18" fill="#fff" font-weight="bold">Recording + Monitoring</text>
+    <text x="780" y="360" font-family="sans-serif" font-size="13" fill="#aaa">32-bit float WAV recording</text>
+    <text x="780" y="380" font-family="sans-serif" font-size="13" fill="#aaa">Headphone monitoring with zero latency</text>
+    <text x="780" y="405" font-family="monospace" font-size="11" fill="#f97316">WAV · MP3 · AAC · OGG · FLAC support</text>
+  </g>
+
+  <!-- Bottom bar -->
+  <rect x="0" y="730" width="1200" height="70" fill="#111" opacity="0.5"/>
+  <text x="600" y="770" text-anchor="middle" font-family="monospace" font-size="13" fill="#666" letter-spacing="2">FREE · OPEN SOURCE · NO SUBSCRIPTIONS · NO MICROTRANSACTIONS</text>
+</svg>

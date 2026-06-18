@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23"/>
+      <stop offset="100%" style="stop-color:#1a1a3e"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="700" fill="url(#bg)"/>
+  
+  <text x="450" y="50" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#fff" font-weight="bold">KRANK STUDIO vs GUITAR PRO</text>
+  <text x="450" y="78" text-anchor="middle" font-family="monospace" font-size="12" fill="#666">Why KRANK STUDIO is the superior choice</text>
+
+  <!-- KRANK header -->
+  <rect x="50" y="100" width="390" height="40" rx="8" fill="#22d3ee"/>
+  <text x="245" y="126" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#000" font-weight="bold">KRANK STUDIO</text>
+  
+  <!-- Guitar Pro header -->
+  <rect x="460" y="100" width="390" height="40" rx="8" fill="#333"/>
+  <text x="655" y="126" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#888" font-weight="bold">Guitar Pro Mobile</text>
+
+  <!-- Feature rows -->
+  <g transform="translate(50, 160)" font-family="sans-serif" font-size="13">
+    <!-- Row template -->
+    <rect x="0" y="0" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="23" fill="#22c55e">✓</text>
+    <text x="36" y="23" fill="#ccc">Live 8-effects processing</text>
+    <rect x="410" y="0" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="23" fill="#ef4444">✗</text>
+    <text x="446" y="23" fill="#666">No real-time effects</text>
+
+    <rect x="0" y="42" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="65" fill="#22c55e">✓</text>
+    <text x="36" y="65" fill="#ccc">Chromatic tuner (12 presets)</text>
+    <rect x="410" y="42" width="390" height="36" rx="4" fill="#eab308" opacity="0.15"/>
+    <text x="426" y="65" fill="#eab308">⚠</text>
+    <text x="446" y="65" fill="#666">Basic tuner only</text>
+
+    <rect x="0" y="84" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="107" fill="#22c55e">✓</text>
+    <text x="36" y="107" fill="#ccc">Audio-to-tab transcription</text>
+    <rect x="410" y="84" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="107" fill="#ef4444">✗</text>
+    <text x="446" y="107" fill="#666">No audio transcription</text>
+
+    <rect x="0" y="126" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="149" fill="#22c55e">✓</text>
+    <text x="36" y="149" fill="#ccc">Tab import (MIDI + MusicXML)</text>
+    <rect x="410" y="126" width="390" height="36" rx="4" fill="#eab308" opacity="0.15"/>
+    <text x="426" y="149" fill="#eab308">⚠</text>
+    <text x="446" y="149" fill="#666">Own format only</text>
+
+    <rect x="0" y="168" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="191" fill="#22c55e">✓</text>
+    <text x="36" y="191" fill="#ccc">Multi-format export (MIDI, XML, ABC)</text>
+    <rect x="410" y="168" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="426" y="191" fill="#22c55e">✓</text>
+    <text x="446" y="191" fill="#ccc">GP format export</text>
+
+    <rect x="0" y="210" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="233" fill="#22c55e">✓</text>
+    <text x="36" y="233" fill="#ccc">IR cab sim loader</text>
+    <rect x="410" y="210" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="233" fill="#ef4444">✗</text>
+    <text x="446" y="233" fill="#666">No cab simulation</text>
+
+    <rect x="0" y="252" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="275" fill="#22c55e">✓</text>
+    <text x="36" y="275" fill="#ccc">Looper pedal</text>
+    <rect x="410" y="252" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="275" fill="#ef4444">✗</text>
+    <text x="446" y="275" fill="#666">No looper</text>
+
+    <rect x="0" y="294" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="317" fill="#22c55e">✓</text>
+    <text x="36" y="317" fill="#ccc">Metronome with tap tempo</text>
+    <rect x="410" y="294" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="317" fill="#ef4444">✗</text>
+    <text x="446" y="317" fill="#666">No metronome</text>
+
+    <rect x="0" y="336" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="359" fill="#22c55e">✓</text>
+    <text x="36" y="359" fill="#ccc">MIDI footswitch support</text>
+    <rect x="410" y="336" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="359" fill="#ef4444">✗</text>
+    <text x="446" y="359" fill="#666">No MIDI hardware support</text>
+
+    <rect x="0" y="378" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="401" fill="#22c55e">✓</text>
+    <text x="36" y="401" fill="#ccc">BLE foot controller</text>
+    <rect x="410" y="378" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="401" fill="#ef4444">✗</text>
+    <text x="446" y="401" fill="#666">No wireless control</text>
+
+    <rect x="0" y="420" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="443" fill="#22c55e">✓</text>
+    <text x="36" y="443" fill="#ccc">WAV recording (32-bit float)</text>
+    <rect x="410" y="420" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="443" fill="#ef4444">✗</text>
+    <text x="446" y="443" fill="#666">No audio recording</text>
+
+    <rect x="0" y="462" width="390" height="36" rx="4" fill="#22c55e" opacity="0.15"/>
+    <text x="16" y="485" fill="#22c55e">✓</text>
+    <text x="36" y="485" fill="#ccc">Free</text>
+    <rect x="410" y="462" width="390" height="36" rx="4" fill="#ef4444" opacity="0.15"/>
+    <text x="426" y="485" fill="#ef4444">✗</text>
+    <text x="446" y="485" fill="#666">$12.99/month subscription</text>
+  </g>
+
+  <!-- Bottom CTA -->
+  <rect x="250" y="640" width="400" height="44" rx="22" fill="#7c3aed"/>
+  <text x="450" y="668" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#fff" font-weight="bold">Download KRANK STUDIO — Free</text>
+</svg>
